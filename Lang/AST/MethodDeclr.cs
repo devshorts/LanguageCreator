@@ -8,7 +8,7 @@ namespace Lang.AST
 {
     public class MethodDeclr : Ast
     {
-        public MethodDeclr(Token token, Token returnType, Token funcName, List<ArgumentDeclr> arguments, List<Ast> body)
+        public MethodDeclr(Token token, Token returnType, Token funcName, List<Ast> arguments, List<Ast> body)
             : base(token)
         {
             AddChild(new Expr(returnType));
@@ -25,7 +25,7 @@ namespace Lang.AST
             }
         }
 
-        public MethodDeclr(Token token, Token returnType, Token funcName, List<ArgumentDeclr> arguments, Ast body)
+        public MethodDeclr(Token token, Token returnType, Token funcName, List<Ast> arguments, Ast body)
             : this(token, returnType, funcName, arguments, new List<Ast>{body} )
         {
             

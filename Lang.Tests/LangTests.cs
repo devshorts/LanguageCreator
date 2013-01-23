@@ -88,7 +88,8 @@ namespace Lang.Tests
             var test = @"void foo(int x, int y){ 
                             int x = 1; 
                             fun() -> { 
-                                zinger = ""your mom!"" 
+                                zinger = ""your mom!"";
+                                someThing();
                             }
                         }
 
@@ -97,6 +98,15 @@ namespace Lang.Tests
                         int testFunction(){
                             var p = 23;
                         }";
+
+            var ast = new Parser(new Tokenizer(test)).Parse();
+
+        }
+
+        [Test]
+        public void FunctionInvokeTest()
+        {
+            var test = @"test(a, 1 + 2);";
 
             var ast = new Parser(new Tokenizer(test)).Parse();
 

@@ -67,6 +67,11 @@ namespace Lang
                 return null;
             }
 
+            if (IsFunctionCall())
+            {
+                return FunctionCall();
+            }
+
             if (IsVariableDeclarationWithAssignment(Current))
             {
                 return VariableDeclarationAndAssignment();
@@ -79,7 +84,11 @@ namespace Lang
 
             if (IsVariableDeclaration(Current))
             {
-                return VariableDeclaration();
+                var declr = VariableDeclaration();
+
+                Take(TokenType.SemiColon);
+
+                return declr;
             }
 
             if (IsLambda(Current))
@@ -110,6 +119,27 @@ namespace Lang
             }
         }
 
+        private bool IsFunctionCall()
+        {
+            if (Current.TokenType == TokenType.Word)
+            {
+                return Alt(() => FunctionCall());
+            }
+
+            return false;
+        }
+
+        private Ast FunctionCall()
+        {
+            var name = Take(TokenType.Word);
+
+            var args = ArgumentList();
+
+            Take(TokenType.SemiColon);
+
+            return new FuncInvoke(name, args);
+        }
+
         private Ast ParseStringBranches()
         {
             if (EndOfStatement(Peek(1)))
@@ -130,8 +160,14 @@ namespace Lang
             Take(TokenType.DeRef);
             Take(TokenType.LBracket);
 
+            var lines = new List<Ast>();
+            while (Current.TokenType != TokenType.RBracket)
+            {
+                lines.Add(InnerExpression());
+            }
+
             var method = new MethodDeclr(new Token(TokenType.Fun), new Token(TokenType.Void),
-                                         new Token(TokenType.Word, "anonymous"), null, InnerExpression());
+                                         new Token(TokenType.Word, "anonymous"), null, lines);
 
             Take(TokenType.RBracket);
 
@@ -172,7 +208,7 @@ namespace Lang
             // func name
             var funcName = Take(TokenType.Word);
 
-            var argList = ArgumentList();
+            var argList = ArgumentList(true);
 
             Take(TokenType.LBracket);
 
@@ -188,23 +224,17 @@ namespace Lang
             return new MethodDeclr(new Token(TokenType.ScopeStart), returnType, funcName, argList, innerExpressions);
         }
 
-        private List<ArgumentDeclr> ArgumentList()
+        private List<Ast> ArgumentList(bool includeType = false)
         {
             Take(TokenType.OpenParenth);
 
-            var args = new List<ArgumentDeclr>(64);
+            var args = new List<Ast>(64);
 
             while (Current.TokenType != TokenType.CloseParenth)
             {
-                if (!IsValidItemType(Current))
-                {
-                    throw new InvalidSyntax("Invalid argument type");
-                }
+                var argument = includeType ? VariableDeclaration() : InnerExpression();
 
-                var returnType = Take(Current.TokenType);
-                var argumentName = Take(TokenType.Word);
-
-                args.Add(new ArgumentDeclr(returnType, argumentName));
+                args.Add(argument);
 
                 if (Current.TokenType == TokenType.Comma)
                 {
@@ -233,8 +263,6 @@ namespace Lang
             var type = Take(Current.TokenType);
 
             var name = Take(TokenType.Word);
-
-            Take(TokenType.SemiColon);
 
             return new VarDeclrAst(type, name);
         }
@@ -287,6 +315,7 @@ namespace Lang
         {
             return item.TokenType == TokenType.SemiColon || 
                    item.TokenType == TokenType.RBracket ||
+                   item.TokenType == TokenType.Comma || 
                    item.TokenType == TokenType.CloseParenth;
         }
 
@@ -330,8 +359,8 @@ namespace Lang
                 case TokenType.Int:
                     return  Alt(() =>
                         {
-                            Take(Current.TokenType);
-                            Take(TokenType.Word);
+                            VariableDeclaration();
+
                             Take(TokenType.SemiColon);
                        });
             }
