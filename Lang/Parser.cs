@@ -67,33 +67,16 @@ namespace Lang
                 return null;
             }
 
-            if (IsFunctionCall())
+            var functionAst = FunctionAst();
+            if (functionAst != null)
             {
-                return FunctionCall();
+                return functionAst;
             }
 
-            if (IsVariableDeclarationWithAssignment(Current))
+            var variableAst = VariableAssignAndDeclrAst();
+            if (variableAst != null)
             {
-                return VariableDeclarationAndAssignment();
-            }
-
-            if (IsVariableAssignment(Current))
-            {
-                return VariableAssignment();
-            }
-
-            if (IsVariableDeclaration(Current))
-            {
-                var declr = VariableDeclaration();
-
-                Take(TokenType.SemiColon);
-
-                return declr;
-            }
-
-            if (IsLambda(Current))
-            {
-                return Lambda();
+                return variableAst;
             }
 
             switch (Current.TokenType)
@@ -117,6 +100,45 @@ namespace Lang
                 default:
                     throw new InvalidSyntax(String.Format("Unknown expression type {0} - {1}", Current.TokenType, Current.TokenValue));
             }
+        }
+
+        private Ast VariableAssignAndDeclrAst()
+        {
+            if (IsVariableDeclarationWithAssignment(Current))
+            {
+                return VariableDeclarationAndAssignment();
+            }
+
+            if (IsVariableAssignment(Current))
+            {
+                return VariableAssignment();
+            }
+
+            if (IsVariableDeclaration(Current))
+            {
+                var declr = VariableDeclaration();
+
+                Take(TokenType.SemiColon);
+
+                return declr;
+            }
+
+            return null;
+        }
+
+        private Ast FunctionAst()
+        {
+            if (IsFunctionCall())
+            {
+                return FunctionCall();
+            }
+
+            if (IsLambda(Current))
+            {
+                return Lambda();
+            }
+
+            return null;
         }
 
         private bool IsFunctionCall()
@@ -338,13 +360,7 @@ namespace Lang
                 case TokenType.Void:
                 case TokenType.Word:
                 case TokenType.Int:
-                    return  Alt(() =>
-                        {
-                            Take(Current.TokenType);
-                            Take(TokenType.Word);
-                            Take(TokenType.Equals);
-                            InnerExpression();
-                       });
+                    return  Alt(() => VariableDeclarationAndAssignment());
             }
 
             return false;
@@ -374,12 +390,7 @@ namespace Lang
             {
                 case TokenType.Word:
                     return
-                        Alt(() =>
-                            {
-                                Take(Current.TokenType);
-                                Take(TokenType.Equals);
-                                InnerExpression();
-                            });
+                        Alt(() => VariableAssignment());
             }
 
             return false;

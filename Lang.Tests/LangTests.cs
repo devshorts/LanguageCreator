@@ -89,7 +89,7 @@ namespace Lang.Tests
                             int x = 1; 
                             fun() -> { 
                                 zinger = ""your mom!"";
-                                someThing();
+                                someThing(1, 2, fun() -> { x + 1;});
                             }
                         }
 
@@ -100,7 +100,6 @@ namespace Lang.Tests
                         }";
 
             var ast = new Parser(new Tokenizer(test)).Parse();
-
         }
 
         [Test]
