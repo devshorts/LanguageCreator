@@ -104,7 +104,12 @@ namespace Lang.Tests
                             var p = 23;
                         }";
 
-            var ast = new Parser(new Tokenizer(test)).Parse();
+            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            Assert.IsTrue(ast.ScopedStatements.Count == 3);
+            Assert.IsTrue(ast.ScopedStatements[0] is MethodDeclr);
+            Assert.IsTrue(ast.ScopedStatements[1] is Expr);
+            Assert.IsTrue(ast.ScopedStatements[2] is MethodDeclr);
         }
 
         [Test]
