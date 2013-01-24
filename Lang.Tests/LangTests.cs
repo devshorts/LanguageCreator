@@ -31,10 +31,12 @@ namespace Lang.Tests
         {
             var test = @"x = 1;";
 
-            var ast = new Parser(new Tokenizer(test)).Parse();
+            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            Assert.IsTrue(ast.Children[0].Children[0].Token.TokenType == TokenType.Word);
-            Assert.IsTrue(ast.Children[0].Children[1].Token.TokenType == TokenType.Word);
+            var expr = (ast.ScopedStatements[0] as Expr);
+
+            Assert.IsTrue(expr.Left.Token.TokenType == TokenType.Word);
+            Assert.IsTrue(expr.Right.Token.TokenType == TokenType.Word);
             Assert.IsTrue(ast.Token.TokenType == TokenType.ScopeStart);
         }
 
@@ -43,12 +45,15 @@ namespace Lang.Tests
         {
             var test = @"x = 1 + 2;";
 
-            var ast = new Parser(new Tokenizer(test)).Parse();
+            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            Assert.IsTrue(ast.Children[0].Children[0].Token.TokenType == TokenType.Word);
-            Assert.IsTrue(ast.Children[0].Children[1].Children[0].Token.TokenType == TokenType.Word);
-            Assert.IsTrue(ast.Children[0].Children[1].Children[1].Token.TokenType == TokenType.Word);
-            Assert.IsTrue(ast.Children[0].Children[1].Token.TokenType == TokenType.Plus);
+            var expr = (ast.ScopedStatements[0] as Expr);
+
+            Assert.IsTrue(expr.Left.Token.TokenType == TokenType.Word);
+            Assert.IsTrue((expr.Right as Expr).Left.Token.TokenValue == "1");
+            Assert.IsTrue((expr.Right as Expr).Right.Token.TokenValue == "2");
+            Assert.IsTrue((expr.Right as Expr).Token.TokenValue == "+");
+            Assert.IsTrue((expr.Right as Expr).Token.TokenType == TokenType.Plus);
         }
 
         [Test]
@@ -60,12 +65,12 @@ namespace Lang.Tests
                         }
                         x = 1 + 2 ^ (5-7);";
 
-            var ast = new Parser(new Tokenizer(test)).Parse();
+            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            Assert.IsTrue(ast.Children.Count == 3);
-            Assert.IsTrue(ast.Children[0] is VarDeclrAst);
-            Assert.IsTrue(ast.Children[1].Token.TokenType == TokenType.ScopeStart);
-            Assert.IsTrue(ast.Children[2] is Expr);
+            Assert.IsTrue(ast.ScopedStatements.Count == 3);
+            Assert.IsTrue(ast.ScopedStatements[0] is VarDeclrAst);
+            Assert.IsTrue(ast.ScopedStatements[1].Token.TokenType == TokenType.ScopeStart);
+            Assert.IsTrue(ast.ScopedStatements[2] is Expr);
         }
 
         [Test]

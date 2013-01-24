@@ -8,27 +8,24 @@ namespace Lang.AST
 {
     public class MethodDeclr : Ast
     {
+        public Ast MethodName { get; private set; }
+
+        public Ast MethodReturnType { get; private set; }
+
+        public List<Ast> Arguments { get; private set; }
+
+        public List<Ast> BodyStatements { get; private set; } 
+
         public MethodDeclr(Token token, Token returnType, Token funcName, List<Ast> arguments, List<Ast> body)
             : base(token)
         {
-            AddChild(new Expr(returnType));
-            AddChild(new Expr(funcName));
+            MethodReturnType = new Expr(returnType);
 
-            if (!CollectionUtil.IsNullOrEmpty(arguments))
-            {
-                arguments.ForEach(AddChild);
-            }
+            MethodReturnType = new Expr(funcName);
 
-            if (!CollectionUtil.IsNullOrEmpty(body))
-            {
-                body.ForEach(AddChild);
-            }
-        }
+            Arguments = arguments;
 
-        public MethodDeclr(Token token, Token returnType, Token funcName, List<Ast> arguments, Ast body)
-            : this(token, returnType, funcName, arguments, new List<Ast>{body} )
-        {
-            
+            BodyStatements = body;
         }
     }
 }

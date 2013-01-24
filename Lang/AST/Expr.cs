@@ -8,6 +8,10 @@ namespace Lang.AST
 {
     public class Expr : Ast
     {
+        public Ast Left { get; private set; }
+
+        public Ast Right { get; private set; }
+
         public Expr(Token token) : base(token)
         {
         }
@@ -15,8 +19,8 @@ namespace Lang.AST
         public Expr(Ast left, Token token, Ast right)
             : base(token)
         {
-            AddChild(left);
-            AddChild(right);
+            Left = left;
+            Right = right;
         }
     }
 }

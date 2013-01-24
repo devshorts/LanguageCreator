@@ -6,14 +6,13 @@ using Lang.Data;
 
 namespace Lang.AST
 {
-    class ScopeDeclr : Ast
+    public class ScopeDeclr : Ast
     {
-        public ScopeDeclr(ICollection<Ast> statements) : base(new Token(TokenType.ScopeStart))
+        public List<Ast> ScopedStatements { get; private set; } 
+
+        public ScopeDeclr(List<Ast> statements) : base(new Token(TokenType.ScopeStart))
         {
-            if (!CollectionUtil.IsNullOrEmpty(statements))
-            {
-                statements.ForEach(AddChild);
-            }
+            ScopedStatements = statements;
         }
     }
 }
