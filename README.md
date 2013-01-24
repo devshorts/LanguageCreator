@@ -15,18 +15,18 @@ Though, I may just leave it simple and add the other stuff later. As an example,
 public void FunctionTest()
 {
     var test = @"void foo(int x, int y){ 
-                    int x = 1; 
-                    fun() -> { 
-                        zinger = ""your mom!"";
-                        someThing();
-                    }
-                }
+                int x = 1; 
+                var z = fun() -> { 
+                    zinger = ""your mom!"";
+                    someThing(a + b) + 25 - (""test"" + 5);
+                };
+            }
 
-                z = 3;
+            z = 3;
 
-                int testFunction(){
-                    var p = 23;
-                }";
+            int testFunction(){
+                var p = 23;
+            }";
 
     var ast = new Parser(new Tokenizer(test)).Parse();
 
