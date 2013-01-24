@@ -5,6 +5,7 @@ using System.Text;
 using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;
+using Lang.Utils;
 
 namespace Lang
 {
@@ -17,48 +18,58 @@ namespace Lang
 
         public Ast Parse()
         {
-            var root = new Expr(new Token(TokenType.ScopeStart));
+            var statements = GetStatements(() => Current == null);
 
-            GetStatements(root, () => Current == null);
-
-            return root;
+            return new ScopeDeclr(statements);
         }
 
-        private void GetStatements(Ast parent, Func<Boolean> end)
+        /// <summary>
+        /// List of statements in the main program body
+        /// </summary>
+        /// <param name="parent"></param>
+        /// <param name="end"></param>
+        private List<Ast> GetStatements(Func<Boolean> end)
         {
+            var aggregate = new List<Ast>(1024);
+
             while (!end())
             {
                 if (Current.TokenType == TokenType.LBracket)
                 {
                     Take(TokenType.LBracket);
 
-                    var scopeStart = new Expr(new Token(TokenType.ScopeStart));
-
-                    GetStatements(scopeStart, () => Current.TokenType == TokenType.RBracket);
+                    var statements = GetStatements(() => Current.TokenType == TokenType.RBracket);
 
                     Take(TokenType.RBracket);
 
-                    parent.AddChild(scopeStart);
+                    aggregate.Add(new ScopeDeclr(statements));
                 }
-                else
-                {
-                    parent.AddChild(OuterExpression());
-                }
+
+                aggregate.Add(MainStatement());
             }
 
+            return aggregate;
         }
 
-        private Ast OuterExpression()
+        /// <summary>
+        /// Method declaration or regular statement
+        /// </summary>
+        /// <returns></returns>
+        private Ast MainStatement()
         {
             if (IsMethodDeclaration(Current))
             {
                 return MethodDeclaration();
             }
 
-            return InnerExpression();
+            return Statement();
         }
 
-        private Ast InnerExpression()
+        /// <summary>
+        /// A statement inside of a valid scope 
+        /// </summary>
+        /// <returns></returns>
+        private Ast Statement()
         {
             if (Current.TokenType == TokenType.SemiColon)
             {
@@ -67,38 +78,43 @@ namespace Lang
                 return null;
             }
 
-            var functionAst = FunctionAst();
-            if (functionAst != null)
+            var ast = ScopeStart().Or(FunctionCallOrLambdaAst)
+                                  .Or(VariableAssignAndDeclrAst)
+                                  .Or(OperationExpression);
+                                         
+            if (ast != null)
             {
-                return functionAst;
+                return ast;
             }
 
-            var variableAst = VariableAssignAndDeclrAst();
-            if (variableAst != null)
+            throw new InvalidSyntax(String.Format("Unknown expression type {0} - {1}", Current.TokenType, Current.TokenValue));
+        }
+
+        private Ast ScopeStart()
+        {
+            if (Current.TokenType == TokenType.LBracket)
             {
-                return variableAst;
+                var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+
+                return new ScopeDeclr(statements);
             }
 
+            return null;
+        }
+
+        private Ast OperationExpression()
+        {
             switch (Current.TokenType)
             {
                 case TokenType.QuotedString:
-                    return ParseStringBranches();
+                case TokenType.Word:
+                    return ParseBranches(Current.TokenType);
 
-                case TokenType.Word: 
-                    return ParseWordBranches();
-
-                case TokenType.OpenParenth: 
-
-                    Take(TokenType.OpenParenth);
-
-                    var expression = InnerExpression();
-
-                    Take(TokenType.CloseParenth);
-
-                    return expression;
+                case TokenType.OpenParenth:
+                    return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth).FirstOrDefault();
 
                 default:
-                    throw new InvalidSyntax(String.Format("Unknown expression type {0} - {1}", Current.TokenType, Current.TokenValue));
+                    return null;
             }
         }
 
@@ -126,7 +142,7 @@ namespace Lang
             return null;
         }
 
-        private Ast FunctionAst()
+        private Ast FunctionCallOrLambdaAst()
         {
             if (IsFunctionCall())
             {
@@ -162,17 +178,31 @@ namespace Lang
             return new FuncInvoke(name, args);
         }
 
-        private Ast ParseStringBranches()
+        private Ast ParseBranches(TokenType tokenType)
         {
             if (EndOfStatement(Peek(1)))
             {
                 return ConsumeFinalExpression();
             }
 
-            var expr = new Expr(new Expr(Take(TokenType.QuotedString)), TakeOperator(), InnerExpression());
+            var expr = new Expr(new Expr(Take(tokenType)), TakeOperator(), Statement());
 
             return expr;
         }
+
+        private List<Ast> GetExpressionsInScope(TokenType open, TokenType close)
+        {
+            Take(open);
+            var lines = new List<Ast>();
+            while (Current.TokenType != close)
+            {
+                lines.Add(Statement());
+            }
+
+            Take(close);
+
+            return lines;
+        } 
 
         private Ast Lambda()
         {
@@ -180,25 +210,19 @@ namespace Lang
             Take(TokenType.OpenParenth);
             Take(TokenType.CloseParenth);
             Take(TokenType.DeRef);
-            Take(TokenType.LBracket);
 
-            var lines = new List<Ast>();
-            while (Current.TokenType != TokenType.RBracket)
-            {
-                lines.Add(InnerExpression());
-            }
+            var lines = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
             var method = new MethodDeclr(new Token(TokenType.Fun), new Token(TokenType.Void),
                                          new Token(TokenType.Word, "anonymous"), null, lines);
 
-            Take(TokenType.RBracket);
 
             return method;
         }
 
         private bool IsMethodDeclaration(Token current)
         {
-            if (IsValidItemType(current))
+            if (IsValidMethodReturnType(current))
             {
                 return Alt(() => MethodDeclaration());
             }
@@ -206,7 +230,7 @@ namespace Lang
             return false;
         }
 
-        private bool IsValidItemType(Token current)
+        private bool IsValidMethodReturnType(Token current)
         {
             switch (current.TokenType)
             {
@@ -217,9 +241,10 @@ namespace Lang
             }
             return false;
         }
+
         private Ast MethodDeclaration()
         {
-            if (!IsValidItemType(Current))
+            if (!IsValidMethodReturnType(Current))
             {
                 throw new InvalidSyntax("Invalid syntax");
             }
@@ -232,16 +257,7 @@ namespace Lang
 
             var argList = ArgumentList(true);
 
-            Take(TokenType.LBracket);
-
-            var innerExpressions = new List<Ast>();
-
-            while (Current != null && Current.TokenType != TokenType.RBracket)
-            {
-                innerExpressions.Add(InnerExpression());
-            }
-
-            Take(TokenType.RBracket);
+            var innerExpressions = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new MethodDeclr(new Token(TokenType.ScopeStart), returnType, funcName, argList, innerExpressions);
         }
@@ -254,7 +270,7 @@ namespace Lang
 
             while (Current.TokenType != TokenType.CloseParenth)
             {
-                var argument = includeType ? VariableDeclaration() : InnerExpression();
+                var argument = includeType ? VariableDeclaration() : Statement();
 
                 args.Add(argument);
 
@@ -277,7 +293,7 @@ namespace Lang
 
             Take(TokenType.Equals);
 
-            return new VarDeclrAst(type, name, InnerExpression());
+            return new VarDeclrAst(type, name, Statement());
         }
 
         private Ast VariableDeclaration()
@@ -295,19 +311,7 @@ namespace Lang
 
             var equals = Take(TokenType.Equals);
 
-            return new Expr(new Expr(name), equals, InnerExpression());
-        }
-
-        private Ast ParseWordBranches()
-        {
-            if (EndOfStatement(Peek(1)))
-            {
-                return ConsumeFinalExpression();
-            }
-
-            var expr = new Expr(new Expr(Take(TokenType.Word)), TakeOperator(), InnerExpression());
-
-            return expr;
+            return new Expr(new Expr(name), equals, Statement());
         }
 
         private Ast ConsumeFinalExpression()

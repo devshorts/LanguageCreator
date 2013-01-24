@@ -54,8 +54,9 @@
     <Compile Include="AST\Expr.cs" />
     <Compile Include="AST\FuncInvoke.cs" />
     <Compile Include="AST\MethodDeclr.cs" />
+    <Compile Include="AST\ScopeDeclr.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />
-    <Compile Include="CollectionUtil.cs" />
+    <Compile Include="Utils\CollectionUtil.cs" />
     <Compile Include="Data\Token.cs" />
     <Compile Include="Data\TokenType.cs" />
     <Compile Include="Exceptions\InvalidSyntax.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="Parser.cs" />
     <Compile Include="ParserBase.cs" />
     <Compile Include="Tokenizer.cs" />
+    <Compile Include="Utils\Maybe.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
