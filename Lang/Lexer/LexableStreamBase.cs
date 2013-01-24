@@ -22,7 +22,7 @@ namespace Lang
 
         private Stack<int> SnapshotIndexes { get; set; }
 
-        public T Current
+        public virtual T Current
         {
             get
             {

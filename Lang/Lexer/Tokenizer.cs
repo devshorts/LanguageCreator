@@ -51,7 +51,9 @@ namespace Lang
                                   {
                                       new MatchKeyword(TokenType.Void, "void", false),
                                       new MatchKeyword(TokenType.Int, "int", false),
-                                      new MatchKeyword(TokenType.Fun, "fun", false)
+                                      new MatchKeyword(TokenType.Fun, "fun", false),
+                                      new MatchKeyword(TokenType.If, "if", false),
+                                      new MatchKeyword(TokenType.Else, "else", false),
                                   };
 
             var specialCharacters = new List<IMatcher>

@@ -121,5 +121,32 @@ namespace Lang.Tests
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
         }
+
+        [Test]
+        public void ConditionalTest()
+        {
+            var test = @"if(foo){
+                            var x = 1;
+                        }
+                        else if(faa){
+                            var y = 2;
+                            var z = 3;
+                        }
+                        else{
+                        }
+
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var topScope = (ast as ScopeDeclr).ScopedStatements[0];
+
+            var conditional = topScope as Conditional;
+            Assert.IsTrue(conditional != null);
+            Assert.IsTrue(conditional.Alternate != null);
+            Assert.IsTrue(conditional.Predicate.Token.TokenValue == "foo");
+            Assert.IsTrue(conditional.Alternate.Body.Count == 2);
+            Assert.IsTrue(conditional.Alternate.Alternate != null);
+        }
     }
 }

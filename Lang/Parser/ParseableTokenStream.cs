@@ -106,5 +106,18 @@ namespace Lang.Parser
 
             return peeker;
         }
+
+        public override Token Current
+        {
+            get
+            {
+                var current = base.Current;
+                if (current == null)
+                {
+                    return new Token(TokenType.EOF);
+                }
+                return current;
+            }
+        }
     }
 }

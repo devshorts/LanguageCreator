@@ -19,7 +19,7 @@ namespace Lang.Parser
 
         public Ast Parse()
         {
-            var statements = GetStatements(() => TokenStream.Current == null);
+            var statements = GetStatements(() => TokenStream.Current.TokenType ==  TokenType.EOF);
 
             return new ScopeDeclr(statements);
         }
@@ -67,7 +67,10 @@ namespace Lang.Parser
 
             var statement = Statement();
 
-            TokenStream.Take(TokenType.SemiColon);
+            if (TokenStream.Current.TokenType == TokenType.SemiColon)
+            {
+                TokenStream.Take(TokenType.SemiColon);
+            }
 
             return statement;
         }
@@ -125,9 +128,52 @@ namespace Lang.Parser
                 case TokenType.OpenParenth:
                     return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth, false).FirstOrDefault();
 
+                case TokenType.If:
+                    return ParseIf();
+
                 default:
                     return null;
             }
+        }
+
+        private Conditional ParseIf()
+        {
+            TokenStream.Take(TokenType.If);
+            TokenStream.Take(TokenType.OpenParenth);
+            
+            var predicate = Statement();
+
+            TokenStream.Take(TokenType.CloseParenth);
+
+            var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+
+            if (TokenStream.Current.TokenType != TokenType.Else)
+            {
+                return new Conditional(new Token(TokenType.If), predicate, statements);
+            }
+
+            // we found an else if scenario
+            if (TokenStream.Peek(1).TokenType == TokenType.If)
+            {
+                TokenStream.Take(TokenType.Else);
+
+                var alternate = ParseIf();
+
+                return new Conditional(new Token(TokenType.If), predicate, statements, alternate);
+            }
+
+            // found a trailing else
+
+            return new Conditional(new Token(TokenType.If), predicate, statements, ParseTrailingElse());
+        }
+
+        private Conditional ParseTrailingElse()
+        {
+            TokenStream.Take(TokenType.Else);
+
+            var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+
+            return new Conditional(new Token(TokenType.Else), null, statements);
         }
 
         private Ast ParseOperationExpression()

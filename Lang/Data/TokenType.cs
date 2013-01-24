@@ -30,6 +30,8 @@ namespace Lang.Data
         GreaterThan,
         LessThan,
         SemiColon,
+        If,
+        Else,
         ScopeStart,
         EOF
     }
