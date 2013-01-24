@@ -23,6 +23,8 @@ namespace Lang
             return new ScopeDeclr(statements);
         }
 
+        #region Entry Point
+
         /// <summary>
         /// List of statements in the main program body
         /// </summary>
@@ -36,16 +38,16 @@ namespace Lang
             {
                 if (Current.TokenType == TokenType.LBracket)
                 {
-                    Take(TokenType.LBracket);
-
-                    var statements = GetStatements(() => Current.TokenType == TokenType.RBracket);
-
-                    Take(TokenType.RBracket);
+                    var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
                     aggregate.Add(new ScopeDeclr(statements));
                 }
+                else
+                {
+                    var statement = MainStatement();
 
-                aggregate.Add(MainStatement());
+                    aggregate.Add(statement);
+                }
             }
 
             return aggregate;
@@ -62,8 +64,16 @@ namespace Lang
                 return MethodDeclaration();
             }
 
-            return Statement();
+            var statement = Statement();
+
+            Take(TokenType.SemiColon);
+
+            return statement;
         }
+
+        #endregion
+
+        #region Statement Parsers
 
         /// <summary>
         /// A statement inside of a valid scope 
@@ -71,17 +81,11 @@ namespace Lang
         /// <returns></returns>
         private Ast Statement()
         {
-            if (Current.TokenType == TokenType.SemiColon)
-            {
-                Take(TokenType.SemiColon);
-
-                return null;
-            }
-
-            var ast = ScopeStart().Or(FunctionCallOrLambdaAst)
-                                  .Or(VariableAssignAndDeclrAst)
+            var ast = ScopeStart().Or(LambdaStatement)
+                                  .Or(VariableDeclrStatement)
+                                  .Or(VariableDeclWithAssignStatement)
                                   .Or(OperationExpression);
-                                         
+
             if (ast != null)
             {
                 return ast;
@@ -108,95 +112,59 @@ namespace Lang
             {
                 case TokenType.QuotedString:
                 case TokenType.Word:
-                    return ParseBranches(Current.TokenType);
+                    return ParseOperationExpression();
 
                 case TokenType.OpenParenth:
-                    return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth).FirstOrDefault();
+                    return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth, false).FirstOrDefault();
 
                 default:
                     return null;
             }
         }
 
-        private Ast VariableAssignAndDeclrAst()
-        {
-            if (IsVariableDeclarationWithAssignment(Current))
-            {
-                return VariableDeclarationAndAssignment();
-            }
-
-            if (IsVariableAssignment(Current))
-            {
-                return VariableAssignment();
-            }
-
-            if (IsVariableDeclaration(Current))
-            {
-                var declr = VariableDeclaration();
-
-                Take(TokenType.SemiColon);
-
-                return declr;
-            }
-
-            return null;
-        }
-
-        private Ast FunctionCallOrLambdaAst()
-        {
-            if (IsFunctionCall())
-            {
-                return FunctionCall();
-            }
-
-            if (IsLambda(Current))
-            {
-                return Lambda();
-            }
-
-            return null;
-        }
-
-        private bool IsFunctionCall()
-        {
-            if (Current.TokenType == TokenType.Word)
-            {
-                return Alt(() => FunctionCall());
-            }
-
-            return false;
-        }
-
-        private Ast FunctionCall()
+        private Ast GetFunctionCall()
         {
             var name = Take(TokenType.Word);
 
-            var args = ArgumentList();
-
-            Take(TokenType.SemiColon);
+            var args = GetArgumentList();
 
             return new FuncInvoke(name, args);
         }
 
-        private Ast ParseBranches(TokenType tokenType)
+        private Ast ParseOperationExpression()
         {
-            if (EndOfStatement(Peek(1)))
+            Func<Ast> op = () =>
+                {
+                    var left = FunctionCallStatement().Or(SingleToken);
+
+                    return new Expr(left, TakeOperator(), Statement());
+                };
+
+            if(Alt(()=>op()))
+            {
+                return op();
+            }
+            
+            if (Alt(() => ConsumeFinalExpression()))
             {
                 return ConsumeFinalExpression();
             }
 
-            var expr = new Expr(new Expr(Take(tokenType)), TakeOperator(), Statement());
-
-            return expr;
+            return null;
         }
 
-        private List<Ast> GetExpressionsInScope(TokenType open, TokenType close)
+        private List<Ast> GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
         {
             Take(open);
             var lines = new List<Ast>();
             while (Current.TokenType != close)
             {
                 lines.Add(Statement());
+
+                if (expectSemicolon)
+                {
+                    Take(TokenType.SemiColon);
+                }
             }
 
             Take(close);
@@ -204,7 +172,7 @@ namespace Lang
             return lines;
         } 
 
-        private Ast Lambda()
+        private Ast GetLambda()
         {
             Take(TokenType.Fun);
             Take(TokenType.OpenParenth);
@@ -220,28 +188,6 @@ namespace Lang
             return method;
         }
 
-        private bool IsMethodDeclaration(Token current)
-        {
-            if (IsValidMethodReturnType(current))
-            {
-                return Alt(() => MethodDeclaration());
-            }
-
-            return false;
-        }
-
-        private bool IsValidMethodReturnType(Token current)
-        {
-            switch (current.TokenType)
-            {
-                case TokenType.Void:
-                case TokenType.Word:
-                case TokenType.Int:
-                    return true;
-            }
-            return false;
-        }
-
         private Ast MethodDeclaration()
         {
             if (!IsValidMethodReturnType(Current))
@@ -255,14 +201,14 @@ namespace Lang
             // func name
             var funcName = Take(TokenType.Word);
 
-            var argList = ArgumentList(true);
+            var argList = GetArgumentList(true);
 
             var innerExpressions = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new MethodDeclr(new Token(TokenType.ScopeStart), returnType, funcName, argList, innerExpressions);
         }
 
-        private List<Ast> ArgumentList(bool includeType = false)
+        private List<Ast> GetArgumentList(bool includeType = false)
         {
             Take(TokenType.OpenParenth);
 
@@ -270,7 +216,7 @@ namespace Lang
 
             while (Current.TokenType != TokenType.CloseParenth)
             {
-                var argument = includeType ? VariableDeclaration() : Statement();
+                var argument = includeType ? GetVariableDeclaration() : Statement();
 
                 args.Add(argument);
 
@@ -296,7 +242,7 @@ namespace Lang
             return new VarDeclrAst(type, name, Statement());
         }
 
-        private Ast VariableDeclaration()
+        private Ast GetVariableDeclaration()
         {
             var type = Take(Current.TokenType);
 
@@ -316,12 +262,13 @@ namespace Lang
 
         private Ast ConsumeFinalExpression()
         {
-            var token = new Expr(Take(Current.TokenType));
+            return FunctionCallStatement().Or(VariableAssignmentStatement)
+                                          .Or(SingleToken);
+        }
 
-            if (Current.TokenType == TokenType.SemiColon)
-            {
-                Take(TokenType.SemiColon);
-            }
+        private Ast SingleToken()
+        {
+            var token = new Expr(Take(Current.TokenType));
 
             return token;
         }
@@ -337,13 +284,95 @@ namespace Lang
 
         }
 
-        private Boolean EndOfStatement(Token item)
+        #endregion
+
+        #region Alternative Route Testers
+
+
+        private Ast VariableDeclWithAssignStatement()
         {
-            return item.TokenType == TokenType.SemiColon || 
-                   item.TokenType == TokenType.RBracket ||
-                   item.TokenType == TokenType.Comma || 
-                   item.TokenType == TokenType.CloseParenth;
+            if (IsVariableDeclarationWithAssignment(Current))
+            {
+                return VariableDeclarationAndAssignment();
+            }
+
+            return null;
         }
+
+        private Ast VariableAssignmentStatement()
+        {
+            if (IsVariableAssignment(Current))
+            {
+                return VariableAssignment();
+            }
+
+            return null;
+        }
+
+        private Ast VariableDeclrStatement()
+        {
+            if (IsVariableDeclaration(Current))
+            {
+                var declr = GetVariableDeclaration();
+
+                return declr;
+            }
+
+            return null;
+        }
+
+        private Ast FunctionCallStatement()
+        {
+            if (IsFunctionCall())
+            {
+                return GetFunctionCall();
+            }
+
+            return null;
+        }
+
+        private Ast LambdaStatement()
+        {
+            if (IsLambda(Current))
+            {
+                return GetLambda();
+            }
+
+            return null;
+        }
+
+        private bool IsFunctionCall()
+        {
+            if (Current.TokenType == TokenType.Word)
+            {
+                return Alt(() => GetFunctionCall());
+            }
+
+            return false;
+        }
+
+        private bool IsMethodDeclaration(Token current)
+        {
+            if (IsValidMethodReturnType(current))
+            {
+                return Alt(() => MethodDeclaration());
+            }
+
+            return false;
+        }
+
+        private bool IsValidMethodReturnType(Token current)
+        {
+            switch (current.TokenType)
+            {
+                case TokenType.Void:
+                case TokenType.Word:
+                case TokenType.Int:
+                    return true;
+            }
+            return false;
+        }
+
 
         private Boolean IsLambda(Token item)
         {
@@ -364,7 +393,7 @@ namespace Lang
                 case TokenType.Void:
                 case TokenType.Word:
                 case TokenType.Int:
-                    return  Alt(() => VariableDeclarationAndAssignment());
+                    return Alt(() => VariableDeclarationAndAssignment());
             }
 
             return false;
@@ -377,12 +406,12 @@ namespace Lang
                 case TokenType.Void:
                 case TokenType.Word:
                 case TokenType.Int:
-                    return  Alt(() =>
-                        {
-                            VariableDeclaration();
+                    return Alt(() =>
+                    {
+                        GetVariableDeclaration();
 
-                            Take(TokenType.SemiColon);
-                       });
+                        Take(TokenType.SemiColon);
+                    });
             }
 
             return false;
@@ -399,6 +428,7 @@ namespace Lang
 
             return false;
         }
+
         private Boolean IsOperator(Token item)
         {
             switch (item.TokenType)
@@ -413,5 +443,7 @@ namespace Lang
             }
             return false;
         }
+
+        #endregion
     }
 }
