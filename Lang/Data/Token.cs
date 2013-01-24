@@ -22,5 +22,10 @@ namespace Lang.Data
             TokenValue = null;
             TokenType = tokenType;
         }
+
+        public override string ToString()
+        {
+            return TokenType + ": " + TokenValue;
+        }
     }
 }

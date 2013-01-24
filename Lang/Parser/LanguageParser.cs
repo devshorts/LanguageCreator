@@ -60,9 +60,9 @@ namespace Lang.Parser
         /// <returns></returns>
         private Ast MainStatement()
         {
-            if (IsMethodDeclaration())
+            if (TokenStream.Alt(MethodDeclaration))
             {
-                return MethodDeclaration();
+                return TokenStream.Get(MethodDeclaration);
             }
 
             var statement = Statement();
@@ -76,15 +76,18 @@ namespace Lang.Parser
 
         #region Statement Parsers
 
+        #region Single statement 
+
         /// <summary>
         /// A statement inside of a valid scope 
         /// </summary>
         /// <returns></returns>
         private Ast Statement()
         {
+            // ordering here matters since it resolves to precedence
             var ast = ScopeStart().Or(LambdaStatement)
-                                  .Or(VariableDeclrStatement)
                                   .Or(VariableDeclWithAssignStatement)
+                                  .Or(VariableDeclrStatement)
                                   .Or(OperationExpression);
 
             if (ast != null)
@@ -107,6 +110,10 @@ namespace Lang.Parser
             return null;
         }
 
+        #endregion
+
+        #region Expressions of single items or expr op expr
+
         private Ast OperationExpression()
         {
             switch (TokenStream.Current.TokenType)
@@ -123,22 +130,13 @@ namespace Lang.Parser
             }
         }
 
-        private Ast GetFunctionCall()
-        {
-            var name = TokenStream.Take(TokenType.Word);
-
-            var args = GetArgumentList();
-
-            return new FuncInvoke(name, args);
-        }
-
         private Ast ParseOperationExpression()
         {
             Func<Ast> op = () =>
                 {
                     var left = FunctionCallStatement().Or(SingleToken);
 
-                    return new Expr(left, TakeOperator(), Statement());
+                    return new Expr(left, Operator(), Statement());
                 };
 
             if(TokenStream.Alt(op))
@@ -154,26 +152,21 @@ namespace Lang.Parser
             return null;
         }
 
-        private List<Ast> GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
+        #endregion
+
+        #region Function parsing (lambdas, declarations, arguments)
+
+        private Ast FunctionCall()
         {
-            TokenStream.Take(open);
-            var lines = new List<Ast>();
-            while (TokenStream.Current.TokenType != close)
-            {
-                lines.Add(Statement());
+            var name = TokenStream.Take(TokenType.Word);
 
-                if (expectSemicolon)
-                {
-                    TokenStream.Take(TokenType.SemiColon);
-                }
-            }
+            var args = GetArgumentList();
 
-            TokenStream.Take(close);
+            return new FuncInvoke(name, args);
+        }
 
-            return lines;
-        } 
 
-        private Ast GetLambda()
+        private Ast Lambda()
         {
             TokenStream.Take(TokenType.Fun);
             TokenStream.Take(TokenType.OpenParenth);
@@ -217,7 +210,7 @@ namespace Lang.Parser
 
             while (TokenStream.Current.TokenType != TokenType.CloseParenth)
             {
-                var argument = includeType ? GetVariableDeclaration() : Statement();
+                var argument = includeType ? VariableDeclaration() : Statement();
 
                 args.Add(argument);
 
@@ -232,24 +225,45 @@ namespace Lang.Parser
             return args;
         }
 
+        #endregion
+
+        #region Variable Declrations and Assignments
+
         private Ast VariableDeclarationAndAssignment()
         {
-            var type = TokenStream.Take(TokenStream.Current.TokenType);
+            if (IsValidMethodReturnType() && IsValidVariableName(TokenStream.Peek(1)))
+            {
+                var type = TokenStream.Take(TokenStream.Current.TokenType);
 
-            var name = TokenStream.Take(TokenType.Word);
+                var name = TokenStream.Take(TokenType.Word);
 
-            TokenStream.Take(TokenType.Equals);
+                TokenStream.Take(TokenType.Equals);
 
-            return new VarDeclrAst(type, name, Statement());
+                return new VarDeclrAst(type, name, Statement());
+            }
+
+            return null;
         }
 
-        private Ast GetVariableDeclaration()
+        private Ast VariableDeclaration()
         {
-            var type = TokenStream.Take(TokenStream.Current.TokenType);
+            if (IsValidMethodReturnType() && IsValidVariableName(TokenStream.Peek(1)))
+            {
+                var type = TokenStream.Take(TokenStream.Current.TokenType);
 
-            var name = TokenStream.Take(TokenType.Word);
+                var name = TokenStream.Take(TokenType.Word);
 
-            return new VarDeclrAst(type, name);
+                // variable declrations are independent and have no following expressions
+                // but the semicolon will be consumed elsewhere
+                if (TokenStream.Current.TokenType != TokenType.SemiColon)
+                {
+                    return null;
+                }
+
+                return new VarDeclrAst(type, name);
+            }
+
+            return null;
         }
 
         private Ast VariableAssignment()
@@ -260,6 +274,10 @@ namespace Lang.Parser
 
             return new Expr(new Expr(name), equals, Statement());
         }
+
+        #endregion
+
+        #region Single Expressions or Tokens
 
         private Ast ConsumeFinalExpression()
         {
@@ -274,7 +292,7 @@ namespace Lang.Parser
             return token;
         }
 
-        private Token TakeOperator()
+        private Token Operator()
         {
             if (IsOperator(TokenStream.Current))
             {
@@ -282,17 +300,40 @@ namespace Lang.Parser
             }
 
             throw new InvalidSyntax(String.Format("Invalid token found. Expected operator but found {0} - {1}", TokenStream.Current.TokenType, TokenStream.Current.TokenValue));
-
         }
+
+        #endregion
+
+        #region Helpers
+
+        private List<Ast> GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
+        {
+            TokenStream.Take(open);
+            var lines = new List<Ast>();
+            while (TokenStream.Current.TokenType != close)
+            {
+                lines.Add(Statement());
+
+                if (expectSemicolon)
+                {
+                    TokenStream.Take(TokenType.SemiColon);
+                }
+            }
+
+            TokenStream.Take(close);
+
+            return lines;
+        }
+
+        #endregion
 
         #endregion
 
         #region TokenStream.Alternative Route Testers
 
-
         private Ast VariableDeclWithAssignStatement()
         {
-            if (IsVariableDeclarationWithAssignment())
+            if (TokenStream.Alt(VariableDeclarationAndAssignment))
             {
                 return TokenStream.Get(VariableDeclarationAndAssignment);
             }
@@ -302,7 +343,7 @@ namespace Lang.Parser
 
         private Ast VariableAssignmentStatement()
         {
-            if (IsVariableAssignment())
+            if (TokenStream.Alt(VariableAssignment))
             {
                 return TokenStream.Get(VariableAssignment);
             }
@@ -312,9 +353,9 @@ namespace Lang.Parser
 
         private Ast VariableDeclrStatement()
         {
-            if (IsVariableDeclaration())
+            if (TokenStream.Alt(VariableDeclaration))
             {
-                var declr = TokenStream.Get(GetVariableDeclaration);
+                var declr = TokenStream.Get(VariableDeclaration);
 
                 return declr;
             }
@@ -324,9 +365,9 @@ namespace Lang.Parser
 
         private Ast FunctionCallStatement()
         {
-            if (IsFunctionCall())
+            if (TokenStream.Alt(FunctionCall))
             {
-                return TokenStream.Get(GetFunctionCall);
+                return TokenStream.Get(FunctionCall);
             }
 
             return null;
@@ -334,32 +375,12 @@ namespace Lang.Parser
 
         private Ast LambdaStatement()
         {
-            if (IsLambda())
+            if (TokenStream.Alt(Lambda))
             {
-                return TokenStream.Get(GetLambda);
+                return TokenStream.Get(Lambda);
             }
 
             return null;
-        }
-
-        private bool IsFunctionCall()
-        {
-            if (TokenStream.Current.TokenType == TokenType.Word)
-            {
-                return TokenStream.Alt(GetFunctionCall);
-            }
-
-            return false;
-        }
-
-        private bool IsMethodDeclaration()
-        {
-            if (IsValidMethodReturnType())
-            {
-                return TokenStream.Alt(MethodDeclaration);
-            }
-
-            return false;
         }
 
         private bool IsValidMethodReturnType()
@@ -374,61 +395,13 @@ namespace Lang.Parser
             return false;
         }
 
-
-        private Boolean IsLambda()
+        private bool IsValidVariableName(Token item)
         {
-            if (TokenStream.Current.TokenType == TokenType.Fun)
-            {
-                return TokenStream.Peek(1).TokenType == TokenType.OpenParenth &&
-                       TokenStream.Peek(2).TokenType == TokenType.CloseParenth &&
-                       TokenStream.Peek(3).TokenType == TokenType.DeRef;
-            }
-
-            return false;
-        }
-
-        private Boolean IsVariableDeclarationWithAssignment()
-        {
-            switch (TokenStream.Current.TokenType)
-            {
-                case TokenType.Void:
-                case TokenType.Word:
-                case TokenType.Int:
-                    return TokenStream.Alt(VariableDeclarationAndAssignment);
-            }
-
-            return false;
-        }
-
-        private Boolean IsVariableDeclaration()
-        {
-            switch (TokenStream.Current.TokenType)
-            {
-                case TokenType.Void:
-                case TokenType.Word:
-                case TokenType.Int:
-                    return TokenStream.Alt(() =>
-                    {
-                        var variableDeclr = GetVariableDeclaration();
-
-                        TokenStream.Take(TokenType.SemiColon);
-
-                        return variableDeclr;
-                    });
-            }
-
-            return false;
-        }
-
-        private Boolean IsVariableAssignment()
-        {
-            switch (TokenStream.Current.TokenType)
+            switch (item.TokenType)
             {
                 case TokenType.Word:
-                    return
-                        TokenStream.Alt(VariableAssignment);
+                    return true;
             }
-
             return false;
         }
 

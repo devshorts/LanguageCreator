@@ -45,6 +45,13 @@ namespace Lang.Parser
             throw new InvalidSyntax(String.Format("Invalid Syntax. Expecting {0} but got {1}", type, Current.TokenType));
         }
 
+
+        /// <summary>
+        /// Retrieves a cached version if it was found during any alternate route
+        /// otherwise executes it
+        /// </summary>
+        /// <param name="getter"></param>
+        /// <returns></returns>
         public Ast Get(Func<Ast> getter)
         {
             Memo memo;

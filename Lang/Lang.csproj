@@ -57,7 +57,6 @@
     <Compile Include="AST\ScopeDeclr.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />
     <Compile Include="Parser\ParseableTokenStream.cs" />
-    <Compile Include="Parser\ParseExpression.cs" />
     <Compile Include="Utils\CollectionUtil.cs" />
     <Compile Include="Data\Token.cs" />
     <Compile Include="Data\TokenType.cs" />
