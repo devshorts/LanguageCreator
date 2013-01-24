@@ -18,7 +18,7 @@ namespace Lang
 
         private List<T> Items { get; set; }
 
-        private int Index { get; set; }
+        protected int Index { get; set; }
 
         private Stack<int> SnapshotIndexes { get; set; }
 

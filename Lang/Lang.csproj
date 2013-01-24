@@ -56,21 +56,22 @@
     <Compile Include="AST\MethodDeclr.cs" />
     <Compile Include="AST\ScopeDeclr.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />
+    <Compile Include="Parser\ParseableTokenStream.cs" />
+    <Compile Include="Parser\ParseExpression.cs" />
     <Compile Include="Utils\CollectionUtil.cs" />
     <Compile Include="Data\Token.cs" />
     <Compile Include="Data\TokenType.cs" />
     <Compile Include="Exceptions\InvalidSyntax.cs" />
-    <Compile Include="LexableStreamBase.cs" />
-    <Compile Include="Lexer.cs" />
+    <Compile Include="Lexer\LexableStreamBase.cs" />
+    <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Matches\IMatcher.cs" />
     <Compile Include="Matches\MatcherBase.cs" />
     <Compile Include="Matches\MatchKeyword.cs" />
     <Compile Include="Matches\MatchString.cs" />
     <Compile Include="Matches\MatchWhiteSpace.cs" />
     <Compile Include="Matches\MatchWord.cs" />
-    <Compile Include="Parser.cs" />
-    <Compile Include="ParserBase.cs" />
-    <Compile Include="Tokenizer.cs" />
+    <Compile Include="Parser\LanguageParser.cs" />
+    <Compile Include="Lexer\Tokenizer.cs" />
     <Compile Include="Utils\Maybe.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

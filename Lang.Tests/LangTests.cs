@@ -3,6 +3,7 @@ using System.Linq;
 using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;
+using Lang.Parser;
 using NUnit.Framework;
 
 namespace Lang.Tests
@@ -31,7 +32,7 @@ namespace Lang.Tests
         {
             var test = @"x = 1;";
 
-            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
             var expr = (ast.ScopedStatements[0] as Expr);
 
@@ -45,7 +46,7 @@ namespace Lang.Tests
         {
             var test = @"x = 1 + 2;";
 
-            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
             var expr = (ast.ScopedStatements[0] as Expr);
 
@@ -65,7 +66,7 @@ namespace Lang.Tests
                         }
                         x = 1 + 2 ^ (5-7);";
 
-            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
             Assert.IsTrue(ast.ScopedStatements.Count == 3);
             Assert.IsTrue(ast.ScopedStatements[0] is VarDeclrAst);
@@ -81,9 +82,9 @@ namespace Lang.Tests
                         {
                             int y = 5 + 4{;
                         }
-                        x = 1 + 2 ^ (5-7);"; 
+                        x = 1 + 2 ^ (5-7);";
 
-            var ast = new Parser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
         }
 
@@ -104,7 +105,7 @@ namespace Lang.Tests
                             var p = 23;
                         }";
 
-            var ast = new Parser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
             Assert.IsTrue(ast.ScopedStatements.Count == 3);
             Assert.IsTrue(ast.ScopedStatements[0] is MethodDeclr);
@@ -117,7 +118,7 @@ namespace Lang.Tests
         {
             var test = @"test(a, 1 + 2);";
 
-            var ast = new Parser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
         }
     }
