@@ -91,7 +91,7 @@ namespace Lang.Tests
         [Test]
         public void FunctionTest()
         {
-            var test = @"void foo(int x, int y){ 
+        var test = @"void foo(int x, int y){ 
                         int x = 1; 
                         var z = fun() -> { 
                             zinger = ""your mom!"";
@@ -132,32 +132,32 @@ namespace Lang.Tests
 
         }
 
-[Test]
-public void ConditionalTest()
-{
-    var test = @"if(foo){
-                    var x = 1;
-                }
-                else if(faa){
-                    var y = 2;
-                    var z = 3;
-                }
-                else{
-                }
+        [Test]
+        public void ConditionalTest()
+        {
+            var test = @"if(foo){
+                            var x = 1;
+                        }
+                        else if(faa){
+                            var y = 2;
+                            var z = 3;
+                        }
+                        else{
+                        }
 
-                ";
+                        ";
 
-    var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
-    var topScope = (ast as ScopeDeclr).ScopedStatements[0];
+            var topScope = (ast as ScopeDeclr).ScopedStatements[0];
 
-    var conditional = topScope as Conditional;
-    Assert.IsTrue(conditional != null);
-    Assert.IsTrue(conditional.Alternate != null);
-    Assert.IsTrue(conditional.Predicate.Token.TokenValue == "foo");
-    Assert.IsTrue(conditional.Alternate.Body.Count == 2);
-    Assert.IsTrue(conditional.Alternate.Alternate != null);
-}
+            var conditional = topScope as Conditional;
+            Assert.IsTrue(conditional != null);
+            Assert.IsTrue(conditional.Alternate != null);
+            Assert.IsTrue(conditional.Predicate.Token.TokenValue == "foo");
+            Assert.IsTrue(conditional.Alternate.Body.Count == 2);
+            Assert.IsTrue(conditional.Alternate.Alternate != null);
+        }
 
         [Test]
         [ExpectedException(typeof(InvalidSyntax))]
