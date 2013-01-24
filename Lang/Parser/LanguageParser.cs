@@ -358,9 +358,10 @@ namespace Lang.Parser
             var lines = new List<Ast>();
             while (TokenStream.Current.TokenType != close)
             {
-                lines.Add(Statement());
+                var statement = Statement();
+                lines.Add(statement);
 
-                if (expectSemicolon)
+                if (expectSemicolon && StatementExpectsSemiColon(statement))
                 {
                     TokenStream.Take(TokenType.SemiColon);
                 }
@@ -369,6 +370,11 @@ namespace Lang.Parser
             TokenStream.Take(close);
 
             return lines;
+        }
+
+        private bool StatementExpectsSemiColon(Ast statement)
+        {
+            return !(statement is MethodDeclr || statement is Conditional);
         }
 
         #endregion
