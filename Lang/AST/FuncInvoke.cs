@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Visitors;
 
 namespace Lang.AST
 {
-    class FuncInvoke : Ast
+    public class FuncInvoke : Ast
     {
         public List<Ast> Arguments { get; private set; }
 
@@ -17,6 +18,12 @@ namespace Lang.AST
             FunctionName = new Expr(token);
 
             Arguments = args;
+        }
+
+
+        public override void Visit(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

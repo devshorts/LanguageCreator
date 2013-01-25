@@ -4,6 +4,7 @@ using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;
 using Lang.Parser;
+using Lang.Visitors;
 using NUnit.Framework;
 
 namespace Lang.Tests
@@ -155,7 +156,7 @@ namespace Lang.Tests
             Assert.IsTrue(conditional != null);
             Assert.IsTrue(conditional.Alternate != null);
             Assert.IsTrue(conditional.Predicate.Token.TokenValue == "foo");
-            Assert.IsTrue(conditional.Alternate.Body.Count == 2);
+            Assert.IsTrue(conditional.Alternate.Body.ScopedStatements.Count == 2);
             Assert.IsTrue(conditional.Alternate.Alternate != null);
         }
 
@@ -177,9 +178,9 @@ namespace Lang.Tests
             Assert.IsTrue(conditional != null);
             Assert.IsTrue(conditional.Body != null);
             Assert.IsTrue(conditional.Predicate.Token.TokenType == TokenType.Plus);
-            Assert.IsTrue(conditional.Body.Count == 1);
-            Assert.IsTrue(conditional.Body.First() is VarDeclrAst);
-            Assert.IsTrue((conditional.Body.First() as VarDeclrAst).VariableValue is MethodDeclr);
+            Assert.IsTrue(conditional.Body.ScopedStatements.Count == 1);
+            Assert.IsTrue(conditional.Body.ScopedStatements.First() is VarDeclrAst);
+            Assert.IsTrue((conditional.Body.ScopedStatements.First() as VarDeclrAst).VariableValue is MethodDeclr);
         }
 
         [Test]
@@ -191,6 +192,33 @@ namespace Lang.Tests
                         }";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
+        }
+
+        [Test]
+        public void TestVisitor()
+        {
+            var test = @"while(1 + 1){
+                            var x = fun () ->{
+                                test = 0;
+                            };
+                        }
+
+                        if(foo){
+                            var x = 1;
+                        }
+                        else if(faa){
+                            var y = 2;
+                            var z = 3;
+                        }
+                        else{
+                        }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var visitor = new AstVisitor();
+
+            ast.Visit(visitor);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Visitors;
 
 namespace Lang.AST
 {
@@ -14,18 +15,24 @@ namespace Lang.AST
 
         public List<Ast> Arguments { get; private set; }
 
-        public List<Ast> BodyStatements { get; private set; } 
+        public ScopeDeclr BodyStatements { get; private set; }
 
-        public MethodDeclr(Token token, Token returnType, Token funcName, List<Ast> arguments, List<Ast> body)
+        public MethodDeclr(Token token, Token returnType, Token funcName, List<Ast> arguments, ScopeDeclr body)
             : base(token)
         {
             MethodReturnType = new Expr(returnType);
 
-            MethodReturnType = new Expr(funcName);
+            MethodName = new Expr(funcName);
 
             Arguments = arguments;
 
             BodyStatements = body;
+        }
+
+
+        public override void Visit(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

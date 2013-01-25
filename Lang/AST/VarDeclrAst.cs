@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Visitors;
 
 namespace Lang.AST
 {
@@ -32,6 +33,12 @@ namespace Lang.AST
             VariableValue = value;
 
             VariableName = new Expr(name);
+        }
+
+
+        public override void Visit(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
         }
 
     }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Visitors;
 
 namespace Lang.AST
 {
-    public abstract class Ast
+    public abstract class Ast : IAcceptVisitor
     {
         public Token Token { get; private set; }
 
@@ -30,5 +31,7 @@ namespace Lang.AST
         {
             return Token.TokenType + " " + Children.Aggregate("", (acc, ast) => acc + " " + ast);
         }
+
+        public abstract void Visit(IAstVisitor visitor);
     }
 }

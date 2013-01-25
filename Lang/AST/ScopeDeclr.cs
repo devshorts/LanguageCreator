@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Visitors;
 
 namespace Lang.AST
 {
@@ -13,6 +14,12 @@ namespace Lang.AST
         public ScopeDeclr(List<Ast> statements) : base(new Token(TokenType.ScopeStart))
         {
             ScopedStatements = statements;
+        }
+
+
+        public override void Visit(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

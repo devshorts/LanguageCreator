@@ -49,7 +49,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AST\ArgumentDeclr.cs" />
     <Compile Include="AST\Ast.cs" />
     <Compile Include="AST\Conditional.cs" />
     <Compile Include="AST\Expr.cs" />
@@ -74,6 +73,9 @@
     <Compile Include="Parser\LanguageParser.cs" />
     <Compile Include="Lexer\Tokenizer.cs" />
     <Compile Include="Utils\Maybe.cs" />
+    <Compile Include="Visitors\AstVisitor.cs" />
+    <Compile Include="Visitors\IAcceptVisitor.cs" />
+    <Compile Include="Visitors\IAstVisitor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

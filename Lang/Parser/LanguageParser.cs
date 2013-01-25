@@ -10,6 +10,8 @@ namespace Lang.Parser
 {
     public class LanguageParser
     {
+        private Random _rand = new Random();
+
         private ParseableTokenStream TokenStream { get; set; }
 
         public LanguageParser(Tokenizer tokenizer)
@@ -41,7 +43,7 @@ namespace Lang.Parser
                 {
                     var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
-                    aggregate.Add(new ScopeDeclr(statements));
+                    aggregate.Add(statements);
                 }
                 else
                 {
@@ -109,7 +111,7 @@ namespace Lang.Parser
             {
                 var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
-                return new ScopeDeclr(statements);
+                return statements;
             }
 
             return null;
@@ -128,7 +130,7 @@ namespace Lang.Parser
                     return ParseOperationExpression();
 
                 case TokenType.OpenParenth:
-                    return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth, false).FirstOrDefault();
+                    return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth, false);
 
                 default:
                     return null;
@@ -245,17 +247,26 @@ namespace Lang.Parser
         private Ast Lambda()
         {
             TokenStream.Take(TokenType.Fun);
-            TokenStream.Take(TokenType.OpenParenth);
-            TokenStream.Take(TokenType.CloseParenth);
+
+            var arguments = GetArgumentList(true);
+
             TokenStream.Take(TokenType.DeRef);
 
             var lines = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
-            var method = new MethodDeclr(new Token(TokenType.Fun), new Token(TokenType.Void),
-                                         new Token(TokenType.Word, "anonymous"), null, lines);
+            var method = new MethodDeclr(new Token(TokenType.Fun), 
+                                         new Token(TokenType.Void),
+                                         new Token(TokenType.Word, AnonymousFunctionName), 
+                                         arguments, 
+                                         lines);
 
 
             return method;
+        }
+
+        private string AnonymousFunctionName
+        {
+            get { return "anonymous" + _rand.Next(); }
         }
 
         private Ast MethodDeclaration()
@@ -382,7 +393,7 @@ namespace Lang.Parser
 
         #region Helpers
 
-        private Tuple<Ast, List<Ast>> GetPredicateAndExpressions(TokenType type)
+        private Tuple<Ast, ScopeDeclr> GetPredicateAndExpressions(TokenType type)
         {
             TokenStream.Take(type
                 );
@@ -394,10 +405,10 @@ namespace Lang.Parser
 
             var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
-            return new Tuple<Ast, List<Ast>>(predicate, statements);
+            return new Tuple<Ast, ScopeDeclr>(predicate, statements);
         } 
 
-        private List<Ast> GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
+        private ScopeDeclr GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
         {
             TokenStream.Take(open);
             var lines = new List<Ast>();
@@ -415,7 +426,7 @@ namespace Lang.Parser
 
             TokenStream.Take(close);
 
-            return lines;
+            return new ScopeDeclr(lines);
         }
 
         private bool StatementExpectsSemiColon(Ast statement)

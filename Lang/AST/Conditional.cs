@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Visitors;
 
 namespace Lang.AST
 {
@@ -10,7 +11,7 @@ namespace Lang.AST
     {
         public Ast Predicate { get; set; }
 
-        public List<Ast> Body { get; set; }
+        public ScopeDeclr Body { get; set; }
 
         public Conditional Alternate { get; set; }
 
@@ -18,11 +19,17 @@ namespace Lang.AST
         {
         }
 
-        public Conditional(Token conditionalType, Ast predicate, List<Ast> body, Conditional alternate = null) : this(conditionalType)
+        public Conditional(Token conditionalType, Ast predicate, ScopeDeclr body, Conditional alternate = null)
+            : this(conditionalType)
         {
             Predicate = predicate;
             Body = body;
             Alternate = alternate;
+        }
+
+        public override void Visit(IAstVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }
