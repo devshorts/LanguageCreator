@@ -45,7 +45,7 @@ namespace Lang.Parser
                 }
                 else
                 {
-                    var statement = MainStatement();
+                    var statement = Statement();
 
                     aggregate.Add(statement);
                 }
@@ -58,14 +58,14 @@ namespace Lang.Parser
         /// Method declaration or regular statement
         /// </summary>
         /// <returns></returns>
-        private Ast MainStatement()
+        private Ast Statement()
         {
             if (TokenStream.Alt(MethodDeclaration))
             {
                 return TokenStream.Get(MethodDeclaration);
             }
 
-            var statement = Statement();
+            var statement = Expression();
 
             if (TokenStream.Current.TokenType == TokenType.SemiColon)
             {
@@ -85,12 +85,14 @@ namespace Lang.Parser
         /// A statement inside of a valid scope 
         /// </summary>
         /// <returns></returns>
-        private Ast Statement()
+        private Ast Expression()
         {
             // ordering here matters since it resolves to precedence
             var ast = ScopeStart().Or(LambdaStatement)
                                   .Or(VariableDeclWithAssignStatement)
                                   .Or(VariableDeclrStatement)
+                                  .Or(GetIf)
+                                  .Or(GetWhile)
                                   .Or(OperationExpression);
 
             if (ast != null)
@@ -128,25 +130,76 @@ namespace Lang.Parser
                 case TokenType.OpenParenth:
                     return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth, false).FirstOrDefault();
 
-                case TokenType.If:
-                    return ParseIf();
-
                 default:
                     return null;
             }
         }
 
+        private Ast ParseOperationExpression()
+        {
+            Func<Ast> op = () =>
+                {
+                    var left = FunctionCallStatement().Or(SingleToken);
+
+                    return new Expr(left, Operator(), Expression());
+                };
+
+            if(TokenStream.Alt(op))
+            {
+                return TokenStream.Get(op);
+            }
+            
+            if (TokenStream.Alt(ConsumeFinalExpression))
+            {
+                return TokenStream.Get(ConsumeFinalExpression);
+            }
+
+            return null;
+        }
+
+        #endregion
+
+        #region Conditionals and Loops
+
+        private Ast GetWhile()
+        {
+            if (TokenStream.Current.TokenType == TokenType.While && TokenStream.Alt(ParseWhile))
+            {
+                return TokenStream.Get(ParseWhile);
+            }
+
+            return null;
+        }
+
+        private Ast GetIf()
+        {
+            if (TokenStream.Current.TokenType == TokenType.If && TokenStream.Alt(ParseIf))
+            {
+                return TokenStream.Get(ParseIf);
+            }
+
+            return null;
+        }
+
+        private WhileLoop ParseWhile()
+        {
+            var predicateAndExpressions = GetPredicateAndExpressions(TokenType.While);
+
+            var predicate = predicateAndExpressions.Item1;
+            var statements = predicateAndExpressions.Item2;
+
+            return new WhileLoop(predicate, statements);
+        }
+
+
         private Conditional ParseIf()
         {
-            TokenStream.Take(TokenType.If);
-            TokenStream.Take(TokenType.OpenParenth);
-            
-            var predicate = Statement();
+            var predicateAndExpressions = GetPredicateAndExpressions(TokenType.If);
 
-            TokenStream.Take(TokenType.CloseParenth);
+            var predicate = predicateAndExpressions.Item1;
+            var statements = predicateAndExpressions.Item2;
 
-            var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
-
+            // no else following, then just basic if statement
             if (TokenStream.Current.TokenType != TokenType.Else)
             {
                 return new Conditional(new Token(TokenType.If), predicate, statements);
@@ -163,7 +216,6 @@ namespace Lang.Parser
             }
 
             // found a trailing else
-
             return new Conditional(new Token(TokenType.If), predicate, statements, ParseTrailingElse());
         }
 
@@ -174,28 +226,6 @@ namespace Lang.Parser
             var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new Conditional(new Token(TokenType.Else), null, statements);
-        }
-
-        private Ast ParseOperationExpression()
-        {
-            Func<Ast> op = () =>
-                {
-                    var left = FunctionCallStatement().Or(SingleToken);
-
-                    return new Expr(left, Operator(), Statement());
-                };
-
-            if(TokenStream.Alt(op))
-            {
-                return TokenStream.Get(op);
-            }
-            
-            if (TokenStream.Alt(ConsumeFinalExpression))
-            {
-                return TokenStream.Get(ConsumeFinalExpression);
-            }
-
-            return null;
         }
 
         #endregion
@@ -256,7 +286,7 @@ namespace Lang.Parser
 
             while (TokenStream.Current.TokenType != TokenType.CloseParenth)
             {
-                var argument = includeType ? VariableDeclaration() : Statement();
+                var argument = includeType ? VariableDeclaration() : Expression();
 
                 args.Add(argument);
 
@@ -285,7 +315,7 @@ namespace Lang.Parser
 
                 TokenStream.Take(TokenType.Equals);
 
-                return new VarDeclrAst(type, name, Statement());
+                return new VarDeclrAst(type, name, Expression());
             }
 
             return null;
@@ -318,7 +348,7 @@ namespace Lang.Parser
 
             var equals = TokenStream.Take(TokenType.Equals);
 
-            return new Expr(new Expr(name), equals, Statement());
+            return new Expr(new Expr(name), equals, Expression());
         }
 
         #endregion
@@ -352,13 +382,29 @@ namespace Lang.Parser
 
         #region Helpers
 
+        private Tuple<Ast, List<Ast>> GetPredicateAndExpressions(TokenType type)
+        {
+            TokenStream.Take(type
+                );
+            TokenStream.Take(TokenType.OpenParenth);
+
+            var predicate = Expression();
+
+            TokenStream.Take(TokenType.CloseParenth);
+
+            var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+
+            return new Tuple<Ast, List<Ast>>(predicate, statements);
+        } 
+
         private List<Ast> GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
         {
             TokenStream.Take(open);
             var lines = new List<Ast>();
             while (TokenStream.Current.TokenType != close)
             {
-                var statement = Statement();
+                var statement = Expression();
+
                 lines.Add(statement);
 
                 if (expectSemicolon && StatementExpectsSemiColon(statement))
@@ -374,7 +420,7 @@ namespace Lang.Parser
 
         private bool StatementExpectsSemiColon(Ast statement)
         {
-            return !(statement is MethodDeclr || statement is Conditional);
+            return !(statement is MethodDeclr || statement is Conditional || statement is WhileLoop);
         }
 
         #endregion

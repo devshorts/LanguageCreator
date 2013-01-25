@@ -31,6 +31,7 @@ namespace Lang.Data
         LessThan,
         SemiColon,
         If,
+        While,
         Else,
         ScopeStart,
         EOF

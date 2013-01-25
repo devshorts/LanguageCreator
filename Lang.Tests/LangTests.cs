@@ -160,6 +160,29 @@ namespace Lang.Tests
         }
 
         [Test]
+        public void WhileTest()
+        {
+            var test = @"while(1 + 1){
+                            var x = fun () ->{
+                                test = 0;
+                            };
+                        }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var topScope = (ast as ScopeDeclr).ScopedStatements[0];
+
+            var conditional = topScope as WhileLoop;
+            Assert.IsTrue(conditional != null);
+            Assert.IsTrue(conditional.Body != null);
+            Assert.IsTrue(conditional.Predicate.Token.TokenType == TokenType.Plus);
+            Assert.IsTrue(conditional.Body.Count == 1);
+            Assert.IsTrue(conditional.Body.First() is VarDeclrAst);
+            Assert.IsTrue((conditional.Body.First() as VarDeclrAst).VariableValue is MethodDeclr);
+        }
+
+        [Test]
         [ExpectedException(typeof(InvalidSyntax))]
         public void InvalidConditionalTest()
         {
