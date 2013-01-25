@@ -239,7 +239,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
-            var visitor = new AstVisitor();
+            var visitor = new PrintAstVisitor();
 
             ast.Visit(visitor);
         }
@@ -261,6 +261,24 @@ namespace Lang.Tests
             Assert.IsTrue(forLoop.Initial is VarDeclrAst);
             Assert.IsTrue(forLoop.Stop.Token.TokenType == TokenType.LessThan);
             Assert.IsTrue(forLoop.Body.ScopedStatements.Count == 1);
+        }
+
+        [Test]
+        public void TestScope()
+        {
+            var test = @"while(1){
+                            var x = 2;
+                            int y;
+                        }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var visitor = new ScopeBuilderVisitor();
+
+            ast.Visit(visitor);
+
+            var scope = visitor.Current;
         }
     }
 }

@@ -7,7 +7,7 @@ using Lang.Data;
 
 namespace Lang.Visitors
 {
-    public class AstVisitor : IAstVisitor
+    public class PrintAstVisitor : IAstVisitor
     {
         public void Visit(Conditional ast)
         {

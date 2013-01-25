@@ -23,6 +23,8 @@ namespace Lang.AST
             : base(name)
         {
             DeclarationType = new Expr(declType);
+
+            VariableName = new Expr(name);
         }
 
         public VarDeclrAst(Token declType, Token name, Ast value)
