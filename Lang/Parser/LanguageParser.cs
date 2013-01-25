@@ -21,41 +21,20 @@ namespace Lang.Parser
 
         public Ast Parse()
         {
-            var statements = GetStatements(() => TokenStream.Current.TokenType ==  TokenType.EOF);
+            var statements = new List<Ast>(1024);
+
+            while (TokenStream.Current.TokenType != TokenType.EOF)
+            {
+                statements.Add(ScopeStart().Or(Statement));
+            }
 
             return new ScopeDeclr(statements);
         }
 
-        #region Entry Point
+        #region Statement Parsers
 
-        /// <summary>
-        /// List of statements in the main program body
-        /// </summary>
-        /// <param name="parent"></param>
-        /// <param name="end"></param>
-        private List<Ast> GetStatements(Func<Boolean> end)
-        {
-            var aggregate = new List<Ast>(1024);
-
-            while (!end())
-            {
-                if (TokenStream.Current.TokenType == TokenType.LBracket)
-                {
-                    var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
-
-                    aggregate.Add(statements);
-                }
-                else
-                {
-                    var statement = Statement();
-
-                    aggregate.Add(statement);
-                }
-            }
-
-            return aggregate;
-        }
-
+        #region Single statement 
+        
         /// <summary>
         /// Method declaration or regular statement
         /// </summary>
@@ -77,12 +56,7 @@ namespace Lang.Parser
             return statement;
         }
 
-        #endregion
-
-        #region Statement Parsers
-
-        #region Single statement 
-
+        
         /// <summary>
         /// A statement inside of a valid scope 
         /// </summary>
