@@ -52,7 +52,9 @@
     <Compile Include="AST\Ast.cs" />
     <Compile Include="AST\Conditional.cs" />
     <Compile Include="AST\Expr.cs" />
+    <Compile Include="AST\ForLoop.cs" />
     <Compile Include="AST\FuncInvoke.cs" />
+    <Compile Include="AST\LambdaDeclr.cs" />
     <Compile Include="AST\MethodDeclr.cs" />
     <Compile Include="AST\ScopeDeclr.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />

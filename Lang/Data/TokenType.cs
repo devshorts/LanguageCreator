@@ -7,6 +7,7 @@ namespace Lang.Data
 {
     public enum TokenType
     {
+        Infer,
         Void,
         Int,
         WhiteSpace,
@@ -34,6 +35,7 @@ namespace Lang.Data
         While,
         Else,
         ScopeStart,
-        EOF
+        EOF,
+        For
     }
 }

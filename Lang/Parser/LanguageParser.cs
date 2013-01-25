@@ -10,8 +10,7 @@ namespace Lang.Parser
 {
     public class LanguageParser
     {
-        private Random _rand = new Random();
-
+        
         private ParseableTokenStream TokenStream { get; set; }
 
         public LanguageParser(Tokenizer tokenizer)
@@ -69,6 +68,7 @@ namespace Lang.Parser
                                   .Or(VariableDeclrStatement)
                                   .Or(GetIf)
                                   .Or(GetWhile)
+                                  .Or(GetFor)
                                   .Or(OperationExpression);
 
             if (ast != null)
@@ -157,6 +157,34 @@ namespace Lang.Parser
             return null;
         }
 
+
+        private Ast GetFor()
+        {
+            if (TokenStream.Current.TokenType == TokenType.For && TokenStream.Alt(ParseFor))
+            {
+                return TokenStream.Get(ParseFor);
+            }
+
+            return null;
+        }
+
+        private ForLoop ParseFor()
+        {
+            TokenStream.Take(TokenType.For);
+
+            var args = GetArgumentList();
+
+            var init = args[0];
+
+            var condition = args[1];
+
+            var modify = args[2];
+
+            var body = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+
+            return new ForLoop(init, condition, modify, body);
+        }
+
         private WhileLoop ParseWhile()
         {
             var predicateAndExpressions = GetPredicateAndExpressions(TokenType.While);
@@ -228,20 +256,11 @@ namespace Lang.Parser
 
             var lines = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
-            var method = new MethodDeclr(new Token(TokenType.Fun), 
-                                         new Token(TokenType.Void),
-                                         new Token(TokenType.Word, AnonymousFunctionName), 
-                                         arguments, 
-                                         lines);
-
+            var method = new LambdaDeclr(arguments, lines);
 
             return method;
         }
 
-        private string AnonymousFunctionName
-        {
-            get { return "anonymous" + _rand.Next(); }
-        }
 
         private Ast MethodDeclaration()
         {
@@ -260,7 +279,7 @@ namespace Lang.Parser
 
             var innerExpressions = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
-            return new MethodDeclr(new Token(TokenType.ScopeStart), returnType, funcName, argList, innerExpressions);
+            return new MethodDeclr(returnType, funcName, argList, innerExpressions);
         }
 
         private List<Ast> GetArgumentList(bool includeType = false)
@@ -275,9 +294,9 @@ namespace Lang.Parser
 
                 args.Add(argument);
 
-                if (TokenStream.Current.TokenType == TokenType.Comma)
+                if (TokenStream.Current.TokenType == TokenType.Comma || TokenStream.Current.TokenType == TokenType.SemiColon)
                 {
-                    TokenStream.Take(TokenType.Comma);
+                    TokenStream.Take(TokenStream.Current.TokenType);
                 }
             }
 
@@ -405,7 +424,10 @@ namespace Lang.Parser
 
         private bool StatementExpectsSemiColon(Ast statement)
         {
-            return !(statement is MethodDeclr || statement is Conditional || statement is WhileLoop);
+            return !(statement is MethodDeclr || 
+                     statement is Conditional || 
+                     statement is WhileLoop || 
+                     statement is ForLoop);
         }
 
         #endregion
@@ -497,6 +519,8 @@ namespace Lang.Parser
                 case TokenType.Minus:
                 case TokenType.Asterix:
                 case TokenType.Carat:
+                case TokenType.GreaterThan:
+                case TokenType.LessThan:
                 case TokenType.Slash:
                     return true;
             }

@@ -17,8 +17,8 @@ namespace Lang.AST
 
         public ScopeDeclr BodyStatements { get; private set; }
 
-        public MethodDeclr(Token token, Token returnType, Token funcName, List<Ast> arguments, ScopeDeclr body)
-            : base(token)
+        public MethodDeclr(Token returnType, Token funcName, List<Ast> arguments, ScopeDeclr body)
+            : base(funcName)
         {
             MethodReturnType = new Expr(returnType);
 

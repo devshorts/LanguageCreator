@@ -11,7 +11,7 @@ namespace Lang.Visitors
     {
         public void Visit(Conditional ast)
         {
-            Console.WriteLine(ast.Token);
+            Console.Write(ast.Token);
 
             if (ast.Predicate != null)
             {
@@ -24,7 +24,7 @@ namespace Lang.Visitors
             {
                 if (ast.Alternate.Token.TokenType == TokenType.If)
                 {
-                    Console.WriteLine("Else");
+                    Console.Write("Else");
                 }
 
                 ast.Alternate.Visit(this);
@@ -38,11 +38,15 @@ namespace Lang.Visitors
                 ast.Left.Visit(this);
             }
 
-            Console.WriteLine(ast.Token);
+            Console.Write(" " + ast.Token);
 
             if (ast.Right != null)
             {
+                Console.Write(" ");
+
                 ast.Right.Visit(this);
+
+                Console.WriteLine();
             }
         }
 
@@ -74,20 +78,19 @@ namespace Lang.Visitors
         {
             PrintWrap("MethodDeclaration", () =>
                 {
-                    ast.MethodReturnType.Visit(this);
+                    PrintWrap("Return type", () => ast.MethodReturnType.Visit(this));
 
-                    ast.MethodName.Visit(this);
+                    PrintWrap("FunctionName", () => ast.MethodName.Visit(this));
 
                     PrintWrap("Arguments", () => ast.Arguments.ForEach(arg => arg.Visit(this)));
 
                     PrintWrap("Body", () => ast.BodyStatements.Visit(this));
-
                 });
         }
 
         public void Visit(WhileLoop ast)
         {
-            Console.WriteLine(ast.Token);
+            Console.Write(ast.Token);
 
             PrintWrap("Predicate", () => ast.Predicate.Visit(this));
 
@@ -96,16 +99,36 @@ namespace Lang.Visitors
 
         public void Visit(ScopeDeclr ast)
         {
-            PrintWrap("Scope", () => ast.ScopedStatements.ForEach(statement => statement.Visit(this)));
+            PrintWrap("Scope", () => ast.ScopedStatements.ForEach(statement => statement.Visit(this)), true);
         }
 
-        private void PrintWrap(string name, Action action)
+        public void Visit(ForLoop ast)
         {
-            Console.WriteLine(name + "(");
+            PrintWrap("ForLoop", () =>
+                {
+                    PrintWrap("For", () => ast.Initial.Visit(this));
+                    PrintWrap("Until", () => ast.Stop.Visit(this));
+                    PrintWrap("Modify", () => ast.Modify.Visit(this));
+                    
+                    ast.Body.Visit(this);
+                });
+        }
+
+        private void PrintWrap(string name, Action action, bool newLine = false)
+        {
+            if (newLine)
+            {
+                Console.WriteLine(name + " (");
+            }
+            else
+            {
+                Console.Write(name + " (");
+            }
+
 
             action();
 
-            Console.WriteLine(")");
+            Console.WriteLine(" )");
         }
     }
 }

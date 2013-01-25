@@ -211,7 +211,12 @@ namespace Lang.Tests
                             var z = 3;
                         }
                         else{
+                            for(int i = 0; i < 10; i = i + 1){
+                                var x = z;
+                            }
                         }
+
+
                         ";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
@@ -219,6 +224,25 @@ namespace Lang.Tests
             var visitor = new AstVisitor();
 
             ast.Visit(visitor);
+        }
+
+        [Test]
+        public void ForLoopTest()
+        {
+            var test = @"for(int i = 0; i < 10; i = i + 1){
+                            var x = z;
+                        }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var topScope = (ast as ScopeDeclr).ScopedStatements[0];
+
+            var forLoop = topScope as ForLoop;
+            Assert.IsTrue(forLoop != null);
+            Assert.IsTrue(forLoop.Initial is VarDeclrAst);
+            Assert.IsTrue(forLoop.Stop.Token.TokenType == TokenType.LessThan);
+            Assert.IsTrue(forLoop.Body.ScopedStatements.Count == 1);
         }
     }
 }
