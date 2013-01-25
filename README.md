@@ -14,7 +14,7 @@ Though, I may just leave it simple and add the other stuff later. As an example,
 [Test]
 public void FunctionTest()
 {
-    var test = @"void foo(int x, int y){ 
+    var test = @""void foo(int x, int y){ 
                     int x = 1; 
                     var z = fun() -> { 
                         zinger = ""your mom!"";
@@ -35,10 +35,32 @@ public void FunctionTest()
                         var z = 3;
                     }
                     else{
+                        while(1 + 1){
+                            var x = fun () ->{
+                                test = 0;
+                            };
+                        }
+
+                        if(foo){
+                            var x = 1;
+                        }
+                        else if(faa){
+                            var y = 2;
+                            var z = 3;
+                        }
+                        else{
+                            for(int i = 0; i < 10; i = i + 1){
+                                var x = z;
+                            }
+                        }
                     }
                 }";
 
-    var ast = new Parser(new Tokenizer(test)).Parse();
+    var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
+    Assert.IsTrue(ast.ScopedStatements.Count == 3);
+    Assert.IsTrue(ast.ScopedStatements[0] is MethodDeclr);
+    Assert.IsTrue(ast.ScopedStatements[1] is Expr);
+    Assert.IsTrue(ast.ScopedStatements[2] is MethodDeclr);
 }
 ```       

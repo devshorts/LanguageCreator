@@ -92,29 +92,47 @@ namespace Lang.Tests
         [Test]
         public void FunctionTest()
         {
-        var test = @"void foo(int x, int y){ 
-                        int x = 1; 
-                        var z = fun() -> { 
-                            zinger = ""your mom!"";
-                            someThing(a + b) + 25 - (""test"" + 5);
-                        };
-                    }
-
-                    z = 3;
-
-                    int testFunction(){
-                        var p = 23;
-
-                        if(foo){
-                            var x = 1;
+            var test = @"void foo(int x, int y){ 
+                            int x = 1; 
+                            var z = fun() -> { 
+                                zinger = ""your mom!"";
+                                someThing(a + b) + 25 - (""test"" + 5);
+                            };
                         }
-                        else if(faa){
-                            var y = 2;
-                            var z = 3;
-                        }
-                        else{
-                        }
-                    }";
+
+                        z = 3;
+
+                        int testFunction(){
+                            var p = 23;
+
+                            if(foo){
+                                var x = 1;
+                            }
+                            else if(faa){
+                                var y = 2;
+                                var z = 3;
+                            }
+                            else{
+                                while(1 + 1){
+                                    var x = fun () ->{
+                                        test = 0;
+                                    };
+                                }
+
+                                if(foo){
+                                    var x = 1;
+                                }
+                                else if(faa){
+                                    var y = 2;
+                                    var z = 3;
+                                }
+                                else{
+                                    for(int i = 0; i < 10; i = i + 1){
+                                        var x = z;
+                                    }
+                                }
+                            }
+                        }";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
