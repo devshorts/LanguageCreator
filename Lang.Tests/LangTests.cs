@@ -281,7 +281,9 @@ namespace Lang.Tests
         public void TestScope()
         {
             var test = @"
-                        void foo(){}
+                        void foo(int p){
+                            p = 1;    
+                        }
                         int z = 5;
                         while(z > 0){
                             z = z + 1;
@@ -294,8 +296,6 @@ namespace Lang.Tests
             var visitor = new ScopeBuilderVisitor();
 
             ast.Visit(visitor);
-
-            var scope = visitor.Current;
         }
 
         [Test]
@@ -315,8 +315,6 @@ namespace Lang.Tests
             var visitor = new ScopeBuilderVisitor();
 
             ast.Visit(visitor);
-
-            var scope = visitor.Current;
         }
     }
 }

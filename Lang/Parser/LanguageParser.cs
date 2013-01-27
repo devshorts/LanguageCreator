@@ -357,12 +357,12 @@ namespace Lang.Parser
 
                 var name = TokenStream.Take(TokenType.Word);
 
-                // variable declrations are independent and have no following expressions
-                // but the semicolon will be consumed elsewhere
-                if (TokenStream.Current.TokenType != TokenType.SemiColon)
-                {
-                    return null;
-                }
+//                // variable declrations are independent and have no following expressions
+//                // but the semicolon will be consumed elsewhere
+//                if (requiresSemiColon && TokenStream.Current.TokenType != TokenType.SemiColon)
+//                {
+//                    return null;
+//                }
 
                 return new VarDeclrAst(type, name);
             }
