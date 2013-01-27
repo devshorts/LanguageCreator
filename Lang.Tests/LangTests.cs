@@ -12,10 +12,23 @@ namespace Lang.Tests
     [TestFixture]
     public class LangTests
     {
+        
+        [Test]
+        public void TestFloatTokenizer()
+        {
+            var test = @"1.01";
+
+            var tokens = new Tokenizer(test).Tokenize().ToList();
+
+            Assert.IsTrue(tokens.Count == 1);
+            Assert.IsTrue(tokens.First().TokenType == TokenType.Number);
+        }
+
+
         [Test]
         public void TestTokenizer1()
         {
-            var test = @"function = 1";
+            var test = @"fun function = 1";
 
             var tokens = new Tokenizer(test).Tokenize().ToList();
         }
@@ -38,7 +51,7 @@ namespace Lang.Tests
             var expr = (ast.ScopedStatements[0] as Expr);
 
             Assert.IsTrue(expr.Left.Token.TokenType == TokenType.Word);
-            Assert.IsTrue(expr.Right.Token.TokenType == TokenType.Word);
+            Assert.IsTrue(expr.Right.Token.TokenType == TokenType.Number);
             Assert.IsTrue(ast.Token.TokenType == TokenType.ScopeStart);
         }
 
@@ -218,6 +231,7 @@ namespace Lang.Tests
             var test = @"while(1 + 1){
                             var x = fun () ->{
                                 test = 0;
+                                return 1;
                             };
                         }
 
@@ -266,9 +280,12 @@ namespace Lang.Tests
         [Test]
         public void TestScope()
         {
-            var test = @"while(1){
+            var test = @"
+                        int z = 5;
+                        while(z > 0){
                             var x = 2;
                             int y;
+                            z = z - 1;
                         }
                         ";
 

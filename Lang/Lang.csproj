@@ -56,9 +56,11 @@
     <Compile Include="AST\FuncInvoke.cs" />
     <Compile Include="AST\LambdaDeclr.cs" />
     <Compile Include="AST\MethodDeclr.cs" />
+    <Compile Include="AST\ReturnAst.cs" />
     <Compile Include="AST\ScopeDeclr.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />
     <Compile Include="AST\WhileLoop.cs" />
+    <Compile Include="Matches\MatchNumber.cs" />
     <Compile Include="Parser\ParseableTokenStream.cs" />
     <Compile Include="Symbols\BasicType.cs" />
     <Compile Include="Symbols\ClassSymbol.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Exceptions;
 using Lang.Matches;
 
 
@@ -49,13 +50,14 @@ namespace Lang
 
             var keywordmatchers = new List<IMatcher>
                                   {
-                                      new MatchKeyword(TokenType.Void, "void", false),
-                                      new MatchKeyword(TokenType.Int, "int", false),
-                                      new MatchKeyword(TokenType.Fun, "fun", false),
-                                      new MatchKeyword(TokenType.If, "if", false),
-                                      new MatchKeyword(TokenType.Else, "else", false),
-                                      new MatchKeyword(TokenType.While, "while", false),
-                                      new MatchKeyword(TokenType.For, "for", false),
+                                      new MatchKeyword(TokenType.Void, "void"),
+                                      new MatchKeyword(TokenType.Int, "int"),
+                                      new MatchKeyword(TokenType.Fun, "fun"),
+                                      new MatchKeyword(TokenType.If, "if"),
+                                      new MatchKeyword(TokenType.Else, "else"),
+                                      new MatchKeyword(TokenType.While, "while"),
+                                      new MatchKeyword(TokenType.For, "for"),
+                                      new MatchKeyword(TokenType.Return, "return")
                                   };
 
             var specialCharacters = new List<IMatcher>
@@ -77,7 +79,17 @@ namespace Lang
                                         new MatchKeyword(TokenType.GreaterThan, ">"),
                                         new MatchKeyword(TokenType.LessThan, "<"),
                                         new MatchKeyword(TokenType.SemiColon, ";"),
+                                        new MatchKeyword(TokenType.Dot, "."),
                                     };
+
+            // give each keyword the list of possible delimiters and not allow them to be 
+            // substrings of other words, i.e. token fun should not be found in string "function"
+            keywordmatchers.ForEach(keyword =>
+                {
+                    var current = (keyword as MatchKeyword);
+                    current.AllowAsSubString = false;
+                    current.SpecialCharacters = specialCharacters.Select(i => i as MatchKeyword).ToList();
+                });
 
             matchers.Add(new MatchString());
             matchers.AddRange(specialCharacters);
@@ -85,6 +97,7 @@ namespace Lang
             matchers.AddRange(new List<IMatcher>
                                                 {
                                                     new MatchWhiteSpace(),
+                                                    new MatchNumber(),
                                                     new MatchWord(specialCharacters)
                                                 });
 

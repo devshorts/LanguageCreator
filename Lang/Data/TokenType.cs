@@ -32,10 +32,13 @@ namespace Lang.Data
         LessThan,
         SemiColon,
         If,
+        Return,
         While,
         Else,
         ScopeStart,
         EOF,
-        For
+        For,
+        Number,
+        Dot
     }
 }

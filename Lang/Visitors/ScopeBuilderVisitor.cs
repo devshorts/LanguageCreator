@@ -115,6 +115,11 @@ namespace Lang.Visitors
             ast.Body.Visit(this);
         }
 
+        public void Visit(ReturnAst ast)
+        {
+            ast.Visit(this);
+        }
+
         private void CreateScope()
         {
             var parentScope = ScopeTree.Count > 0 ? ScopeTree.Peek() : null;

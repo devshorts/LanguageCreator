@@ -69,6 +69,7 @@ namespace Lang.Parser
                                   .Or(GetIf)
                                   .Or(GetWhile)
                                   .Or(GetFor)
+                                  .Or(GetReturn)
                                   .Or(OperationExpression);
 
             if (ast != null)
@@ -99,6 +100,7 @@ namespace Lang.Parser
         {
             switch (TokenStream.Current.TokenType)
             {
+                case TokenType.Number:
                 case TokenType.QuotedString:
                 case TokenType.Word:
                     return ParseOperationExpression();
@@ -132,6 +134,28 @@ namespace Lang.Parser
 
             return null;
         }
+
+        #endregion
+
+        #region Return
+
+        private Ast GetReturn()
+        {
+            if (TokenStream.Current.TokenType == TokenType.Return && TokenStream.Alt(ParseReturn))
+            {
+                return TokenStream.Get(ParseReturn);
+            }
+
+            return null;
+        }
+
+        private ReturnAst ParseReturn()
+        {
+            TokenStream.Take(TokenType.Return);
+
+            return new ReturnAst(Expression());
+        }
+
 
         #endregion
 

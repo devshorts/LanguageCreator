@@ -12,5 +12,6 @@ namespace Lang.Visitors
         void Visit(WhileLoop ast);
         void Visit(ScopeDeclr ast);
         void Visit(ForLoop ast);
+        void Visit(ReturnAst ast);
     }
 }

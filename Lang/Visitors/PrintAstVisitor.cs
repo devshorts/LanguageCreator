@@ -114,6 +114,11 @@ namespace Lang.Visitors
                 });
         }
 
+        public void Visit(ReturnAst ast)
+        {
+            PrintWrap("Return", () => ast.ReturnExpression.Visit(this));
+        }
+
         private void PrintWrap(string name, Action action, bool newLine = false)
         {
             if (newLine)
