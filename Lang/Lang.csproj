@@ -62,9 +62,11 @@
     <Compile Include="AST\WhileLoop.cs" />
     <Compile Include="Matches\MatchNumber.cs" />
     <Compile Include="Parser\ParseableTokenStream.cs" />
-    <Compile Include="Symbols\BasicType.cs" />
+    <Compile Include="Symbols\UserDefinedType.cs" />
+    <Compile Include="Symbols\BuiltInType.cs" />
     <Compile Include="Symbols\ClassSymbol.cs" />
     <Compile Include="Symbols\IType.cs" />
+    <Compile Include="Symbols\MethodSymbol.cs" />
     <Compile Include="Symbols\Scope.cs" />
     <Compile Include="Symbols\Symbol.cs" />
     <Compile Include="Symbols\VariableSymbol.cs" />

@@ -1,13 +1,12 @@
 ﻿using System;
+using Lang.Data;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Lang.Symbols
 {
     public class Scope
     {
-        private List<Symbol> Symbols { get; set; }
+        private Dictionary<string, Symbol> Symbols { get; set; }
 
         public Scope EnclosingScope { get; private set; }
 
@@ -15,11 +14,14 @@ namespace Lang.Symbols
         
         public Scope(Scope enclosingScope = null)
         {
-            Symbols = new List<Symbol>(64);
+            Symbols = new Dictionary<string, Symbol>();
 
             EnclosingScope = enclosingScope;
 
             ChildScopes = new List<Scope>(64);
+
+            Define(new BuiltInType("int"));
+            Define(new BuiltInType("void"));
         }
 
         public String ScopeName
@@ -29,12 +31,23 @@ namespace Lang.Symbols
 
         public void Define(Symbol symbol)
         {
-            Symbols.Add(symbol);
+            Symbols[symbol.Name] = symbol;
         }
 
         public Symbol Resolve(String name)
         {
-            return Symbols.FirstOrDefault(s => s.Name == name);
+            Symbol o;
+            if (Symbols.TryGetValue(name, out o))
+            {
+                return o;
+            }
+
+            if (EnclosingScope == null)
+            {
+                return null;
+            }
+
+            return EnclosingScope.Resolve(name);
         }
     }
 }

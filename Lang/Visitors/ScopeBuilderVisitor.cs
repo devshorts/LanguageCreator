@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Lang.AST;
 using Lang.Data;
+using Lang.Exceptions;
 using Lang.Symbols;
 
 namespace Lang.Visitors
@@ -36,6 +37,23 @@ namespace Lang.Visitors
                 ast.Left.Visit(this);
             }
 
+            if (ast.Token.TokenType == TokenType.Word)
+            {
+                var resolved = Current.Resolve(ast.Token.TokenValue);
+
+                if (resolved != null)
+                {
+                    Console.WriteLine("Resolving {0} to {1}", ast.Token.TokenValue, resolved.Type.TypeName);
+                }
+                else
+                {
+                    var msg = String.Format("Trying to access undefined variable {0}", ast.Token.TokenValue);
+
+                    Console.WriteLine(msg);
+                    throw new InvalidSyntax(msg);
+                }
+            }
+
             if (ast.Right != null)
             {
                 ast.Right.Visit(this);
@@ -44,7 +62,19 @@ namespace Lang.Visitors
 
         public void Visit(FuncInvoke ast)
         {
-            Current.Define(GetName(ast.FunctionName));
+            var resolved = Current.Resolve(ast.Token.TokenValue);
+
+            if (resolved != null)
+            {
+                Console.WriteLine("Resolving function {0} to {1}", ast.Token.TokenValue, resolved.Type.TypeName);
+            }
+            else
+            {
+                var msg = String.Format("Trying to access undefined function {0}", ast.Token.TokenValue);
+
+                Console.WriteLine(msg);
+                throw new InvalidSyntax(msg);
+            }
 
             ast.Arguments.ForEach(arg => arg.Visit(this));
         }
@@ -53,7 +83,7 @@ namespace Lang.Visitors
         {
             if (ast.DeclarationType != null)
             {
-                Current.Define(GetNameAndType(ast.DeclarationType, ast.VariableName));
+                Current.Define(DefineUserSymbol(ast.DeclarationType, ast.VariableName));
             }
 
             if (ast.VariableValue != null)
@@ -67,21 +97,40 @@ namespace Lang.Visitors
             return new Symbol(ast.Token.TokenValue);
         }
 
-        private Symbol GetNameAndType(Ast astType, Ast name)
+        private Symbol DefineUserSymbol(Ast astType, Ast name)
         {
-            BasicType type = null;
-
-            if (astType != null)
-            {
-                type = new BasicType(astType.Token.TokenValue);
-            }
+            IType type = GetSymbolType(astType);
 
             return new Symbol(name.Token.TokenValue, type);
         }
 
+        private IType GetSymbolType(Ast astType)
+        {
+            if (astType == null)
+            {
+                return null;
+            }
+
+            switch (astType.Token.TokenType)
+            {
+                case TokenType.Int:
+                case TokenType.Void:
+                    return new BuiltInType(astType.Token.TokenType.ToString());
+                default:
+                    return new UserDefinedType(astType.Token.TokenValue);
+            }
+        }
+
+        private Symbol DefineMethod(Ast astType, Ast name)
+        {
+            IType type = GetSymbolType(astType);
+
+            return new MethodSymbol(name.Token.TokenValue, type);
+        }
+
         public void Visit(MethodDeclr ast)
         {
-            Current.Define(GetNameAndType(ast.MethodReturnType, ast.MethodName));
+            Current.Define(DefineMethod(ast.MethodReturnType, ast.MethodName));
 
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
@@ -138,7 +187,7 @@ namespace Lang.Visitors
         {
             if (ScopeTree.Count > 0)
             {
-                Current = ScopeTree.Dequeue().EnclosingScope;
+                Current = ScopeTree.Dequeue();
             }
         }
     }

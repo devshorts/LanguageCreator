@@ -281,11 +281,32 @@ namespace Lang.Tests
         public void TestScope()
         {
             var test = @"
+                        void foo(){}
                         int z = 5;
                         while(z > 0){
-                            var x = 2;
-                            int y;
-                            z = z - 1;
+                            z = z + 1;
+                            foo();
+                        }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var visitor = new ScopeBuilderVisitor();
+
+            ast.Visit(visitor);
+
+            var scope = visitor.Current;
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestScopeInvalidSyntax()
+        {
+            var test = @"
+                        int z = 5;
+                        while(z > 0){
+                            z = z + 1;            
+                            foo();
                         }
                         ";
 
