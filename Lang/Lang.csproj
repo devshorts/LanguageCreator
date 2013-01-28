@@ -50,12 +50,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AST\Ast.cs" />
+    <Compile Include="AST\AstTypes.cs" />
     <Compile Include="AST\Conditional.cs" />
     <Compile Include="AST\Expr.cs" />
     <Compile Include="AST\ForLoop.cs" />
     <Compile Include="AST\FuncInvoke.cs" />
     <Compile Include="AST\LambdaDeclr.cs" />
     <Compile Include="AST\MethodDeclr.cs" />
+    <Compile Include="AST\PrintAst.cs" />
     <Compile Include="AST\ReturnAst.cs" />
     <Compile Include="AST\ScopeDeclr.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />
@@ -63,7 +65,9 @@
     <Compile Include="Exceptions\UndefinedElementException.cs" />
     <Compile Include="Matches\MatchNumber.cs" />
     <Compile Include="Parser\ParseableTokenStream.cs" />
+    <Compile Include="Spaces\IScopeable.cs" />
     <Compile Include="Spaces\MemorySpace.cs" />
+    <Compile Include="Spaces\ScopeStack.cs" />
     <Compile Include="Symbols\UserDefinedType.cs" />
     <Compile Include="Symbols\BuiltInType.cs" />
     <Compile Include="Symbols\ClassSymbol.cs" />

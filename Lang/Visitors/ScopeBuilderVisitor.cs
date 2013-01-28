@@ -1,23 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using Lang.AST;
 using Lang.Data;
-using Lang.Exceptions;
 using Lang.Spaces;
 using Lang.Symbols;
-using Lang.Utils;
 
 namespace Lang.Visitors
 {
     public class ScopeBuilderVisitor : IAstVisitor
     {
-        public Scope Current { get; private set; }
+        public Scope Current { get { return ScopeTree.Current; } }
 
-        public Stack<Scope> ScopeTree { get; private set; }
+        public ScopeStack<Scope> ScopeTree { get; private set; }
 
         public ScopeBuilderVisitor()
         {
-            ScopeTree = new Stack<Scope>();
+            ScopeTree = new ScopeStack<Scope>();
         }
 
         public void Visit(Conditional ast)
@@ -41,23 +38,6 @@ namespace Lang.Visitors
                 ast.Left.Visit(this);
             }
 
-            if (ast.Token.TokenType == TokenType.Word)
-            {
-                var resolved = Current.Resolve(ast.Token.TokenValue);
-
-                if (resolved != null)
-                {
-                    Console.WriteLine("Resolving {0} to {1}", ast.Token.TokenValue, resolved.Type.TypeName);
-                }
-                else
-                {
-                    var msg = String.Format("Trying to access undefined variable {0}", ast.Token.TokenValue);
-
-                    Console.WriteLine(msg);
-                    throw new UndefinedElementException(msg);
-                }
-            }
-
             if (ast.Right != null)
             {
                 ast.Right.Visit(this);
@@ -68,20 +48,6 @@ namespace Lang.Visitors
 
         public void Visit(FuncInvoke ast)
         {
-            var resolved = Current.Resolve(ast.Token.TokenValue);
-
-            if (resolved != null)
-            {
-                Console.WriteLine("Resolving function {0} to {1}", ast.Token.TokenValue, resolved.Type.TypeName);
-            }
-            else
-            {
-                var msg = String.Format("Trying to access undefined function {0}", ast.Token.TokenValue);
-
-                Console.WriteLine(msg);
-                throw new UndefinedElementException(msg);
-            }
-
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
             ast.CurrentScope = Current;
@@ -143,7 +109,7 @@ namespace Lang.Visitors
         {
             Current.Define(DefineMethod(ast.MethodReturnType, ast.MethodName));
 
-            CreateScope();
+            ScopeTree.CreateScope();
 
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
@@ -151,7 +117,7 @@ namespace Lang.Visitors
 
             ast.CurrentScope = Current;
 
-            PopScope();
+            ScopeTree.PopScope();
         }
 
         public void Visit(WhileLoop ast)
@@ -165,14 +131,14 @@ namespace Lang.Visitors
 
         public void Visit(ScopeDeclr ast)
         {
-            CreateScope();
+            ScopeTree.CreateScope();
 
             ast.ScopedStatements.ForEach(statement => 
                 statement.Visit(this));
 
             ast.CurrentScope = Current;
 
-            PopScope();
+            ScopeTree.PopScope();
         }
 
         public void Visit(ForLoop ast)
@@ -193,26 +159,9 @@ namespace Lang.Visitors
             ast.Visit(this);
         }
 
-        private void CreateScope()
+        public void Visit(PrintAst ast)
         {
-            var parentScope = ScopeTree.Count > 0 ? ScopeTree.Peek() : null;
-
-            Current = new Scope(parentScope);
-
-            if (parentScope != null)
-            {
-                parentScope.ChildScopes.Add(Current);
-            }
-
-            ScopeTree.Push(Current);
-        }
-
-        private void PopScope()
-        {
-            if (ScopeTree.Count > 0)
-            {
-                Current = ScopeTree.Pop().EnclosingScope;
-            }
+            ast.Visit(this);
         }
     }
 }

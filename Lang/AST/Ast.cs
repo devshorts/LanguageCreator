@@ -34,5 +34,7 @@ namespace Lang.AST
         }
 
         public abstract void Visit(IAstVisitor visitor);
+
+        public abstract AstTypes Type { get; }
     }
 }

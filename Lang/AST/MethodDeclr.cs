@@ -35,6 +35,11 @@ namespace Lang.AST
             visitor.Visit(this);
         }
 
+        public override AstTypes Type
+        {
+            get { return AstTypes.MethodDeclr; }
+        }
+
         public override string ToString()
         {
             return "Declare " + MethodName + " ret: " + MethodReturnType + ", args " + Arguments.Aggregate("", (a, b) => a + b + ",") + " with body " + BodyStatements.ScopedStatements.Aggregate("", (acc, item) => acc + item + ",");

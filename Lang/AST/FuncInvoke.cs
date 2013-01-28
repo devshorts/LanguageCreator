@@ -26,6 +26,11 @@ namespace Lang.AST
             visitor.Visit(this);
         }
 
+        public override AstTypes Type
+        {
+            get { return AstTypes.FunctionInvoke; }
+        }
+
         public override string ToString()
         {
             return "call " + FunctionName + " with args " + Arguments.Aggregate("", (acc, item) => acc + item + ",");

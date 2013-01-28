@@ -5,22 +5,24 @@ using Lang.Symbols;
 namespace Lang.Spaces
 {
     [Serializable]
-    public class Scope
+    public class Scope : IScopeable<Scope>
     {
         private Dictionary<string, Symbol> Symbols { get; set; }
 
         public Scope EnclosingScope { get; private set; }
 
-        public List<Scope> ChildScopes { get; private set; } 
+        public void SetParentScope(Scope scope)
+        {
+            EnclosingScope = scope;
+        }
+
+        public List<IScopeable<Scope>> ChildScopes { get; private set; } 
         
-        public Scope(Scope enclosingScope = null)
+        public Scope()
         {
             Symbols = new Dictionary<string, Symbol>();
 
-            EnclosingScope = enclosingScope;
-
-            ChildScopes = new List<Scope>(64);
-
+            ChildScopes = new List<IScopeable<Scope>>(64);
         }
 
         public String ScopeName

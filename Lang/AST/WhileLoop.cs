@@ -30,6 +30,11 @@ namespace Lang.AST
             visitor.Visit(this);
         }
 
+        public override AstTypes Type
+        {
+            get { return AstTypes.While; }
+        }
+
         public override string ToString()
         {
             return "While (" + Predicate + ") do " + Body.ScopedStatements.Aggregate("", (acc, item) => acc + item + ",");

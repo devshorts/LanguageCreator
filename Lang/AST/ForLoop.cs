@@ -34,6 +34,11 @@ namespace Lang.AST
             visitor.Visit(this);
         }
 
+        public override AstTypes Type
+        {
+            get { return AstTypes.For; }
+        }
+
         public override string ToString()
         {
             return "(" + Token + "(" + Initial + ") (" + Stop + ")" + "(" + Modify +"){" + Body + "}";

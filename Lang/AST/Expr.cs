@@ -30,6 +30,11 @@ namespace Lang.AST
             visitor.Visit(this);
         }
 
+        public override AstTypes Type
+        {
+            get { return AstTypes.Expression; }
+        }
+
         public override string ToString()
         {
             if (Left == null && Right == null)

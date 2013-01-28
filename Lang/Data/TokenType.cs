@@ -34,6 +34,7 @@
         EOF,
         For,
         Number,
+        Print,
         Dot
     }
 }

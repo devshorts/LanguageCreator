@@ -32,6 +32,11 @@ namespace Lang.AST
             visitor.Visit(this);
         }
 
+        public override AstTypes Type
+        {
+            get { return AstTypes.Conditional; }
+        }
+
         public override string ToString()
         {
             return "(" + Token + "(" + Predicate + ") then " + Body + (Alternate != null ? " else " + Alternate : "");

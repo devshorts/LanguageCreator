@@ -77,13 +77,16 @@ namespace Lang.Parser
 
                 var ast = action();
 
-                found = true;
+                if (ast != null)
+                {
+                    found = true;
 
-                CachedAst[currentIndex] = new Memo
-                                          {
-                                              Ast = ast,
-                                              NextIndex = Index
-                                          };
+                    CachedAst[currentIndex] = new Memo
+                                              {
+                                                  Ast = ast,
+                                                  NextIndex = Index
+                                              };
+                }
             }
             catch
             {

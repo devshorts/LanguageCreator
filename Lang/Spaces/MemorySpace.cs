@@ -1,20 +1,21 @@
 ﻿using System;
 using Lang.Data;
 using System.Collections.Generic;
+using Lang.Spaces;
 
 namespace Lang.Symbols
 {
-    public class MemorySpace
+    public class MemorySpace : IScopeable<MemorySpace>
     {
         private Dictionary<string, object> Values { get; set; }
 
-        public MemorySpace EnclosingScope { get; private set; }
+        public MemorySpace EnclosingSpace { get; private set; }
 
-        public MemorySpace(MemorySpace enclosingScope = null)
+        public MemorySpace()
         {
             Values = new Dictionary<string, object>();
 
-            EnclosingScope = enclosingScope;
+            ChildScopes = new List<IScopeable<MemorySpace>>(64);
         }
 
         public void Assign(string name, object value)
@@ -24,7 +25,25 @@ namespace Lang.Symbols
 
         public object Get(string name)
         {
-            return Values[name];
+            object o;
+            if (Values.TryGetValue(name, out o))
+            {
+                return o;
+            }
+
+            if (EnclosingSpace != null)
+            {
+                return EnclosingSpace.Get(name);
+            }
+
+            return null;
         }
+
+        public void SetParentScope(MemorySpace scope)
+        {
+            EnclosingSpace = scope;
+        }
+
+        public List<IScopeable<MemorySpace>> ChildScopes { get; private set; }
     }
 }

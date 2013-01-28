@@ -70,6 +70,7 @@ namespace Lang.Parser
                                   .Or(GetWhile)
                                   .Or(GetFor)
                                   .Or(GetReturn)
+                                  .Or(PrintStatement)
                                   .Or(OperationExpression);
 
             if (ast != null)
@@ -94,6 +95,35 @@ namespace Lang.Parser
 
         #endregion
 
+        #region Print
+
+        private Ast PrintStatement()
+        {
+            Func<Ast> op = () =>
+                {
+                    TokenStream.Take(TokenType.Print);
+
+                    var expr = Expression();
+
+                    if (expr != null)
+                    {
+                        return new PrintAst(expr);
+                    }
+
+                    return null;
+                };
+
+            if (TokenStream.Alt(op))
+            {
+                return TokenStream.Get(op);
+            }
+
+            return null;
+        }
+
+        #endregion
+
+
         #region Expressions of single items or expr op expr
 
         private Ast OperationExpression()
@@ -106,7 +136,13 @@ namespace Lang.Parser
                     return ParseOperationExpression();
 
                 case TokenType.OpenParenth:
-                    return GetExpressionsInScope(TokenType.OpenParenth, TokenType.CloseParenth, false);
+                    TokenStream.Take(TokenType.OpenParenth);
+
+                    var expr = ParseOperationExpression();
+
+                    TokenStream.Take(TokenType.CloseParenth);
+
+                    return expr;
 
                 default:
                     return null;
@@ -115,23 +151,44 @@ namespace Lang.Parser
 
         private Ast ParseOperationExpression()
         {
-            Func<Ast> op = () =>
+            Func<Func<Ast>, Func<Ast>, Ast> op = (leftFunc, rightFunc) =>
                 {
-                    var left = FunctionCallStatement().Or(SingleToken);
+                    var left = leftFunc();
 
-                    return new Expr(left, Operator(), Expression());
+                    if (left == null)
+                    {
+                        return null;
+                    }
+
+                    var opType = Operator();
+
+                    var right = rightFunc();
+
+                    if (right == null)
+                    {
+                        return null;
+                    }
+
+                    return new Expr(left, opType, right);
                 };
 
-            if(TokenStream.Alt(op))
+            if (TokenStream.Alt(() => op(ConsumeFinalExpression, OperationExpression)))
             {
-                return TokenStream.Get(op);
+                return TokenStream.Get(() => op(ConsumeFinalExpression, OperationExpression));
             }
-            
+
             if (TokenStream.Alt(ConsumeFinalExpression))
             {
                 return TokenStream.Get(ConsumeFinalExpression);
             }
 
+            if (TokenStream.Alt(() => op(OperationExpression, ConsumeFinalExpression)))
+            {
+                return TokenStream.Get(() => op(OperationExpression, ConsumeFinalExpression));
+            }
+
+
+            
             return null;
         }
 
@@ -391,9 +448,17 @@ namespace Lang.Parser
 
         private Ast SingleToken()
         {
-            var token = new Expr(TokenStream.Take(TokenStream.Current.TokenType));
+            switch (TokenStream.Current.TokenType)
+            {
+                case TokenType.Word:
+                case TokenType.QuotedString:
+                case TokenType.Number:
+                    var token = new Expr(TokenStream.Take(TokenStream.Current.TokenType));
 
-            return token;
+                    return token;
+            }
+
+            return null;
         }
 
         private Token Operator()

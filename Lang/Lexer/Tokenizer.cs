@@ -57,7 +57,8 @@ namespace Lang
                                       new MatchKeyword(TokenType.Else, "else"),
                                       new MatchKeyword(TokenType.While, "while"),
                                       new MatchKeyword(TokenType.For, "for"),
-                                      new MatchKeyword(TokenType.Return, "return")
+                                      new MatchKeyword(TokenType.Return, "return"),
+                                      new MatchKeyword(TokenType.Print, "print")
                                   };
 
             var specialCharacters = new List<IMatcher>

@@ -21,5 +21,10 @@ namespace Lang.AST
         {
             visitor.Visit(this);
         }
+
+        public override AstTypes Type
+        {
+            get { return AstTypes.ScopeDeclr; }
+        }
     }
 }

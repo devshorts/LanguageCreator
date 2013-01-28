@@ -28,7 +28,7 @@ namespace Lang.Tests
         [Test]
         public void TestTokenizer1()
         {
-            var test = @"fun function = 1";
+            var test = @"fun function = 1 print";
 
             var tokens = new Tokenizer(test).Tokenize().ToList();
         }
@@ -69,6 +69,17 @@ namespace Lang.Tests
             Assert.IsTrue((expr.Right as Expr).Right.Token.TokenValue == "2");
             Assert.IsTrue((expr.Right as Expr).Token.TokenValue == "+");
             Assert.IsTrue((expr.Right as Expr).Token.TokenType == TokenType.Plus);
+        }
+
+        [Test]
+        public void AstWithNestedExpressions()
+        {
+            var test = @"(3 + ((1 + 2) + 1));";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var expr = (ast.ScopedStatements[0] as Expr);
+
         }
 
         [Test]
@@ -299,40 +310,19 @@ namespace Lang.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(UndefinedElementException))]
-        public void TestScopeInvalidSyntax()
+        public void TestExpressionInterpreter()
         {
             var test = @"
-                        int z = 5;
-                        while(z > 0){
-                            z = z + 1;            
-                            foo();
-                        }
-                        ";
+                        x = 0 + 1;
+                        print ((x + 2) + 3);";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
-            var visitor = new ScopeBuilderVisitor();
+            var visitor = new InterpretorVisitor();
 
             ast.Visit(visitor);
         }
 
-        [Test]
-        [ExpectedException(typeof(UndefinedElementException))]
-        public void TestScopeInvalidSyntax2()
-        {
-            var test = @"
-                        void x(int p){
-                        }
 
-                        p = 1;
-                        ";
-
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
-
-            var visitor = new ScopeBuilderVisitor();
-
-            ast.Visit(visitor);
-        }
     }
 }
