@@ -299,7 +299,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidSyntax))]
+        [ExpectedException(typeof(UndefinedElementException))]
         public void TestScopeInvalidSyntax()
         {
             var test = @"
@@ -308,6 +308,24 @@ namespace Lang.Tests
                             z = z + 1;            
                             foo();
                         }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var visitor = new ScopeBuilderVisitor();
+
+            ast.Visit(visitor);
+        }
+
+        [Test]
+        [ExpectedException(typeof(UndefinedElementException))]
+        public void TestScopeInvalidSyntax2()
+        {
+            var test = @"
+                        void x(int p){
+                        }
+
+                        p = 1;
                         ";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();

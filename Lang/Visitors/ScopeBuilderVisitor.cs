@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;
+using Lang.Spaces;
 using Lang.Symbols;
+using Lang.Utils;
 
 namespace Lang.Visitors
 {
@@ -11,11 +13,11 @@ namespace Lang.Visitors
     {
         public Scope Current { get; private set; }
 
-        public Queue<Scope> ScopeTree { get; private set; }
+        public Stack<Scope> ScopeTree { get; private set; }
 
         public ScopeBuilderVisitor()
         {
-            ScopeTree = new Queue<Scope>();
+            ScopeTree = new Stack<Scope>();
         }
 
         public void Visit(Conditional ast)
@@ -28,6 +30,8 @@ namespace Lang.Visitors
             {
                 ast.Alternate.Visit(this);
             }
+
+            ast.CurrentScope = Current;
         }
 
         public void Visit(Expr ast)
@@ -50,7 +54,7 @@ namespace Lang.Visitors
                     var msg = String.Format("Trying to access undefined variable {0}", ast.Token.TokenValue);
 
                     Console.WriteLine(msg);
-                    throw new InvalidSyntax(msg);
+                    throw new UndefinedElementException(msg);
                 }
             }
 
@@ -58,6 +62,8 @@ namespace Lang.Visitors
             {
                 ast.Right.Visit(this);
             }
+
+            ast.CurrentScope = Current;
         }
 
         public void Visit(FuncInvoke ast)
@@ -73,16 +79,19 @@ namespace Lang.Visitors
                 var msg = String.Format("Trying to access undefined function {0}", ast.Token.TokenValue);
 
                 Console.WriteLine(msg);
-                throw new InvalidSyntax(msg);
+                throw new UndefinedElementException(msg);
             }
 
             ast.Arguments.ForEach(arg => arg.Visit(this));
+
+            ast.CurrentScope = Current;
         }
 
         public void Visit(VarDeclrAst ast)
         {
             if (ast.DeclarationType != null)
             {
+                Console.WriteLine("Defining {0}", ast.VariableName.Token.TokenValue);
                 Current.Define(DefineUserSymbol(ast.DeclarationType, ast.VariableName));
             }
 
@@ -90,6 +99,8 @@ namespace Lang.Visitors
             {
                 ast.VariableValue.Visit(this);
             }
+
+            ast.CurrentScope = Current;
         }
 
         private Symbol GetName(Ast ast)
@@ -132,9 +143,15 @@ namespace Lang.Visitors
         {
             Current.Define(DefineMethod(ast.MethodReturnType, ast.MethodName));
 
+            CreateScope();
+
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
             ast.BodyStatements.Visit(this);
+
+            ast.CurrentScope = Current;
+
+            PopScope();
         }
 
         public void Visit(WhileLoop ast)
@@ -142,13 +159,18 @@ namespace Lang.Visitors
             ast.Predicate.Visit(this);
 
             ast.Body.Visit(this);
+
+            ast.CurrentScope = Current;
         }
 
         public void Visit(ScopeDeclr ast)
         {
             CreateScope();
 
-            ast.ScopedStatements.ForEach(statement => statement.Visit(this));
+            ast.ScopedStatements.ForEach(statement => 
+                statement.Visit(this));
+
+            ast.CurrentScope = Current;
 
             PopScope();
         }
@@ -162,6 +184,8 @@ namespace Lang.Visitors
             ast.Modify.Visit(this);
 
             ast.Body.Visit(this);
+
+            ast.CurrentScope = Current;
         }
 
         public void Visit(ReturnAst ast)
@@ -180,14 +204,14 @@ namespace Lang.Visitors
                 parentScope.ChildScopes.Add(Current);
             }
 
-            ScopeTree.Enqueue(Current);
+            ScopeTree.Push(Current);
         }
 
         private void PopScope()
         {
             if (ScopeTree.Count > 0)
             {
-                Current = ScopeTree.Dequeue();
+                Current = ScopeTree.Pop().EnclosingScope;
             }
         }
     }

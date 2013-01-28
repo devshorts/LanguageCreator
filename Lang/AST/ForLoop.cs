@@ -33,5 +33,10 @@ namespace Lang.AST
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            return "(" + Token + "(" + Initial + ") (" + Stop + ")" + "(" + Modify +"){" + Body + "}";
+        }
     }
 }

@@ -25,5 +25,10 @@ namespace Lang.AST
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            return "call " + FunctionName + " with args " + Arguments.Aggregate("", (acc, item) => acc + item + ",");
+        }
     }
 }

@@ -6,10 +6,9 @@ using System.Text;
 namespace Lang.Symbols
 {
     [Serializable]
-    public class ClassSymbol : Symbol, IType
+    public class UserDefinedType : Symbol, IType
     {
-        public ClassSymbol(string name)
-            : base(name)
+        public UserDefinedType(string name) : base(name)
         {
         }
 

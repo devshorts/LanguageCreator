@@ -60,14 +60,16 @@
     <Compile Include="AST\ScopeDeclr.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />
     <Compile Include="AST\WhileLoop.cs" />
+    <Compile Include="Exceptions\UndefinedElementException.cs" />
     <Compile Include="Matches\MatchNumber.cs" />
     <Compile Include="Parser\ParseableTokenStream.cs" />
+    <Compile Include="Spaces\MemorySpace.cs" />
     <Compile Include="Symbols\UserDefinedType.cs" />
     <Compile Include="Symbols\BuiltInType.cs" />
     <Compile Include="Symbols\ClassSymbol.cs" />
     <Compile Include="Symbols\IType.cs" />
     <Compile Include="Symbols\MethodSymbol.cs" />
-    <Compile Include="Symbols\Scope.cs" />
+    <Compile Include="Spaces\Scope.cs" />
     <Compile Include="Symbols\Symbol.cs" />
     <Compile Include="Symbols\VariableSymbol.cs" />
     <Compile Include="Utils\CollectionUtil.cs" />
@@ -84,7 +86,9 @@
     <Compile Include="Matches\MatchWord.cs" />
     <Compile Include="Parser\LanguageParser.cs" />
     <Compile Include="Lexer\Tokenizer.cs" />
+    <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="Utils\Maybe.cs" />
+    <Compile Include="Visitors\InterpretorVisitor.cs" />
     <Compile Include="Visitors\PrintAstVisitor.cs" />
     <Compile Include="Visitors\IAcceptVisitor.cs" />
     <Compile Include="Visitors\IAstVisitor.cs" />

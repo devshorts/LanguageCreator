@@ -31,5 +31,10 @@ namespace Lang.AST
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            return "(" + Token + "(" + Predicate + ") then " + Body + (Alternate != null ? " else " + Alternate : "");
+        }
     }
 }

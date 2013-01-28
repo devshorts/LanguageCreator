@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Lang.Symbols
 {
     [Serializable]
-    public class ClassSymbol : Symbol, IType
+    public class BuiltInType : Symbol, IType
     {
-        public ClassSymbol(string name)
+        public BuiltInType(string name)
             : base(name)
         {
         }

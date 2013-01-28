@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Lang.Spaces;
 using Lang.Data;
 using Lang.Visitors;
 
@@ -9,6 +8,8 @@ namespace Lang.AST
 {
     public abstract class Ast : IAcceptVisitor
     {
+        public Scope CurrentScope { get; set; }
+
         public Token Token { get; private set; }
 
         public List<Ast> Children { get; private set; } 

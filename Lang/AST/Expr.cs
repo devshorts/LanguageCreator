@@ -29,5 +29,15 @@ namespace Lang.AST
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            if (Left == null && Right == null)
+            {
+                return Token.ToString();
+            }
+
+            return "(" + Left + " " + Token + " " + Right + ")";
+        }
     }
 }

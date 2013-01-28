@@ -29,5 +29,10 @@ namespace Lang.AST
         {
             visitor.Visit(this);
         }
+
+        public override string ToString()
+        {
+            return "While (" + Predicate + ") do " + Body.ScopedStatements.Aggregate("", (acc, item) => acc + item + ",");
+        }
     }
 }

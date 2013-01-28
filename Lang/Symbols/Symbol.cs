@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Lang.Symbols
 {
+    [Serializable]
     public class Symbol
     {
         public String Name { get; private set; }

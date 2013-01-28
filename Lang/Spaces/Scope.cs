@@ -1,9 +1,10 @@
 ﻿using System;
-using Lang.Data;
 using System.Collections.Generic;
+using Lang.Symbols;
 
-namespace Lang.Symbols
+namespace Lang.Spaces
 {
+    [Serializable]
     public class Scope
     {
         private Dictionary<string, Symbol> Symbols { get; set; }
@@ -20,8 +21,6 @@ namespace Lang.Symbols
 
             ChildScopes = new List<Scope>(64);
 
-            Define(new BuiltInType("int"));
-            Define(new BuiltInType("void"));
         }
 
         public String ScopeName

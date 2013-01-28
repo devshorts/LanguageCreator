@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Lang.Symbols
 {
+    [Serializable]
     public class VariableSymbol : Symbol
     {
         public VariableSymbol(string name, IType type) : base(name, type)

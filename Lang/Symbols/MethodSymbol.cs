@@ -6,16 +6,14 @@ using System.Text;
 namespace Lang.Symbols
 {
     [Serializable]
-    public class ClassSymbol : Symbol, IType
+    public class MethodSymbol : Symbol
     {
-        public ClassSymbol(string name)
-            : base(name)
+        public MethodSymbol(string name, IType type) : base(name, type)
         {
         }
 
-        public string TypeName
+        public MethodSymbol(string name) : base(name)
         {
-            get { return Name; }
         }
     }
 }
