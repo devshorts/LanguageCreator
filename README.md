@@ -1,14 +1,14 @@
 LanguageCreator
 ===============
 
-A place to practice language creation mechanisms. Currently can parse a weird subset of c++, c#, and f#, into an AST
+A place to practice language creation mechanisms. Currently can parse a weird subset of c++, c#, and f#, into an AST with proper scoping rules and memory spaces.
 
 Supported Constructs
 ===
 
-The AST supports variable assignment, if/else conditionals declaration, function declaration with varialbe arguments, anonymous functions, and quoted strings.  Things to do include AST for adding return types, and adding class constructs.
+The language supports variable assignment, if/else conditionals declaration, function declaration with varialbe arguments, anonymous functions, and quoted strings.  Things to do include AST for adding return types, and adding class constructs.
 
-Though, I may just leave it simple and add the other stuff later. As an example, this properly parsers:
+Right now, this properly parsers
 
 ```csharp
 [Test]
@@ -63,4 +63,43 @@ public void FunctionTest()
     Assert.IsTrue(ast.ScopedStatements[1] is Expr);
     Assert.IsTrue(ast.ScopedStatements[2] is MethodDeclr);
 }
-```       
+```      
+
+And this interprets
+
+```csharp
+[Test]
+public void TestExpressionInterpreterFunctionArguments()
+{
+    var test = @"
+                void foo(int x){
+                    if(x > 2){
+                        print ((x + 1) + 2);
+                    }
+                    else{
+                        print (x);
+                    }
+                }
+                foo(1);
+                foo(100);";
+
+    var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+    var scopeBuilder = new ScopeBuilderVisitor();
+
+    ast.Visit(scopeBuilder);
+
+    var visitor = new InterpretorVisitor();
+
+    ast.Visit(visitor);
+}
+```
+
+Into 
+
+```
+1
+103
+```
+
+So, progress is being made.  Type values aren't really being checked, everything is being worked as an integer.  Though updating the symbol tracking to be a little more robust and I can get that to work as well. 

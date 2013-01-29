@@ -338,7 +338,7 @@ namespace Lang.Tests
             var test = @"
                         void foo(int x){
                             if(x > 2){
-                                print (x + 1);
+                                print ((x + 1) + 2);
                             }
                             else{
                                 print (x);
