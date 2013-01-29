@@ -314,7 +314,33 @@ namespace Lang.Tests
         {
             var test = @"
                         int x = 100 + 1;
-                        print (x + 2 + (3 + 4));";
+                        void foo(){
+                            print (1 + 1);
+                        }
+                        print (x + 2 + (3 + 4));
+                        foo();
+                        foo();";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var visitor = new InterpretorVisitor();
+
+            ast.Visit(visitor);
+        }
+
+        [Test]
+        public void TestExpressionInterpreterFunctionArguments()
+        {
+            var test = @"
+                        void foo(int x){
+                            print (x + 1);
+                        }
+                        foo(1);
+                        foo(100);";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
 

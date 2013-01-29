@@ -98,16 +98,16 @@ namespace Lang.Visitors
             }
         }
 
-        private Symbol DefineMethod(Ast astType, Ast name)
+        private Symbol DefineMethod(MethodDeclr method)
         {
-            IType type = GetSymbolType(astType);
+            IType type = GetSymbolType(method.MethodReturnType);
 
-            return new MethodSymbol(name.Token.TokenValue, type);
+            return new MethodSymbol(method.Token.TokenValue, type, method);
         }
 
         public void Visit(MethodDeclr ast)
         {
-            Current.Define(DefineMethod(ast.MethodReturnType, ast.MethodName));
+            Current.Define(DefineMethod(ast));
 
             ScopeTree.CreateScope();
 
@@ -133,8 +133,7 @@ namespace Lang.Visitors
         {
             ScopeTree.CreateScope();
 
-            ast.ScopedStatements.ForEach(statement => 
-                statement.Visit(this));
+            ast.ScopedStatements.ForEach(statement => statement.Visit(this));
 
             ast.CurrentScope = Current;
 

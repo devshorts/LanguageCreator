@@ -72,6 +72,11 @@ namespace Lang.Visitors
 
         private Object Exec(Ast ast)
         {
+            if (ast == null)
+            {
+                return null;
+            }
+
             switch (ast.Type)
             {
                 case AstTypes.ScopeDeclr:
@@ -91,9 +96,35 @@ namespace Lang.Visitors
                 case AstTypes.Print:
                     Print(ast as PrintAst);
                     break;
+                case AstTypes.FunctionInvoke:
+                    return InvokeFunction(ast as FuncInvoke);
             }
 
             return null;
+        }
+
+        private object InvokeFunction(FuncInvoke funcInvoke)
+        {
+            var method = Resolve(funcInvoke) as MethodSymbol;
+
+            MemorySpaces.CreateScope();
+
+            var count = 0;
+            foreach (var arg in method.MethodDeclr.Arguments)
+            {
+                arg.Visit(this);
+
+                MemorySpaces.Current.Assign(arg.Token.TokenValue, funcInvoke.Arguments[count].Token.TokenValue);
+
+                count++;
+            }
+
+
+            var val = Exec(method.MethodDeclr.BodyStatements);
+
+            MemorySpaces.PopScope();
+
+            return val;
         }
 
         private void VariableDeclaration(VarDeclrAst varDeclrAst)
@@ -147,7 +178,7 @@ namespace Lang.Visitors
             }
         }
 
-               private void ScopeDelcaration(ScopeDeclr ast)
+        private void ScopeDelcaration(ScopeDeclr ast)
         {
             MemorySpaces.CreateScope();
 
