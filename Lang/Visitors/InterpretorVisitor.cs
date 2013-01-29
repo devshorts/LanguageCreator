@@ -77,6 +77,10 @@ namespace Lang.Visitors
                 case AstTypes.ScopeDeclr:
                     ScopeDelcaration(ast as ScopeDeclr);
                     break;
+                case AstTypes.VarDeclr:
+                    VariableDeclaration(ast as VarDeclrAst);
+                    break;
+
                 case AstTypes.Expression:
                     var ret = Expression(ast as Expr);
                     if (ret != null)
@@ -90,6 +94,18 @@ namespace Lang.Visitors
             }
 
             return null;
+        }
+
+        private void VariableDeclaration(VarDeclrAst varDeclrAst)
+        {
+            var value = Exec(varDeclrAst.VariableValue);
+
+            if (value != null)
+            {
+                var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
+
+                MemorySpaces.Current.Assign(symbol.Name, value);
+            }
         }
 
         private void Print(PrintAst ast)
@@ -107,6 +123,8 @@ namespace Lang.Visitors
             switch (ast.Token.TokenType)
             {
                 case TokenType.Equals:
+                    var symbolEquals = Resolve(lhs);
+
                     MemorySpaces.Current.Assign(lhs.Token.TokenValue, Exec(rhs));
                     return null;
 
@@ -114,6 +132,8 @@ namespace Lang.Visitors
                     return Convert.ToInt32(Exec(lhs)) + Convert.ToInt32(Exec(rhs));
 
                 case TokenType.Word:
+                    var symbol = Resolve(ast);
+
                     return MemorySpaces.Current.Get(ast.Token.TokenValue);
                     
                 case TokenType.Number:
@@ -127,7 +147,7 @@ namespace Lang.Visitors
             }
         }
 
-        private void ScopeDelcaration(ScopeDeclr ast)
+               private void ScopeDelcaration(ScopeDeclr ast)
         {
             MemorySpaces.CreateScope();
 

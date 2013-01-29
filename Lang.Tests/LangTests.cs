@@ -313,10 +313,34 @@ namespace Lang.Tests
         public void TestExpressionInterpreter()
         {
             var test = @"
-                        x = 0 + 1;
-                        print ((x + 2) + 3);";
+                        int x = 100 + 1;
+                        print (x + 2 + (3 + 4));";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var visitor = new InterpretorVisitor();
+
+            ast.Visit(visitor);
+        }
+
+        [Test]
+        [ExpectedException(typeof(UndefinedElementException))]
+        public void TestExpressionInterpreterUndeclaredVar()
+        {
+            var test = @"
+                        int x = 100 + 1;
+                        z = 4;
+                        print (x + 2 + (3 + 4));";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
 
             var visitor = new InterpretorVisitor();
 

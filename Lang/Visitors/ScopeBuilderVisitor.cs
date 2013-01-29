@@ -156,12 +156,12 @@ namespace Lang.Visitors
 
         public void Visit(ReturnAst ast)
         {
-            ast.Visit(this);
+            ast.ReturnExpression.Visit(this);
         }
 
         public void Visit(PrintAst ast)
         {
-            ast.Visit(this);
+            ast.Expression.Visit(this);
         }
     }
 }
