@@ -19,7 +19,10 @@ namespace Lang.Visitors
 
         public void Visit(Conditional ast)
         {
-            ast.Predicate.Visit(this);
+            if (ast.Predicate != null)
+            {
+                ast.Predicate.Visit(this);
+            }
 
             ast.Body.Visit(this);
 
@@ -57,7 +60,7 @@ namespace Lang.Visitors
         {
             if (ast.DeclarationType != null)
             {
-                Console.WriteLine("Defining {0}", ast.VariableName.Token.TokenValue);
+               // Console.WriteLine("Defining {0}", ast.VariableName.Token.TokenValue);
                 Current.Define(DefineUserSymbol(ast.DeclarationType, ast.VariableName));
             }
 

@@ -337,7 +337,12 @@ namespace Lang.Tests
         {
             var test = @"
                         void foo(int x){
-                            print (x + 1);
+                            if(x > 2){
+                                print (x + 1);
+                            }
+                            else{
+                                print (x);
+                            }
                         }
                         foo(1);
                         foo(100);";

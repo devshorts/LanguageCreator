@@ -98,9 +98,31 @@ namespace Lang.Visitors
                     break;
                 case AstTypes.FunctionInvoke:
                     return InvokeFunction(ast as FuncInvoke);
+                case AstTypes.Conditional:
+                    ConditionalDo(ast as Conditional);
+                    break;
             }
 
             return null;
+        }
+
+        private void ConditionalDo(Conditional conditional)
+        {
+            // else has no predicate
+            if (conditional.Predicate == null)
+            {
+                Exec(conditional.Body);
+                return;
+            }
+
+            if (Convert.ToBoolean(Exec(conditional.Predicate)))
+            {
+                Exec(conditional.Body);
+            }
+            else
+            {
+                Exec(conditional.Alternate);
+            }
         }
 
         private object InvokeFunction(FuncInvoke funcInvoke)
@@ -173,6 +195,12 @@ namespace Lang.Visitors
                 case TokenType.QuotedString:
                     return ast.Token.TokenValue;
 
+                case TokenType.GreaterThan:
+                    return Convert.ToInt32(Exec(lhs)) > Convert.ToInt32(Exec(rhs));
+
+                case TokenType.LessThan:
+                    return Convert.ToInt32(Exec(lhs)) < Convert.ToInt32(Exec(rhs));
+
                 default:
                     return null;
             }
@@ -193,7 +221,7 @@ namespace Lang.Visitors
 
             if (resolved != null)
             {
-                Console.WriteLine("Resolving {0} to {1}", ast.Token.TokenValue, resolved.Type.TypeName);
+                //Console.WriteLine("Resolving {0} to {1}", ast.Token.TokenValue, resolved.Type.TypeName);
             }
             else
             {
