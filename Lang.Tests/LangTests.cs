@@ -394,10 +394,32 @@ namespace Lang.Tests
 
             ast.Visit(scopeBuilder);
 
-            Assert.IsTrue(ast.ScopedStatements[0].ExpressionType is BuiltInType);
-            Assert.IsTrue(ast.ScopedStatements[1].ExpressionType is UserDefinedType);
-            Assert.IsTrue(ast.ScopedStatements[2].ExpressionType is BuiltInType);
-            Assert.IsTrue((ast.ScopedStatements[2].ExpressionType as BuiltInType).ExpressionType == ExpressionTypes.Boolean);
+            Assert.IsTrue(ast.ScopedStatements[0].AstSymbolType is BuiltInType);
+            Assert.IsTrue(ast.ScopedStatements[1].AstSymbolType is UserDefinedType);
+            Assert.IsTrue(ast.ScopedStatements[2].AstSymbolType is BuiltInType);
+            Assert.IsTrue((ast.ScopedStatements[2].AstSymbolType as BuiltInType).ExpressionType == ExpressionTypes.Boolean);
+        }
+
+        [Test]
+        public void TestScopeTypes2()
+        {
+            var test = @"
+                        int x = 5;
+                        while(x > 0){
+                            print x;
+                            x = x - 1;
+                        }
+                        print ""done!"";";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
         }
 
     }

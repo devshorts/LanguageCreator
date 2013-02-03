@@ -136,13 +136,35 @@ namespace Lang.Parser
                     return ParseOperationExpression();
 
                 case TokenType.OpenParenth:
-                    TokenStream.Take(TokenType.OpenParenth);
 
-                    var expr = ParseOperationExpression();
+                    Func<Ast> basicOp = () =>
+                        {
+                            TokenStream.Take(TokenType.OpenParenth);
 
-                    TokenStream.Take(TokenType.CloseParenth);
+                            var expr = ParseOperationExpression();
 
-                    return expr;
+                            TokenStream.Take(TokenType.CloseParenth);
+
+                            return expr;
+                        };
+
+                    Func<Ast> doubleOp = () =>
+                        {
+                            var op1 = basicOp();
+
+                            var op = Operator();
+
+                            var expr = OperationExpression();
+
+                            return new Expr(op1, op, expr);
+                        };
+
+                    if (TokenStream.Alt(doubleOp))
+                    {
+                        return TokenStream.Get(doubleOp);
+                    }
+                    
+                    return basicOp();
 
                 default:
                     return null;
@@ -172,9 +194,13 @@ namespace Lang.Parser
                     return new Expr(left, opType, right);
                 };
 
-            if (TokenStream.Alt(() => op(ConsumeFinalExpression, OperationExpression)))
+            Func<Ast> leftOp = () => op(ConsumeFinalExpression, OperationExpression);
+            Func<Ast> rightOp = () => op(OperationExpression, ConsumeFinalExpression);
+            Func<Ast> doubleOp = () => op(OperationExpression, OperationExpression);
+
+            if (TokenStream.Alt(leftOp))
             {
-                return TokenStream.Get(() => op(ConsumeFinalExpression, OperationExpression));
+                return TokenStream.Get(leftOp);
             }
 
             if (TokenStream.Alt(ConsumeFinalExpression))
@@ -182,13 +208,11 @@ namespace Lang.Parser
                 return TokenStream.Get(ConsumeFinalExpression);
             }
 
-            if (TokenStream.Alt(() => op(OperationExpression, ConsumeFinalExpression)))
+            if (TokenStream.Alt(rightOp))
             {
-                return TokenStream.Get(() => op(OperationExpression, ConsumeFinalExpression));
+                return TokenStream.Get(rightOp);
             }
 
-
-            
             return null;
         }
 

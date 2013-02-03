@@ -13,7 +13,7 @@ namespace Lang.AST
 
         public Token Token { get; private set; }
 
-        public IType ExpressionType { get; set; } 
+        public IType AstSymbolType { get; set; } 
 
         public List<Ast> Children { get; private set; } 
 
@@ -38,6 +38,6 @@ namespace Lang.AST
 
         public abstract void Visit(IAstVisitor visitor);
 
-        public abstract AstTypes Type { get; }
+        public abstract AstTypes AstType { get; }
     }
 }

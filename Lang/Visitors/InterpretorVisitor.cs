@@ -7,6 +7,7 @@ using Lang.Data;
 using Lang.Exceptions;
 using Lang.Spaces;
 using Lang.Symbols;
+using Lang.Utils;
 
 namespace Lang.Visitors
 {
@@ -70,14 +71,14 @@ namespace Lang.Visitors
             Exec(ast);
         }
 
-        private Object Exec(Ast ast)
+        private dynamic Exec(Ast ast)
         {
             if (ast == null)
             {
                 return null;
             }
 
-            switch (ast.Type)
+            switch (ast.AstType)
             {
                 case AstTypes.ScopeDeclr:
                     ScopeDelcaration(ast as ScopeDeclr);
@@ -101,9 +102,20 @@ namespace Lang.Visitors
                 case AstTypes.Conditional:
                     ConditionalDo(ast as Conditional);
                     break;
+                case AstTypes.While:
+                    WhileDo(ast as WhileLoop);
+                    break;
             }
 
             return null;
+        }
+
+        private void WhileDo(WhileLoop whileLoop)
+        {
+            while (Exec(whileLoop.Predicate))
+            {
+                whileLoop.Body.ScopedStatements.ForEach(statement => Exec(statement));
+            }
         }
 
         private void ConditionalDo(Conditional conditional)
@@ -136,7 +148,7 @@ namespace Lang.Visitors
             {
                 arg.Visit(this);
 
-                MemorySpaces.Current.Assign(arg.Token.TokenValue, funcInvoke.Arguments[count].Token.TokenValue);
+                MemorySpaces.Current.Assign(arg.Token.TokenValue, Exec(funcInvoke.Arguments[count]));
 
                 count++;
             }
@@ -173,38 +185,62 @@ namespace Lang.Visitors
             var lhs = ast.Left;
             var rhs = ast.Right;
 
+            
             switch (ast.Token.TokenType)
             {
                 case TokenType.Equals:
-                    var symbolEquals = Resolve(lhs);
-
                     MemorySpaces.Current.Assign(lhs.Token.TokenValue, Exec(rhs));
                     return null;
-
-                case TokenType.Plus:
-                    return Convert.ToInt32(Exec(lhs)) + Convert.ToInt32(Exec(rhs));
 
                 case TokenType.Word:
                     var symbol = Resolve(ast);
 
-                    return MemorySpaces.Current.Get(ast.Token.TokenValue);
-                    
+                    return MemorySpaces.Current.Get(symbol.Name);
+                  
+                case TokenType.Int:
+                    return Convert.ToInt32(ast.Token.TokenValue);
+
                 case TokenType.Number:
                     return Convert.ToInt32(ast.Token.TokenValue);
 
                 case TokenType.QuotedString:
                     return ast.Token.TokenValue;
-
-                case TokenType.GreaterThan:
-                    return Convert.ToInt32(Exec(lhs)) > Convert.ToInt32(Exec(rhs));
-
-                case TokenType.LessThan:
-                    return Convert.ToInt32(Exec(lhs)) < Convert.ToInt32(Exec(rhs));
-
-                default:
-                    return null;
             }
+
+            if (TokenUtil.IsOperator(ast.Token))
+            {
+                return ApplyOperation(ast);
+            }
+
+            return null;
         }
+
+        private object ApplyOperation(Expr ast)
+        {
+            dynamic left = Exec(ast.Left);
+            dynamic right = Exec(ast.Right);
+
+            switch (ast.Token.TokenType)
+            {
+                case TokenType.GreaterThan:
+                    return left > right;
+                case TokenType.LessThan:
+                    return left < right;
+                case TokenType.Plus:
+                    return left + right;
+                case TokenType.Minus:
+                    return left - right;
+                case TokenType.Slash:
+                    return left/right;
+                case TokenType.Carat:
+                    return left ^ right;
+                case TokenType.Ampersand:
+                    return left && right;
+            }
+
+            return null;
+        }
+
 
         private void ScopeDelcaration(ScopeDeclr ast)
         {

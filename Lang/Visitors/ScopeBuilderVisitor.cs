@@ -52,11 +52,11 @@ namespace Lang.Visitors
 
             if (ast.Left == null && ast.Right == null)
             {
-                ast.ExpressionType = ResolveOrDefine(ast);
+                ast.AstSymbolType = ResolveOrDefine(ast);
             }
             else
             {
-                ast.ExpressionType = GetExpressionType(ast.Left, ast.Right, ast.Token);
+                ast.AstSymbolType = GetExpressionType(ast.Left, ast.Right, ast.Token);
             }
         }
 
@@ -102,15 +102,15 @@ namespace Lang.Visitors
                 case TokenType.LessThan:
                     return new BuiltInType(ExpressionTypes.Boolean);
                 case TokenType.Infer:
-                    return right.ExpressionType;
+                    return right.AstSymbolType;
             }
 
-            if (left.ExpressionType.ExpressionType != right.ExpressionType.ExpressionType)
+            if (left.AstSymbolType.ExpressionType != right.AstSymbolType.ExpressionType)
             {
                 throw new Exception("Mismatched types");
             }
 
-            return left.ExpressionType;
+            return left.AstSymbolType;
         }
 
         public void Visit(FuncInvoke ast)
@@ -130,7 +130,7 @@ namespace Lang.Visitors
 
                 Current.Define(symbol);
 
-                ast.ExpressionType = symbol.Type;
+                ast.AstSymbolType = symbol.Type;
             }
 
             if (ast.VariableValue != null)
@@ -139,7 +139,11 @@ namespace Lang.Visitors
 
                 if (isVar)
                 {
-                    ast.ExpressionType = ast.VariableValue.ExpressionType;
+                    ast.AstSymbolType = ast.VariableValue.AstSymbolType;
+
+                    var symbol = DefineUserSymbol(ast.AstSymbolType, ast.VariableName);
+
+                    Current.Define(symbol);
                 }
             }
 
@@ -157,6 +161,12 @@ namespace Lang.Visitors
 
             return new Symbol(name.Token.TokenValue, type);
         }
+
+        private Symbol DefineUserSymbol(IType type, Ast name)
+        {
+            return new Symbol(name.Token.TokenValue, type);
+        }
+
 
         private IType CreateSymbolType(Ast astType)
         {

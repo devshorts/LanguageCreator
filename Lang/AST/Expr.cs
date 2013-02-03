@@ -30,7 +30,7 @@ namespace Lang.AST
             visitor.Visit(this);
         }
 
-        public override AstTypes Type
+        public override AstTypes AstType
         {
             get { return AstTypes.Expression; }
         }
