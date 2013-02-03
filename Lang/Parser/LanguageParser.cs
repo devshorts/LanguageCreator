@@ -392,7 +392,9 @@ namespace Lang.Parser
 
         private Ast VariableDeclarationAndAssignment()
         {
-            if (IsValidMethodReturnType() && IsValidVariableName(TokenStream.Peek(1)))
+            var isVar = TokenStream.Current.TokenType == TokenType.Infer;
+
+            if ((isVar || IsValidMethodReturnType()) && IsValidVariableName(TokenStream.Peek(1)))
             {
                 var type = TokenStream.Take(TokenStream.Current.TokenType);
 
@@ -463,7 +465,7 @@ namespace Lang.Parser
 
         private Token Operator()
         {
-            if (IsOperator(TokenStream.Current))
+            if (TokenUtil.IsOperator(TokenStream.Current))
             {
                 return TokenStream.Take(TokenStream.Current.TokenType);
             }
@@ -599,22 +601,7 @@ namespace Lang.Parser
             return false;
         }
 
-        private Boolean IsOperator(Token item)
-        {
-            switch (item.TokenType)
-            {
-                case TokenType.Equals:
-                case TokenType.Plus:
-                case TokenType.Minus:
-                case TokenType.Asterix:
-                case TokenType.Carat:
-                case TokenType.GreaterThan:
-                case TokenType.LessThan:
-                case TokenType.Slash:
-                    return true;
-            }
-            return false;
-        }
+        
 
         #endregion
     }

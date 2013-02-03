@@ -1,8 +1,10 @@
 ﻿using System;
 using Lang.AST;
 using Lang.Data;
+using Lang.Exceptions;
 using Lang.Spaces;
 using Lang.Symbols;
+using Lang.Utils;
 
 namespace Lang.Visitors
 {
@@ -47,6 +49,68 @@ namespace Lang.Visitors
             }
 
             ast.CurrentScope = Current;
+
+            if (ast.Left == null && ast.Right == null)
+            {
+                ast.ExpressionType = ResolveOrDefine(ast);
+            }
+            else
+            {
+                ast.ExpressionType = GetExpressionType(ast.Left, ast.Right, ast.Token);
+            }
+        }
+
+        /// <summary>
+        /// Creates a type for built in types or resolves user defined types
+        /// </summary>
+        /// <param name="ast"></param>
+        /// <returns></returns>
+        private IType ResolveOrDefine(Expr ast)
+        {
+            if (ast == null)
+            {
+                return null;
+            }
+
+            switch (ast.Token.TokenType)
+            {
+                case TokenType.Word:
+                    var resolved = Current.Resolve(ast.Token.TokenValue);
+                    if (resolved == null)
+                    {
+                        throw new UndefinedElementException(String.Format("{0} is undefined", ast.Token.TokenValue));
+                    }
+
+                    return resolved.Type;
+            }
+
+            return CreateSymbolType(ast);
+        }
+
+        /// <summary>
+        /// Determines user type
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        private IType GetExpressionType(Ast left, Ast right, Token token)
+        {
+            switch (token.TokenType)
+            {
+                case TokenType.GreaterThan:
+                case TokenType.LessThan:
+                    return new BuiltInType(ExpressionTypes.Boolean);
+                case TokenType.Infer:
+                    return right.ExpressionType;
+            }
+
+            if (left.ExpressionType.ExpressionType != right.ExpressionType.ExpressionType)
+            {
+                throw new Exception("Mismatched types");
+            }
+
+            return left.ExpressionType;
         }
 
         public void Visit(FuncInvoke ast)
@@ -58,15 +122,25 @@ namespace Lang.Visitors
 
         public void Visit(VarDeclrAst ast)
         {
-            if (ast.DeclarationType != null)
+            var isVar = ast.DeclarationType.Token.TokenType == TokenType.Infer;
+
+            if (ast.DeclarationType != null && !isVar)
             {
-               // Console.WriteLine("Defining {0}", ast.VariableName.Token.TokenValue);
-                Current.Define(DefineUserSymbol(ast.DeclarationType, ast.VariableName));
+                var symbol = DefineUserSymbol(ast.DeclarationType, ast.VariableName);
+
+                Current.Define(symbol);
+
+                ast.ExpressionType = symbol.Type;
             }
 
             if (ast.VariableValue != null)
             {
                 ast.VariableValue.Visit(this);
+
+                if (isVar)
+                {
+                    ast.ExpressionType = ast.VariableValue.ExpressionType;
+                }
             }
 
             ast.CurrentScope = Current;
@@ -79,12 +153,12 @@ namespace Lang.Visitors
 
         private Symbol DefineUserSymbol(Ast astType, Ast name)
         {
-            IType type = GetSymbolType(astType);
+            IType type = CreateSymbolType(astType);
 
             return new Symbol(name.Token.TokenValue, type);
         }
 
-        private IType GetSymbolType(Ast astType)
+        private IType CreateSymbolType(Ast astType)
         {
             if (astType == null)
             {
@@ -94,16 +168,21 @@ namespace Lang.Visitors
             switch (astType.Token.TokenType)
             {
                 case TokenType.Int:
+                    return new BuiltInType(ExpressionTypes.Int);
+                case TokenType.Number:
+                    return new BuiltInType(ExpressionTypes.Int);
                 case TokenType.Void:
-                    return new BuiltInType(astType.Token.TokenType.ToString());
-                default:
+                    return new BuiltInType(ExpressionTypes.Void);
+                case TokenType.Word:
                     return new UserDefinedType(astType.Token.TokenValue);
             }
+
+            return null;
         }
 
         private Symbol DefineMethod(MethodDeclr method)
         {
-            IType type = GetSymbolType(method.MethodReturnType);
+            IType type = CreateSymbolType(method.MethodReturnType);
 
             return new MethodSymbol(method.Token.TokenValue, type, method);
         }
@@ -167,3 +246,4 @@ namespace Lang.Visitors
         }
     }
 }
+

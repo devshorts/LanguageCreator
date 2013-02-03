@@ -68,6 +68,7 @@
     <Compile Include="Spaces\IScopeable.cs" />
     <Compile Include="Spaces\MemorySpace.cs" />
     <Compile Include="Spaces\ScopeStack.cs" />
+    <Compile Include="Symbols\ExpressionTypes.cs" />
     <Compile Include="Symbols\UserDefinedType.cs" />
     <Compile Include="Symbols\BuiltInType.cs" />
     <Compile Include="Symbols\ClassSymbol.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Lexer\Tokenizer.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="Utils\Maybe.cs" />
+    <Compile Include="Utils\TokenUtil.cs" />
     <Compile Include="Visitors\InterpretorVisitor.cs" />
     <Compile Include="Visitors\PrintAstVisitor.cs" />
     <Compile Include="Visitors\IAcceptVisitor.cs" />

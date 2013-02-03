@@ -2,6 +2,7 @@
 using System.Linq;
 using Lang.Spaces;
 using Lang.Data;
+using Lang.Symbols;
 using Lang.Visitors;
 
 namespace Lang.AST
@@ -11,6 +12,8 @@ namespace Lang.AST
         public Scope CurrentScope { get; set; }
 
         public Token Token { get; private set; }
+
+        public IType ExpressionType { get; set; } 
 
         public List<Ast> Children { get; private set; } 
 

@@ -10,11 +10,14 @@ namespace Lang.Symbols
     {
         public UserDefinedType(string name) : base(name)
         {
+            ExpressionType = ExpressionTypes.UserDefined;
         }
 
         public string TypeName
         {
             get { return Name; }
         }
+
+        public ExpressionTypes ExpressionType { get; set; }
     }
 }

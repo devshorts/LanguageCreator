@@ -54,6 +54,7 @@ namespace Lang
                                       new MatchKeyword(TokenType.Int, "int"),
                                       new MatchKeyword(TokenType.Fun, "fun"),
                                       new MatchKeyword(TokenType.If, "if"),
+                                      new MatchKeyword(TokenType.Infer, "var"),
                                       new MatchKeyword(TokenType.Else, "else"),
                                       new MatchKeyword(TokenType.While, "while"),
                                       new MatchKeyword(TokenType.For, "for"),

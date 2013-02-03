@@ -8,5 +8,6 @@ namespace Lang.Symbols
     public interface IType
     {
         String TypeName { get; }
+        ExpressionTypes ExpressionType { get; set; }
     }
 }

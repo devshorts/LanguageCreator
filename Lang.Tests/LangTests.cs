@@ -4,6 +4,7 @@ using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;
 using Lang.Parser;
+using Lang.Symbols;
 using Lang.Visitors;
 using NUnit.Framework;
 
@@ -344,6 +345,7 @@ namespace Lang.Tests
                                 print (x);
                             }
                         }
+
                         foo(1);
                         foo(100);";
 
@@ -378,6 +380,25 @@ namespace Lang.Tests
             ast.Visit(visitor);
         }
 
+        [Test]
+        public void TestScopeTypes()
+        {
+            var test = @"
+                        int x = 100 + 1;
+                        T y;
+                        var z = 1 > 2;";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            Assert.IsTrue(ast.ScopedStatements[0].ExpressionType is BuiltInType);
+            Assert.IsTrue(ast.ScopedStatements[1].ExpressionType is UserDefinedType);
+            Assert.IsTrue(ast.ScopedStatements[2].ExpressionType is BuiltInType);
+            Assert.IsTrue((ast.ScopedStatements[2].ExpressionType as BuiltInType).ExpressionType == ExpressionTypes.Boolean);
+        }
 
     }
 }
