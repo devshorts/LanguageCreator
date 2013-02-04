@@ -57,7 +57,6 @@ int testFunction(){
 And this interprets
 
 ```csharp
-[Test]
 void foo(int x){
     if(x > 2){
         print ((x + 1) + 2);
@@ -79,7 +78,7 @@ Into
 
 And so does this
                 
-```
+```csharp
 var x = fun() -> {
     int g = 5;
     while(g > 0){
