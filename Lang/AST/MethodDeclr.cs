@@ -17,7 +17,9 @@ namespace Lang.AST
 
         public ScopeDeclr BodyStatements { get; private set; }
 
-        public MethodDeclr(Token returnType, Token funcName, List<Ast> arguments, ScopeDeclr body)
+        public Boolean IsAnonymous { get; set; }
+
+        public MethodDeclr(Token returnType, Token funcName, List<Ast> arguments, ScopeDeclr body, bool isAnon = false)
             : base(funcName)
         {
             MethodReturnType = new Expr(returnType);
@@ -27,6 +29,8 @@ namespace Lang.AST
             Arguments = arguments;
 
             BodyStatements = body;
+
+            IsAnonymous = isAnon;
         }
 
 

@@ -423,6 +423,24 @@ namespace Lang.Tests
         }
 
         [Test]
+        public void TestScopeTypes4()
+        {
+            var test = @"
+                        var x = (1 + 2) + (2 + 3) + 4;
+                        print x;";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
+
+        [Test]
         public void TestScopeTypes3()
         {
             var test = @"

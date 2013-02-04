@@ -11,7 +11,7 @@ namespace Lang.AST
         private static Random _rand = new Random();
 
         public LambdaDeclr(List<Ast> arguments, ScopeDeclr body )
-            : base(new Token(TokenType.Infer), new Token(TokenType.Word, AnonymousFunctionName), arguments, body)
+            : base(new Token(TokenType.Infer), new Token(TokenType.Word, AnonymousFunctionName), arguments, body, true)
         {
         }
 

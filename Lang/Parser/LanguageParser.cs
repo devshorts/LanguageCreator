@@ -141,7 +141,7 @@ namespace Lang.Parser
                         {
                             TokenStream.Take(TokenType.OpenParenth);
 
-                            var expr = ParseOperationExpression();
+                            var expr = Expression();
 
                             TokenStream.Take(TokenType.CloseParenth);
 
@@ -154,7 +154,7 @@ namespace Lang.Parser
 
                             var op = Operator();
 
-                            var expr = OperationExpression();
+                            var expr = Expression();
 
                             return new Expr(op1, op, expr);
                         };
@@ -164,11 +164,17 @@ namespace Lang.Parser
                         return TokenStream.Get(doubleOp);
                     }
                     
-                    return basicOp();
+                    if (TokenStream.Alt(basicOp))
+                    {
+                        return TokenStream.Get(basicOp);
+                    }
 
+                    break;
                 default:
                     return null;
             }
+
+            return null;
         }
 
         private Ast ParseOperationExpression()
@@ -196,8 +202,7 @@ namespace Lang.Parser
 
             Func<Ast> leftOp = () => op(ConsumeFinalExpression, OperationExpression);
             Func<Ast> rightOp = () => op(OperationExpression, ConsumeFinalExpression);
-            Func<Ast> doubleOp = () => op(OperationExpression, OperationExpression);
-
+            
             if (TokenStream.Alt(leftOp))
             {
                 return TokenStream.Get(leftOp);
@@ -439,13 +444,6 @@ namespace Lang.Parser
                 var type = TokenStream.Take(TokenStream.Current.TokenType);
 
                 var name = TokenStream.Take(TokenType.Word);
-
-//                // variable declrations are independent and have no following expressions
-//                // but the semicolon will be consumed elsewhere
-//                if (requiresSemiColon && TokenStream.Current.TokenType != TokenType.SemiColon)
-//                {
-//                    return null;
-//                }
 
                 return new VarDeclrAst(type, name);
             }

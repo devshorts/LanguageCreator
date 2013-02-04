@@ -171,6 +171,11 @@ namespace Lang.Visitors
 
         private void VariableDeclaration(VarDeclrAst varDeclrAst)
         {
+            if (varDeclrAst.VariableValue == null)
+            {
+                return;
+            }
+
             if (varDeclrAst.VariableValue.AstType != AstTypes.MethodDeclr)
             {
                 var value = Exec(varDeclrAst.VariableValue);
@@ -277,7 +282,8 @@ namespace Lang.Visitors
             if (resolved != null)
             {
                 if (resolved.Type is BuiltInType &&
-                    (resolved.Type as BuiltInType).ExpressionType == ExpressionTypes.Method)
+                    (resolved.Type as BuiltInType).ExpressionType == ExpressionTypes.Method
+                    && !(resolved is MethodSymbol))
                 {
                     return MemorySpaces.Current.Get(ast.Token.TokenValue) as MethodSymbol;
                 }
