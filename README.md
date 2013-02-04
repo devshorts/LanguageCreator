@@ -90,7 +90,7 @@ var x = fun() -> {
 }
 x();
 
-print ""lambda assigments work!""
+print "lambda assigments work!";
 
 x();
 ```
