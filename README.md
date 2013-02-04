@@ -79,8 +79,8 @@ Into
 And so does this
                 
 ```csharp
-var x = fun() -> {
-    int g = 5;
+var x = fun(int arg) -> {
+    int g = arg;
     while(g > 0){
         print g;
         g = g - 1;
@@ -92,11 +92,11 @@ var y = x;
 
 var z = y;
 
-z();
+z(5);
 
 print ""lambda assigments work!"";
 
-z();
+z(3);
 
 int a = 1;
 
@@ -117,8 +117,6 @@ Into
 1
 done!
 lambda assigments work!
-5
-4
 3
 2
 1

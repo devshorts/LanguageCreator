@@ -444,8 +444,8 @@ print ""done!"";";
         public void TestScopeTypes3()
         {
             var test = @"
-                    var x = fun() -> {
-                        int g = 5;
+                    var x = fun(int arg) -> {
+                        int g = arg;
                         while(g > 0){
                             print g;
                             g = g - 1;
@@ -457,11 +457,11 @@ print ""done!"";";
 
                     var z = y;
 
-                    z();
+                    z(5);
 
                     print ""lambda assigments work!"";
 
-                    z();
+                    z(3);
 
                     int a = 1;
 
