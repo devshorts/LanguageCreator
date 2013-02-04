@@ -444,32 +444,32 @@ print ""done!"";";
         public void TestScopeTypes3()
         {
             var test = @"
-                    var x = fun(int arg) -> {
-                        int g = arg;
-                        while(g > 0){
-                            print g;
-                            g = g - 1;
-                        }
-                        print ""done!"";
+                var x = fun(int arg) -> {
+                    int g = arg;
+                    while(g > 0){
+                        print g;
+                        g = g - 1;
                     }
+                    print ""done!"";
+                }
 
-                    var y = x;
+                var y = x;
 
-                    var z = y;
+                var z = y;
 
-                    z(5);
+                z(5);
 
-                    print ""lambda assigments work!"";
+                print ""lambda assigments work!"";
 
-                    z(3);
+                z(3);
 
-                    int a = 1;
+                int a = 1;
 
-                    int b = a;
+                int b = a;
                     
-                    int c = b;
+                int c = b;
 
-                    print c;";
+                print c;";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
