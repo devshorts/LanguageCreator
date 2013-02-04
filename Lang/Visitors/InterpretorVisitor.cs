@@ -241,6 +241,12 @@ namespace Lang.Visitors
 
                 case TokenType.QuotedString:
                     return ast.Token.TokenValue;
+
+                case TokenType.True:
+                    return true;
+
+                case TokenType.False:
+                    return false;
             }
 
             if (TokenUtil.IsOperator(ast.Token))
@@ -272,6 +278,8 @@ namespace Lang.Visitors
                     return left ^ right;
                 case TokenType.Ampersand:
                     return left && right;
+                case TokenType.Or:
+                    return left || right;
             }
 
             return null;

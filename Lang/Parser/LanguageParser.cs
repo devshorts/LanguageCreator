@@ -133,6 +133,8 @@ namespace Lang.Parser
                 case TokenType.Number:
                 case TokenType.QuotedString:
                 case TokenType.Word:
+                case TokenType.True:
+                case TokenType.False:
                     return ParseOperationExpression();
 
                 case TokenType.OpenParenth:
@@ -477,6 +479,8 @@ namespace Lang.Parser
                 case TokenType.Word:
                 case TokenType.QuotedString:
                 case TokenType.Number:
+                case TokenType.True:
+                case TokenType.False:
                     var token = new Expr(TokenStream.Take(TokenStream.Current.TokenType));
 
                     return token;
@@ -608,6 +612,7 @@ namespace Lang.Parser
                 case TokenType.Void:
                 case TokenType.Word:
                 case TokenType.Int:
+                case TokenType.Boolean:
                     return true;
             }
             return false;

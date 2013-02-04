@@ -20,6 +20,7 @@ namespace Lang.Utils
                 case TokenType.GreaterThan:
                 case TokenType.LessThan:
                 case TokenType.Ampersand:
+                case TokenType.Or:
                 case TokenType.Slash:
                     return true;
             }

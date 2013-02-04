@@ -98,9 +98,12 @@ namespace Lang.Visitors
         {
             switch (token.TokenType)
             {
+                case TokenType.Ampersand:
+                case TokenType.Or:
                 case TokenType.GreaterThan:
                 case TokenType.LessThan:
                     return new BuiltInType(ExpressionTypes.Boolean);
+                
                 case TokenType.Infer:
                     return right.AstSymbolType;
             }
@@ -185,6 +188,9 @@ namespace Lang.Visitors
                     return new BuiltInType(ExpressionTypes.Void);
                 case TokenType.Word:
                     return new UserDefinedType(astType.Token.TokenValue);
+                case TokenType.True:
+                case TokenType.False:
+                    return new BuiltInType(ExpressionTypes.Boolean);
             }
 
             return null;

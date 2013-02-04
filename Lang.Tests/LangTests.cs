@@ -444,6 +444,9 @@ print ""done!"";";
         public void TestScopeTypes3()
         {
             var test = @"
+            
+                int arg = 5;
+
                 var x = fun(int arg) -> {
                     int g = arg;
                     while(g > 0){
@@ -459,7 +462,7 @@ print ""done!"";";
 
                 z(5);
 
-                print ""lambda assigments work!"";
+                print ""lambda assignments work!"";
 
                 z(3);
 
@@ -469,7 +472,9 @@ print ""done!"";";
                     
                 int c = b;
 
-                print c;";
+                print c;
+
+                print arg;";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
@@ -482,5 +487,26 @@ print ""done!"";";
             ast.Visit(interpreter);
         }
 
+        [Test]
+        public void TestBools()
+        {
+            var test = @"
+                        var x = true & false || true;
+                        while(x){
+                            print x;
+                            x = 1 > 2;
+                        }
+                        print x;";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
     }
 }

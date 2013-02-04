@@ -35,6 +35,10 @@
         For,
         Number,
         Print,
-        Dot
+        Dot,
+        True,
+        False,
+        Boolean,
+        Or
     }
 }

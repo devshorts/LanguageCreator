@@ -59,7 +59,10 @@ namespace Lang
                                       new MatchKeyword(TokenType.While, "while"),
                                       new MatchKeyword(TokenType.For, "for"),
                                       new MatchKeyword(TokenType.Return, "return"),
-                                      new MatchKeyword(TokenType.Print, "print")
+                                      new MatchKeyword(TokenType.Print, "print"),
+                                      new MatchKeyword(TokenType.True, "true"),
+                                      new MatchKeyword(TokenType.False, "false"),
+                                      new MatchKeyword(TokenType.Boolean, "bool")
                                   };
 
             var specialCharacters = new List<IMatcher>
@@ -80,6 +83,7 @@ namespace Lang
                                         new MatchKeyword(TokenType.Ampersand, "&"),
                                         new MatchKeyword(TokenType.GreaterThan, ">"),
                                         new MatchKeyword(TokenType.LessThan, "<"),
+                                        new MatchKeyword(TokenType.Or, "||"),
                                         new MatchKeyword(TokenType.SemiColon, ";"),
                                         new MatchKeyword(TokenType.Dot, "."),
                                     };
