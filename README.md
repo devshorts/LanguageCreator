@@ -6,7 +6,7 @@ A place to practice language creation mechanisms. Currently can parse a weird su
 Supported Constructs
 ===
 
-The language supports variable assignment, if/else conditionals declaration, function declaration with varialbe arguments, anonymous functions, and quoted strings.  Things to do include AST for adding return types, and adding class constructs.
+The language supports variable assignment, if/else conditionals declaration, function declaration with varialbe arguments, anonymous functions, and quoted strings.  It also supports simple type inference. Things to do include AST for adding return types, and adding class constructs.
 
 Right now, this properly parsers
 
