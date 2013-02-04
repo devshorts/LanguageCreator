@@ -116,7 +116,13 @@ namespace Lang.Visitors
 
         public void Visit(ReturnAst ast)
         {
-            PrintWrap("Return", () => ast.ReturnExpression.Visit(this));
+            PrintWrap("Return", () =>
+                {
+                    if (ast.ReturnExpression != null)
+                    {
+                        ast.ReturnExpression.Visit(this);
+                    }
+                });
         }
 
         public void Visit(PrintAst ast)

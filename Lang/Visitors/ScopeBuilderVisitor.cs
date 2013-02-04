@@ -257,7 +257,10 @@ namespace Lang.Visitors
 
         public void Visit(ReturnAst ast)
         {
-            ast.ReturnExpression.Visit(this);
+            if (ast.ReturnExpression != null)
+            {
+                ast.ReturnExpression.Visit(this);
+            }
         }
 
         public void Visit(PrintAst ast)

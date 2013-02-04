@@ -508,5 +508,36 @@ print ""done!"";";
 
             ast.Visit(interpreter);
         }
+
+        [Test]
+        public void TestReturn()
+        {
+            var test = @"
+                         var x = 10;
+                         var z = fun () -> {
+                                            while(true){
+                                                if(x < 1){
+                                                    return 2;
+                                                }
+                                                x = x - 1;
+                                            }
+                                        }
+                        
+                        print z();
+                        print x;
+                        
+                        int foo = z();
+                        print foo;";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
     }
 }

@@ -73,44 +73,71 @@ namespace Lang.Visitors
 
         private dynamic Exec(Ast ast)
         {
-            if (ast == null)
+            try
             {
-                return null;
+                if (ast == null)
+                {
+                    return null;
+                }
+
+                switch (ast.AstType)
+                {
+                    case AstTypes.ScopeDeclr:
+                        ScopeDelcaration(ast as ScopeDeclr);
+                        break;
+                    case AstTypes.VarDeclr:
+                        VariableDeclaration(ast as VarDeclrAst);
+                        break;
+
+                    case AstTypes.Expression:
+                        var ret = Expression(ast as Expr);
+                        if (ret != null)
+                        {
+                            return ret;
+                        }
+                        break;
+                    case AstTypes.Print:
+                        Print(ast as PrintAst);
+                        break;
+                    case AstTypes.FunctionInvoke:
+                        return InvokeFunction(ast as FuncInvoke);
+                    case AstTypes.Conditional:
+                        ConditionalDo(ast as Conditional);
+                        break;
+                    case AstTypes.MethodDeclr:
+                        return ast;
+
+                    case AstTypes.While:
+                        WhileDo(ast as WhileLoop);
+                        break;
+                    case AstTypes.Return:
+                        ReturnDo(ast as ReturnAst);
+                        break;
+                }
             }
-
-            switch (ast.AstType)
+            catch (ReturnException ex)
             {
-                case AstTypes.ScopeDeclr:
-                    ScopeDelcaration(ast as ScopeDeclr);
-                    break;
-                case AstTypes.VarDeclr:
-                    VariableDeclaration(ast as VarDeclrAst);
-                    break;
+                if (ast.AstType == AstTypes.FunctionInvoke)
+                {
+                    return ex.Value;
+                }
 
-                case AstTypes.Expression:
-                    var ret = Expression(ast as Expr);
-                    if (ret != null)
-                    {
-                        return ret;
-                    }
-                    break;
-                case AstTypes.Print:
-                    Print(ast as PrintAst);
-                    break;
-                case AstTypes.FunctionInvoke:
-                    return InvokeFunction(ast as FuncInvoke);
-                case AstTypes.Conditional:
-                    ConditionalDo(ast as Conditional);
-                    break;
-                case AstTypes.MethodDeclr:
-                    return ast;
-
-                case AstTypes.While:
-                    WhileDo(ast as WhileLoop);
-                    break;
+                throw;
             }
 
             return null;
+        }
+
+        private void ReturnDo(ReturnAst returnAst)
+        {
+            if (returnAst.ReturnExpression != null)
+            {
+                var value = Exec(returnAst.ReturnExpression);
+
+                throw new ReturnException(value);
+            }
+
+            throw new ReturnException(null);
         }
 
         private void WhileDo(WhileLoop whileLoop)

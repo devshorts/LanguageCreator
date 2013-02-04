@@ -241,6 +241,11 @@ namespace Lang.Parser
         {
             TokenStream.Take(TokenType.Return);
 
+            if (TokenStream.Current.TokenType == TokenType.SemiColon)
+            {
+                return new ReturnAst();
+            }
+
             return new ReturnAst(Expression());
         }
 
@@ -505,8 +510,8 @@ namespace Lang.Parser
 
         private Tuple<Ast, ScopeDeclr> GetPredicateAndExpressions(TokenType type)
         {
-            TokenStream.Take(type
-                );
+            TokenStream.Take(type);
+
             TokenStream.Take(TokenType.OpenParenth);
 
             var predicate = Expression();

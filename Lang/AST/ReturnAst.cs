@@ -15,6 +15,12 @@ namespace Lang.AST
             ReturnExpression = expression;
         }
 
+        public ReturnAst()
+            : base(new Token(TokenType.Return))
+        {
+            
+        }
+
         public override void Visit(IAstVisitor visitor)
         {
             visitor.Visit(this);
