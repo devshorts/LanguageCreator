@@ -422,5 +422,34 @@ namespace Lang.Tests
             ast.Visit(interpreter);
         }
 
+        [Test]
+        public void TestScopeTypes3()
+        {
+            var test = @"
+                        var x = fun() -> {
+                            int g = 5;
+                            while(g > 0){
+                                print g;
+                                g = g - 1;
+                            }
+                            print ""done!"";
+                        }
+                        x();
+
+                        print ""lambda assigments work!""
+
+                        x()";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
+
     }
 }

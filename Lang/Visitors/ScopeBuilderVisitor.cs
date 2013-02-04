@@ -192,14 +192,16 @@ namespace Lang.Visitors
 
         private Symbol DefineMethod(MethodDeclr method)
         {
-            IType type = CreateSymbolType(method.MethodReturnType);
+            IType returnType = CreateSymbolType(method.MethodReturnType);
 
-            return new MethodSymbol(method.Token.TokenValue, type, method);
+            return new MethodSymbol(method.Token.TokenValue, returnType, method);
         }
 
         public void Visit(MethodDeclr ast)
         {
-            Current.Define(DefineMethod(ast));
+            var symbol = DefineMethod(ast);
+
+            Current.Define(symbol);
 
             ScopeTree.CreateScope();
 
@@ -208,6 +210,8 @@ namespace Lang.Visitors
             ast.BodyStatements.Visit(this);
 
             ast.CurrentScope = Current;
+
+            ast.AstSymbolType = symbol.Type;
 
             ScopeTree.PopScope();
         }

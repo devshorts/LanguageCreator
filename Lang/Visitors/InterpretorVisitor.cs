@@ -102,6 +102,9 @@ namespace Lang.Visitors
                 case AstTypes.Conditional:
                     ConditionalDo(ast as Conditional);
                     break;
+                case AstTypes.MethodDeclr:
+                    return ast;
+
                 case AstTypes.While:
                     WhileDo(ast as WhileLoop);
                     break;
@@ -141,6 +144,11 @@ namespace Lang.Visitors
         {
             var method = Resolve(funcInvoke) as MethodSymbol;
 
+            return InvokeMethodSymbol(method, funcInvoke.Arguments);
+        }
+
+        private object InvokeMethodSymbol(MethodSymbol method, List<Ast> args)
+        {
             MemorySpaces.CreateScope();
 
             var count = 0;
@@ -148,7 +156,7 @@ namespace Lang.Visitors
             {
                 arg.Visit(this);
 
-                MemorySpaces.Current.Assign(arg.Token.TokenValue, Exec(funcInvoke.Arguments[count]));
+                MemorySpaces.Current.Assign(arg.Token.TokenValue, Exec(args[count]));
 
                 count++;
             }
@@ -163,13 +171,24 @@ namespace Lang.Visitors
 
         private void VariableDeclaration(VarDeclrAst varDeclrAst)
         {
-            var value = Exec(varDeclrAst.VariableValue);
+            if (varDeclrAst.VariableValue.AstType != AstTypes.MethodDeclr)
+            {
+                var value = Exec(varDeclrAst.VariableValue);
 
-            if (value != null)
+                if (value != null)
+                {
+                    var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
+
+                    MemorySpaces.Current.Assign(symbol.Name, value);
+                }
+            }
+            else
             {
                 var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
-                MemorySpaces.Current.Assign(symbol.Name, value);
+                var resolvedMethod = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableValue.Token.TokenValue);
+
+                MemorySpaces.Current.Assign(symbol.Name, resolvedMethod);
             }
         }
 
@@ -257,7 +276,11 @@ namespace Lang.Visitors
 
             if (resolved != null)
             {
-                //Console.WriteLine("Resolving {0} to {1}", ast.Token.TokenValue, resolved.Type.TypeName);
+                if (resolved.Type is BuiltInType &&
+                    (resolved.Type as BuiltInType).ExpressionType == ExpressionTypes.Method)
+                {
+                    return MemorySpaces.Current.Get(ast.Token.TokenValue) as MethodSymbol;
+                }
             }
             else
             {
