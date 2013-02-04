@@ -404,12 +404,12 @@ namespace Lang.Tests
         public void TestScopeTypes2()
         {
             var test = @"
-                        int x = 5;
-                        while(x > 0){
-                            print x;
-                            x = x - 1;
-                        }
-                        print ""done!"";";
+int x = 5;
+while(x > 0){
+    print x;
+    x = x - 1;
+}
+print ""done!"";";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
@@ -444,19 +444,32 @@ namespace Lang.Tests
         public void TestScopeTypes3()
         {
             var test = @"
-                        var x = fun() -> {
-                            int g = 5;
-                            while(g > 0){
-                                print g;
-                                g = g - 1;
-                            }
-                            print ""done!"";
+                    var x = fun() -> {
+                        int g = 5;
+                        while(g > 0){
+                            print g;
+                            g = g - 1;
                         }
-                        x();
+                        print ""done!"";
+                    }
 
-                        print ""lambda assigments work!""
+                    var y = x;
 
-                        x()";
+                    var z = y;
+
+                    z();
+
+                    print ""lambda assigments work!"";
+
+                    z();
+
+                    int a = 1;
+
+                    int b = a;
+                    
+                    int c = b;
+
+                    print c;";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 

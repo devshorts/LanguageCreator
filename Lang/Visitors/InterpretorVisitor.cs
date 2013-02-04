@@ -142,9 +142,21 @@ namespace Lang.Visitors
 
         private object InvokeFunction(FuncInvoke funcInvoke)
         {
-            var method = Resolve(funcInvoke) as MethodSymbol;
+            var method = Resolve(funcInvoke);
 
-            return InvokeMethodSymbol(method, funcInvoke.Arguments);
+            if (method != null)
+            {
+                var invoker = method as MethodSymbol;
+
+                if (invoker == null)
+                {
+                    invoker = MemorySpaces.Current.Get(method.Name) as MethodSymbol;
+                }
+
+                return InvokeMethodSymbol(invoker, funcInvoke.Arguments);
+            }
+
+            throw new UndefinedElementException("Undefined method");
         }
 
         private object InvokeMethodSymbol(MethodSymbol method, List<Ast> args)
@@ -281,12 +293,12 @@ namespace Lang.Visitors
 
             if (resolved != null)
             {
-                if (resolved.Type is BuiltInType &&
-                    (resolved.Type as BuiltInType).ExpressionType == ExpressionTypes.Method
-                    && !(resolved is MethodSymbol))
-                {
-                    return MemorySpaces.Current.Get(ast.Token.TokenValue) as MethodSymbol;
-                }
+//                if (resolved.Type is BuiltInType &&
+//                    (resolved.Type as BuiltInType).ExpressionType == ExpressionTypes.Method
+//                    && !(resolved is MethodSymbol))
+//                {
+//                    return MemorySpaces.Current.Get(ast.Token.TokenValue) as MethodSymbol;
+//                }
             }
             else
             {

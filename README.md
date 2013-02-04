@@ -87,11 +87,24 @@ var x = fun() -> {
     }
     print ""done!"";
 }
-x();
 
-print "lambda assigments work!";
+var y = x;
 
-x();
+var z = y;
+
+z();
+
+print ""lambda assigments work!"";
+
+z();
+
+int a = 1;
+
+int b = a;
+                    
+int c = b;
+
+print c;
 ```
 
 Into 
@@ -110,6 +123,7 @@ lambda assigments work!
 2
 1
 done!
+1
 ```
 
 So, progress is being made.  Type values are checked, but there is no type promotion yet.  
