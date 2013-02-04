@@ -80,12 +80,19 @@ Into
 And so does this
                 
 ```
-int x = 5;
-while(x > 0){
-    print x;
-    x = x - 1;
+var x = fun() -> {
+    int g = 5;
+    while(g > 0){
+        print g;
+        g = g - 1;
+    }
+    print ""done!"";
 }
-print "done!";
+x();
+
+print ""lambda assigments work!""
+
+x();
 ```
 
 Into 
