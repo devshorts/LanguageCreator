@@ -85,7 +85,7 @@ var x = fun(int arg) -> {
         print g;
         g = g - 1;
     }
-    print ""done!"";
+    print "done!";
 }
 
 var y = x;
@@ -94,7 +94,7 @@ var z = y;
 
 z(5);
 
-print ""lambda assigments work!"";
+print "lambda assigments work!";
 
 z(3);
 
