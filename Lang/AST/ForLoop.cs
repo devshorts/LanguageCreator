@@ -9,22 +9,22 @@ namespace Lang.AST
 {
     public class ForLoop : Ast
     {
-        public Ast Initial { get; private set; }
+        public Ast Setup { get; private set; }
 
-        public Ast Stop { get; private set; }
+        public Ast Predicate { get; private set; }
 
-        public Ast Modify { get; private set; }
+        public Ast Update { get; private set; }
 
         public ScopeDeclr Body { get; private set; }
 
         public ForLoop(Ast init, Ast stop, Ast modify, ScopeDeclr body)
             : base(new Token(TokenType.For))
         {
-            Initial = init;
+            Setup = init;
 
-            Stop = stop;
+            Predicate = stop;
 
-            Modify = modify;
+            Update = modify;
 
             Body = body;
         }
@@ -41,7 +41,7 @@ namespace Lang.AST
 
         public override string ToString()
         {
-            return "(" + Token + "(" + Initial + ") (" + Stop + ")" + "(" + Modify +"){" + Body + "}";
+            return "(" + Token + "(" + Setup + ") (" + Predicate + ")" + "(" + Update +"){" + Body + "}";
         }
     }
 }

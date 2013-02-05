@@ -612,6 +612,7 @@ namespace Lang.Parser
                 case TokenType.Word:
                 case TokenType.Int:
                 case TokenType.String:
+                case TokenType.Infer:
                 case TokenType.Boolean:
                     return true;
             }

@@ -284,8 +284,8 @@ namespace Lang.Tests
 
             var forLoop = topScope as ForLoop;
             Assert.IsTrue(forLoop != null);
-            Assert.IsTrue(forLoop.Initial is VarDeclrAst);
-            Assert.IsTrue(forLoop.Stop.Token.TokenType == TokenType.LessThan);
+            Assert.IsTrue(forLoop.Setup is VarDeclrAst);
+            Assert.IsTrue(forLoop.Predicate.Token.TokenType == TokenType.LessThan);
             Assert.IsTrue(forLoop.Body.ScopedStatements.Count == 1);
         }
 
@@ -550,6 +550,49 @@ namespace Lang.Tests
                          }
 
                         print foo(""pong"");";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestInvalidReturnTypes()
+        {
+            var test = @"
+                         int foo(string t){
+                                var x = ""test"";
+                                return x + t;
+                         }
+
+                        print foo(""pong"");";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
+
+        [Test]
+        public void TestForLoop()
+        {
+            var test = @"
+                         for(int i = 0;i < 10; i = i + 1){
+                            i = 15;
+                            print i;                            
+                         }";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 

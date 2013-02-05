@@ -106,9 +106,9 @@ namespace Lang.Visitors
         {
             PrintWrap("ForLoop", () =>
                 {
-                    PrintWrap("For", () => ast.Initial.Visit(this));
-                    PrintWrap("Until", () => ast.Stop.Visit(this));
-                    PrintWrap("Modify", () => ast.Modify.Visit(this));
+                    PrintWrap("For", () => ast.Setup.Visit(this));
+                    PrintWrap("Until", () => ast.Predicate.Visit(this));
+                    PrintWrap("Modify", () => ast.Update.Visit(this));
                     
                     ast.Body.Visit(this);
                 });

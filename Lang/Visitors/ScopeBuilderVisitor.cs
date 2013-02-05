@@ -303,11 +303,16 @@ namespace Lang.Visitors
 
         public void Visit(ForLoop ast)
         {
-            ast.Initial.Visit(this);
+            ast.Setup.Visit(this);
 
-            ast.Stop.Visit(this);
+            ast.Predicate.Visit(this);
 
-            ast.Modify.Visit(this);
+            if (ast.Predicate.AstSymbolType.ExpressionType != ExpressionTypes.Boolean)
+            {
+                throw new InvalidSyntax("For loop predicate has to evaluate to a boolean");
+            }
+
+            ast.Update.Visit(this);
 
             ast.Body.Visit(this);
 

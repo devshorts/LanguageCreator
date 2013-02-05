@@ -18,9 +18,31 @@ namespace Lang.Symbols
             ChildScopes = new List<IScopeable<MemorySpace>>(64);
         }
 
-        public void Assign(string name, object value)
+        public void Define(string name, object value)
         {
             Values[name] = value;
+        }
+
+        public void Assign(string name, object value)
+        {
+            if (Values.ContainsKey(name))
+            {
+                Values[name] = value;
+
+                return;
+            }
+
+            if (EnclosingSpace != null)
+            {
+                EnclosingSpace.Assign(name, value);
+            }
+            else
+            {
+                throw new Exception(
+                    String.Format(
+                        "Attempting to update variable {0} with value {1} but varialbe isn't defined in any memory scope",
+                        name, value));
+            }
         }
 
         public object Get(string name)

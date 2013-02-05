@@ -113,6 +113,9 @@ namespace Lang.Visitors
                     case AstTypes.Return:
                         ReturnDo(ast as ReturnAst);
                         break;
+                    case AstTypes.For:
+                        ForDo(ast as ForLoop);
+                        break;
                 }
             }
             catch (ReturnException ex)
@@ -126,6 +129,22 @@ namespace Lang.Visitors
             }
 
             return null;
+        }
+
+        private void ForDo(ForLoop forLoop)
+        {
+            MemorySpaces.CreateScope();
+
+            Exec(forLoop.Setup);
+
+            while (Exec(forLoop.Predicate))
+            {
+                Exec(forLoop.Update);
+
+                Exec(forLoop.Body);
+            }
+
+            MemorySpaces.PopScope();
         }
 
         private void ReturnDo(ReturnAst returnAst)
@@ -142,10 +161,14 @@ namespace Lang.Visitors
 
         private void WhileDo(WhileLoop whileLoop)
         {
+            MemorySpaces.CreateScope();
+
             while (Exec(whileLoop.Predicate))
             {
                 whileLoop.Body.ScopedStatements.ForEach(statement => Exec(statement));
             }
+
+            MemorySpaces.PopScope();
         }
 
         private void ConditionalDo(Conditional conditional)
@@ -157,14 +180,23 @@ namespace Lang.Visitors
                 return;
             }
 
-            if (Convert.ToBoolean(Exec(conditional.Predicate)))
+            MemorySpaces.CreateScope();
+
+            var success = Convert.ToBoolean(Exec(conditional.Predicate));
+
+            if(success)
             {
                 Exec(conditional.Body);
+
+                MemorySpaces.PopScope();
             }
             else
             {
+                MemorySpaces.PopScope();
+
                 Exec(conditional.Alternate);
             }
+
         }
 
         private object InvokeFunction(FuncInvoke funcInvoke)
@@ -191,11 +223,19 @@ namespace Lang.Visitors
             MemorySpaces.CreateScope();
 
             var count = 0;
-            foreach (var arg in method.MethodDeclr.Arguments)
+            foreach (VarDeclrAst arg in method.MethodDeclr.Arguments)
             {
                 arg.Visit(this);
 
-                MemorySpaces.Current.Assign(arg.Token.TokenValue, Exec(args[count]));
+
+                if (arg.VariableValue == null)
+                {
+                    MemorySpaces.Current.Define(arg.Token.TokenValue, Exec(args[count]));
+                }
+                else
+                {
+                    MemorySpaces.Current.Assign(arg.Token.TokenValue, Exec(args[count]));
+                }
 
                 count++;
             }
@@ -223,7 +263,7 @@ namespace Lang.Visitors
                 {
                     var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
-                    MemorySpaces.Current.Assign(symbol.Name, value);
+                    MemorySpaces.Current.Define(symbol.Name, value);
                 }
             }
             else
@@ -232,7 +272,7 @@ namespace Lang.Visitors
 
                 var resolvedMethod = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableValue.Token.TokenValue);
 
-                MemorySpaces.Current.Assign(symbol.Name, resolvedMethod);
+                MemorySpaces.Current.Define(symbol.Name, resolvedMethod);
             }
         }
 
