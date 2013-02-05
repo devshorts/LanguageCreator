@@ -1,14 +1,15 @@
 LanguageCreator
 ===============
 
-A place to practice language creation mechanisms. Currently can parse a weird minimal language inspired by c# and f#. It can properly contruct an AST, validate scoping rules, infer types, and properly uses encapsulated memory spaces.  
+A place to practice language creation mechanisms. Currently can execute a weird minimal language inspired by c# and f#. It properly contructs an AST, validates scoping rules, infer types, and properly uses encapsulated memory spaces.  
 
 Supported Constructs
 ===
 
 The language supports variable assignment, if/else conditionals declaration, function declaration with variable arguments, anonymous functions, and quoted strings.  It also supports simple type inference. Things to do include and adding class or struct constructs. Supported built in types are int, float, string, void, and bool. Booleans are "true" and "false".  Operations are +, -, & (and), || (or), /, and ^.   Anonymous lambdas can take arguments and return values when stored in a type inferred "var" variable.  Regular functions can also be declared as "var" and type inferred from their return types. You can enforce static typing rules by giving a function a proper type, otherwise it'll just use the return type. If no return statement exists it'll default to void.
 
-Here are a couple simple examples:
+Example1
+====
 
 ```csharp
 void foo(int x){
@@ -23,15 +24,14 @@ foo(1);
 foo(100);
 ```
 
-Into 
 
 ```
 1
 103
 ```
 
-This:
-                
+Example2
+====           
 ```csharp
 var x = fun(int arg) -> {
     int g = arg;
@@ -61,7 +61,6 @@ int c = b;
 print c;
 ```
 
-Executes to
 
 ```
 5
@@ -78,7 +77,8 @@ done!
 1
 ```
 
-This
+Example3
+====
 
 ```csharp
 var foo(string t){
@@ -89,11 +89,12 @@ var foo(string t){
 print foo("pong");
 ```
 
-Executes to
 
 
 ```
 testpong
 ```
 
+Notes
+===
 So, progress is being made.  Type values are checked, but there is no type promotion yet.  
