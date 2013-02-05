@@ -326,20 +326,12 @@ namespace Lang.Visitors
         {
             var resolved = ast.CurrentScope.Resolve(ast.Token.TokenValue);
 
-            if (resolved != null)
-            {
-//                if (resolved.Type is BuiltInType &&
-//                    (resolved.Type as BuiltInType).ExpressionType == ExpressionTypes.Method
-//                    && !(resolved is MethodSymbol))
-//                {
-//                    return MemorySpaces.Current.Get(ast.Token.TokenValue) as MethodSymbol;
-//                }
-            }
-            else
+            if (resolved == null)
             {
                 var msg = String.Format("Trying to access undefined function {0}", ast.Token.TokenValue);
 
                 Console.WriteLine(msg);
+
                 throw new UndefinedElementException(msg);
             }
 

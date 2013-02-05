@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Lang.AST;
 using Lang.Symbols;
 
 namespace Lang.Spaces
@@ -33,6 +34,11 @@ namespace Lang.Spaces
         public void Define(Symbol symbol)
         {
             Symbols[symbol.Name] = symbol;
+        }
+
+        public Symbol Resolve(Ast ast)
+        {
+            return Resolve(ast.Token.TokenValue);
         }
 
         public Symbol Resolve(String name)

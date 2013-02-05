@@ -12,7 +12,7 @@ namespace Lang.Symbols
         UserDefined,
         Void,
         Boolean,
-        Method,
-        Float
+        Float,
+        Inferred
     }
 }

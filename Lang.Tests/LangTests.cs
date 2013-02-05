@@ -22,7 +22,7 @@ namespace Lang.Tests
             var tokens = new Tokenizer(test).Tokenize().ToList();
 
             Assert.IsTrue(tokens.Count == 1);
-            Assert.IsTrue(tokens.First().TokenType == TokenType.Int);
+            Assert.IsTrue(tokens.First().TokenType == TokenType.Float);
         }
 
 
@@ -544,11 +544,12 @@ namespace Lang.Tests
         public void TestReturnTypes()
         {
             var test = @"
-                         void foo(){
-                                return 1;
+                         string foo(string t){
+                                var x = ""test"";
+                                return x + t;
                          }
 
-                        foo();";
+                        print foo(""pong"");";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 

@@ -14,6 +14,8 @@ namespace Lang.Visitors
 
         public ScopeStack<Scope> ScopeTree { get; private set; }
 
+        private MethodDeclr CurrentMethod { get; set; }
+
         public ScopeBuilderVisitor()
         {
             ScopeTree = new ScopeStack<Scope>();
@@ -121,6 +123,8 @@ namespace Lang.Visitors
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
             ast.CurrentScope = Current;
+
+            ast.AstSymbolType = Current.Resolve(ast.FunctionName).Type;
         }
 
         public void Visit(VarDeclrAst ast)
@@ -186,6 +190,8 @@ namespace Lang.Visitors
                     return new BuiltInType(ExpressionTypes.Float);
                 case TokenType.Void:
                     return new BuiltInType(ExpressionTypes.Void);
+                case TokenType.Infer:
+                    return new BuiltInType(ExpressionTypes.Inferred);
                 case TokenType.QuotedString:
                 case TokenType.String:
                     return new BuiltInType(ExpressionTypes.String);
@@ -208,9 +214,9 @@ namespace Lang.Visitors
 
         public void Visit(MethodDeclr ast)
         {
-            var symbol = DefineMethod(ast);
+            CurrentMethod = ast;
 
-            ValidateReturnStatementType(ast, symbol);
+            var symbol = DefineMethod(ast);
 
             Current.Define(symbol);
 
@@ -222,30 +228,51 @@ namespace Lang.Visitors
 
             ast.CurrentScope = Current;
 
-            ast.AstSymbolType = symbol.Type;
+            
+            if (symbol.Type.ExpressionType == ExpressionTypes.Inferred)
+            {
+                if (ast.ReturnAst == null)
+                {
+                    ast.AstSymbolType = new BuiltInType(ExpressionTypes.Void);
+                }
+                else
+                {
+                    ast.AstSymbolType = ast.ReturnAst.AstSymbolType;
+                }
+            }
+            else
+            {
+                ast.AstSymbolType = symbol.Type;
+            }
+
+            ValidateReturnStatementType(ast, symbol);
+
 
             ScopeTree.PopScope();
         }
 
         private void ValidateReturnStatementType(MethodDeclr ast, Symbol symbol)
         {
-            var visitor = new ReturnVisitor();
-
-            visitor.Visit(ast);
-
+            
             IType returnStatementType;
 
             // no return found
-            if (visitor.ReturnType == null)
+            if (ast.ReturnAst == null)
             {
                 returnStatementType = new BuiltInType(ExpressionTypes.Void);
             }
             else
             {
-                returnStatementType = CreateSymbolType(visitor.ReturnType);
+                returnStatementType = ast.ReturnAst.AstSymbolType;
             }
 
             var delcaredSymbol = CreateSymbolType(ast.MethodReturnType);
+
+            // if its inferred, just use whatever the return statement i
+            if (delcaredSymbol.ExpressionType == ExpressionTypes.Inferred)
+            {
+                return;
+            }
 
             if (returnStatementType.ExpressionType != delcaredSymbol.ExpressionType)
             {
@@ -292,12 +319,21 @@ namespace Lang.Visitors
             if (ast.ReturnExpression != null)
             {
                 ast.ReturnExpression.Visit(this);
+
+                ast.AstSymbolType = ast.ReturnExpression.AstSymbolType;
+
+                CurrentMethod.ReturnAst = ast;
             }
         }
 
         public void Visit(PrintAst ast)
         {
             ast.Expression.Visit(this);
+
+            if (ast.Expression.AstSymbolType.ExpressionType == ExpressionTypes.Void)
+            {
+                throw new InvalidSyntax("Cannot print a void expression");
+            }
         }
     }
 }

@@ -11,18 +11,10 @@ namespace Lang.Symbols
     {
         public MethodDeclr MethodDeclr { get; private set; }
 
-        public IType ReturnType { get; private set; }
-
         public MethodSymbol(string name, IType returnType, MethodDeclr declr)
-            : base(name, new BuiltInType(ExpressionTypes.Method))
+            : base(name, returnType)
         {
             MethodDeclr = declr;
-
-            ReturnType = returnType;
-        }
-
-        public MethodSymbol(string name) : base(name)
-        {
         }
     }
 }

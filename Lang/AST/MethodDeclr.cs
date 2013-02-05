@@ -19,6 +19,8 @@ namespace Lang.AST
 
         public Boolean IsAnonymous { get; set; }
 
+        public ReturnAst ReturnAst { get; set; }
+
         public MethodDeclr(Token returnType, Token funcName, List<Ast> arguments, ScopeDeclr body, bool isAnon = false)
             : base(funcName)
         {
