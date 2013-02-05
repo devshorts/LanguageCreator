@@ -62,7 +62,8 @@ namespace Lang
                                       new MatchKeyword(TokenType.Print, "print"),
                                       new MatchKeyword(TokenType.True, "true"),
                                       new MatchKeyword(TokenType.False, "false"),
-                                      new MatchKeyword(TokenType.Boolean, "bool")
+                                      new MatchKeyword(TokenType.Boolean, "bool"),
+                                      new MatchKeyword(TokenType.String, "string")
                                   };
 
             var specialCharacters = new List<IMatcher>

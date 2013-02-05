@@ -25,11 +25,11 @@ namespace Lang.Matches
                     // found a float
                     if (rightOperand != null)
                     {
-                        return new Token(TokenType.Number, leftOperand + "." + rightOperand);
+                        return new Token(TokenType.Float, leftOperand + "." + rightOperand);
                     }
                 }
 
-                return new Token(TokenType.Number, leftOperand);
+                return new Token(TokenType.Int, leftOperand);
             }
             
             return null;

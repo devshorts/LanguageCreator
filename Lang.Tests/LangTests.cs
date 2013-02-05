@@ -22,7 +22,7 @@ namespace Lang.Tests
             var tokens = new Tokenizer(test).Tokenize().ToList();
 
             Assert.IsTrue(tokens.Count == 1);
-            Assert.IsTrue(tokens.First().TokenType == TokenType.Number);
+            Assert.IsTrue(tokens.First().TokenType == TokenType.Int);
         }
 
 
@@ -52,7 +52,7 @@ namespace Lang.Tests
             var expr = (ast.ScopedStatements[0] as Expr);
 
             Assert.IsTrue(expr.Left.Token.TokenType == TokenType.Word);
-            Assert.IsTrue(expr.Right.Token.TokenType == TokenType.Number);
+            Assert.IsTrue(expr.Right.Token.TokenType == TokenType.Int);
             Assert.IsTrue(ast.Token.TokenType == TokenType.ScopeStart);
         }
 
@@ -404,12 +404,12 @@ namespace Lang.Tests
         public void TestScopeTypes2()
         {
             var test = @"
-int x = 5;
-while(x > 0){
-    print x;
-    x = x - 1;
-}
-print ""done!"";";
+                        int x = 5;
+                        while(x > 0){
+                            print x;
+                            x = x - 1;
+                        }
+                        print ""done!"";";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
@@ -528,6 +528,27 @@ print ""done!"";";
                         
                         int foo = z();
                         print foo;";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
+
+        [Test]
+        public void TestReturnTypes()
+        {
+            var test = @"
+                         void foo(){
+                                return 1;
+                         }
+
+                        foo();";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 

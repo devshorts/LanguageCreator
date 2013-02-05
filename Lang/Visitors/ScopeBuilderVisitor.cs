@@ -182,10 +182,13 @@ namespace Lang.Visitors
             {
                 case TokenType.Int:
                     return new BuiltInType(ExpressionTypes.Int);
-                case TokenType.Number:
-                    return new BuiltInType(ExpressionTypes.Int);
+                case TokenType.Float:
+                    return new BuiltInType(ExpressionTypes.Float);
                 case TokenType.Void:
                     return new BuiltInType(ExpressionTypes.Void);
+                case TokenType.QuotedString:
+                case TokenType.String:
+                    return new BuiltInType(ExpressionTypes.String);
                 case TokenType.Word:
                     return new UserDefinedType(astType.Token.TokenValue);
                 case TokenType.True:
@@ -207,19 +210,48 @@ namespace Lang.Visitors
         {
             var symbol = DefineMethod(ast);
 
+            ValidateReturnStatementType(ast, symbol);
+
             Current.Define(symbol);
 
             ScopeTree.CreateScope();
 
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
-            ast.BodyStatements.Visit(this);
+            ast.Body.Visit(this);
 
             ast.CurrentScope = Current;
 
             ast.AstSymbolType = symbol.Type;
 
             ScopeTree.PopScope();
+        }
+
+        private void ValidateReturnStatementType(MethodDeclr ast, Symbol symbol)
+        {
+            var visitor = new ReturnVisitor();
+
+            visitor.Visit(ast);
+
+            IType returnStatementType;
+
+            // no return found
+            if (visitor.ReturnType == null)
+            {
+                returnStatementType = new BuiltInType(ExpressionTypes.Void);
+            }
+            else
+            {
+                returnStatementType = CreateSymbolType(visitor.ReturnType);
+            }
+
+            var delcaredSymbol = CreateSymbolType(ast.MethodReturnType);
+
+            if (returnStatementType.ExpressionType != delcaredSymbol.ExpressionType)
+            {
+                throw new InvalidSyntax(String.Format("Return type {0} for function {1} is not of the same type of declared method (type {2})",
+                    returnStatementType.ExpressionType, symbol.Name, delcaredSymbol.ExpressionType));
+            }
         }
 
         public void Visit(WhileLoop ast)

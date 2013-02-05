@@ -8,12 +8,11 @@ namespace Lang.Symbols
     public enum ExpressionTypes
     {
         Int,
-        Float,
         String,
         UserDefined,
         Void,
         Boolean,
         Method,
-        Lambda
+        Float
     }
 }

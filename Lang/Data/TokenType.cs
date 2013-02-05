@@ -4,7 +4,6 @@
     {
         Infer,
         Void,
-        Int,
         WhiteSpace,
         LBracket,
         RBracket,
@@ -33,12 +32,15 @@
         ScopeStart,
         EOF,
         For,
-        Number,
+        Float,
         Print,
         Dot,
         True,
         False,
         Boolean,
-        Or
+        Or,
+        Int,
+        Double,
+        String
     }
 }

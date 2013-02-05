@@ -128,14 +128,13 @@ namespace Lang.Parser
 
         private Ast OperationExpression()
         {
+            if (IsValidOperand())
+            {
+                return ParseOperationExpression();
+            }
+
             switch (TokenStream.Current.TokenType)
             {
-                case TokenType.Number:
-                case TokenType.QuotedString:
-                case TokenType.Word:
-                case TokenType.True:
-                case TokenType.False:
-                    return ParseOperationExpression();
 
                 case TokenType.OpenParenth:
 
@@ -479,16 +478,11 @@ namespace Lang.Parser
 
         private Ast SingleToken()
         {
-            switch (TokenStream.Current.TokenType)
+            if (IsValidOperand())
             {
-                case TokenType.Word:
-                case TokenType.QuotedString:
-                case TokenType.Number:
-                case TokenType.True:
-                case TokenType.False:
-                    var token = new Expr(TokenStream.Take(TokenStream.Current.TokenType));
+                var token = new Expr(TokenStream.Take(TokenStream.Current.TokenType));
 
-                    return token;
+                return token;
             }
 
             return null;
@@ -617,7 +611,23 @@ namespace Lang.Parser
                 case TokenType.Void:
                 case TokenType.Word:
                 case TokenType.Int:
+                case TokenType.String:
                 case TokenType.Boolean:
+                    return true;
+            }
+            return false;
+        }
+
+        private bool IsValidOperand()
+        {
+            switch (TokenStream.Current.TokenType)
+            {
+                case TokenType.Int:
+                case TokenType.QuotedString:
+                case TokenType.Word:
+                case TokenType.True:
+                case TokenType.Float:
+                case TokenType.False:
                     return true;
             }
             return false;

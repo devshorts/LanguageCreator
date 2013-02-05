@@ -201,7 +201,7 @@ namespace Lang.Visitors
             }
 
 
-            var val = Exec(method.MethodDeclr.BodyStatements);
+            var val = Exec(method.MethodDeclr.Body);
 
             MemorySpaces.PopScope();
 
@@ -263,8 +263,8 @@ namespace Lang.Visitors
                 case TokenType.Int:
                     return Convert.ToInt32(ast.Token.TokenValue);
 
-                case TokenType.Number:
-                    return Convert.ToInt32(ast.Token.TokenValue);
+                case TokenType.Float:
+                    return Convert.ToDouble(ast.Token.TokenValue);
 
                 case TokenType.QuotedString:
                     return ast.Token.TokenValue;

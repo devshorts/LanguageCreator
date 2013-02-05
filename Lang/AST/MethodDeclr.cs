@@ -15,7 +15,7 @@ namespace Lang.AST
 
         public List<Ast> Arguments { get; private set; }
 
-        public ScopeDeclr BodyStatements { get; private set; }
+        public ScopeDeclr Body { get; private set; }
 
         public Boolean IsAnonymous { get; set; }
 
@@ -28,7 +28,7 @@ namespace Lang.AST
 
             Arguments = arguments;
 
-            BodyStatements = body;
+            Body = body;
 
             IsAnonymous = isAnon;
         }
@@ -46,7 +46,7 @@ namespace Lang.AST
 
         public override string ToString()
         {
-            return "Declare " + MethodName + " ret: " + MethodReturnType + ", args " + Arguments.Aggregate("", (a, b) => a + b + ",") + " with body " + BodyStatements.ScopedStatements.Aggregate("", (acc, item) => acc + item + ",");
+            return "Declare " + MethodName + " ret: " + MethodReturnType + ", args " + Arguments.Aggregate("", (a, b) => a + b + ",") + " with body " + Body.ScopedStatements.Aggregate("", (acc, item) => acc + item + ",");
         }
     }
 }

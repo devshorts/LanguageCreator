@@ -84,7 +84,7 @@ namespace Lang.Visitors
 
                     PrintWrap("Arguments", () => ast.Arguments.ForEach(arg => arg.Visit(this)));
 
-                    PrintWrap("Body", () => ast.BodyStatements.Visit(this));
+                    PrintWrap("Body", () => ast.Body.Visit(this));
                 });
         }
 
