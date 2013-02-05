@@ -1,60 +1,14 @@
 LanguageCreator
 ===============
 
-A place to practice language creation mechanisms. Currently can parse a weird subset of c++, c#, and f#, into an AST with proper scoping rules and memory spaces.
+A place to practice language creation mechanisms. Currently can parse a weird minimal language inspired by c# and f#. It can properly contruct an AST, validate scoping rules, infer types, and properly uses encapsulated memory spaces.  
 
 Supported Constructs
 ===
 
-The language supports variable assignment, if/else conditionals declaration, function declaration with variable arguments, anonymous functions, and quoted strings.  It also supports simple type inference. Things to do include AST for adding return types, and adding class constructs.
+The language supports variable assignment, if/else conditionals declaration, function declaration with variable arguments, anonymous functions, and quoted strings.  It also supports simple type inference. Things to do include and adding class or struct constructs. Supported built in types are int, float, string, void, and bool. Booleans are "true" and "false".  Operations are +, -, & (and), || (or), /, and ^.   Anonymous lambdas can take arguments and return values when stored in a type inferred "var" variable.  Regular functions can also be declared as "var" and type inferred from their return types. You can enforce static typing rules by giving a function a proper type, otherwise it'll just use the return type. If no return statement exists it'll default to void.
 
-Right now, this properly parsers
-
-```csharp
-void foo(int x, int y){ 
-    int x = 1; 
-    var z = fun() -> { 
-        zinger = ""your mom!"";
-        someThing(a + b) + 25 - (""test"" + 5);
-    };
-}
-
-z = 3;
-
-int testFunction(){
-    var p = 23;
-
-    if(foo){
-        var x = 1;
-    }
-    else if(faa){
-        var y = 2;
-        var z = 3;
-    }
-    else{
-        while(1 + 1){
-            var x = fun () ->{
-                test = 0;
-            };
-        }
-
-        if(foo){
-            var x = 1;
-        }
-        else if(faa){
-            var y = 2;
-            var z = 3;
-        }
-        else{
-            for(int i = 0; i < 10; i = i + 1){
-                var x = z;
-            }
-        }
-    }
-}
-```      
-
-And this interprets
+Here are a couple simple examples:
 
 ```csharp
 void foo(int x){
@@ -76,7 +30,7 @@ Into
 103
 ```
 
-And so does this
+This:
                 
 ```csharp
 var x = fun(int arg) -> {
@@ -107,7 +61,7 @@ int c = b;
 print c;
 ```
 
-Into 
+Executes to
 
 ```
 5
@@ -122,6 +76,24 @@ lambda assigments work!
 1
 done!
 1
+```
+
+This
+
+```csharp
+var foo(string t){
+    var x = "test";
+    return x + t;
+}
+
+print foo("pong");
+```
+
+Executes to
+
+
+```
+testpong
 ```
 
 So, progress is being made.  Type values are checked, but there is no type promotion yet.  

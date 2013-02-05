@@ -544,7 +544,7 @@ namespace Lang.Tests
         public void TestReturnTypes()
         {
             var test = @"
-                         string foo(string t){
+                         var foo(string t){
                                 var x = ""test"";
                                 return x + t;
                          }
@@ -593,6 +593,36 @@ namespace Lang.Tests
                             i = 15;
                             print i;                            
                          }";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            ast.Visit(scopeBuilder);
+
+            var interpreter = new InterpretorVisitor();
+
+            ast.Visit(interpreter);
+        }
+
+        [Test]
+        public void TestReferences()
+        {
+            var test = @"
+                         var x = true;
+
+                         var y = x;
+        
+                         print y;
+
+                         print x;
+
+                         y = false;
+
+                         print y;
+
+                         print x;
+";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 

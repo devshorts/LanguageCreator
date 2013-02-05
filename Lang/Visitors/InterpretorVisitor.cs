@@ -240,7 +240,6 @@ namespace Lang.Visitors
                 count++;
             }
 
-
             var val = Exec(method.MethodDeclr.Body);
 
             MemorySpaces.PopScope();
