@@ -714,5 +714,36 @@ namespace Lang.Tests
             new InterpretorVisitor().Start(ast);
 
         }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestInvalidAssignment()
+        {
+            var test = @"
+                        int x = 1.0;
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestInvalidAssignment2()
+        {
+            var test = @"
+                        int x = func();
+
+                        string func(){
+                            return ""test"";
+                        }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

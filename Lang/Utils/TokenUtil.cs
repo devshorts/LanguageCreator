@@ -32,5 +32,10 @@ namespace Lang.Utils
             }
             return false;
         }
+
+        public static bool EqualOrPromotable(ExpressionTypes item1, ExpressionTypes item2)
+        {
+            return item1 == item2 || item1 == ExpressionTypes.Inferred || item2 == ExpressionTypes.Inferred;
+        }
     }
 }

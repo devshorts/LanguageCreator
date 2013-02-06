@@ -278,6 +278,22 @@ namespace Lang.Visitors
 
                     Current.Define(symbol);
                 }
+                else if (ResolvingTypes)
+                {
+                    var declaredType = CreateSymbolType(ast.DeclarationType);
+
+                    var value = ast.VariableValue.ConvertedExpression ?? ast.VariableValue;
+
+                    value = value is MethodDeclr ? (value as MethodDeclr).ReturnAst : value;
+
+                    if (!TokenUtil.EqualOrPromotable(value.AstSymbolType.ExpressionType, declaredType.ExpressionType))
+                    {
+                        throw new InvalidSyntax(String.Format("Cannot assign {0} of type {1} to {2}", ast.VariableValue, 
+                            value.AstSymbolType.ExpressionType, 
+                            declaredType.ExpressionType));
+                    } 
+
+                }
             }
 
             SetScope(ast);
