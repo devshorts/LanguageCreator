@@ -11,11 +11,13 @@ namespace Lang.AST
     {
         public Scope CurrentScope { get; set; }
 
-        public Token Token { get; private set; }
+        public Token Token { get; set; }
 
         public IType AstSymbolType { get; set; } 
 
-        public List<Ast> Children { get; private set; } 
+        public List<Ast> Children { get; private set; }
+
+        public Ast ConvertedExpression { get; set; }
 
         public Ast(Token token)
         {

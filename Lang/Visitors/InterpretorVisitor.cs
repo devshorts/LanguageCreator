@@ -15,18 +15,9 @@ namespace Lang.Visitors
     {
         private ScopeStack<MemorySpace> MemorySpaces { get; set; }
 
-        public InterpretorVisitor(Ast ast)
+        public InterpretorVisitor()
         {
             MemorySpaces = new ScopeStack<MemorySpace>();
-
-            var scopeBuilder = new ScopeBuilderVisitor();
-            var resolver = new ScopeBuilderVisitor(true);
-
-            ast.Visit(scopeBuilder);
-
-            ast.Visit(resolver);
-
-            ast.Visit(this);
         }
 
 
@@ -80,6 +71,19 @@ namespace Lang.Visitors
             Exec(ast);
         }
 
+        public void Start(Ast ast)
+        {
+            var scopeBuilder = new ScopeBuilderVisitor();
+
+            var resolver = new ScopeBuilderVisitor(true);
+
+            scopeBuilder.Start(ast);
+
+            resolver.Start(ast);
+
+            ast.Visit(this);
+        }
+
         private dynamic Exec(Ast ast)
         {
             try
@@ -87,6 +91,11 @@ namespace Lang.Visitors
                 if (ast == null)
                 {
                     return null;
+                }
+
+                if (ast.ConvertedExpression != null)
+                {
+                    return Exec(ast.ConvertedExpression);
                 }
 
                 switch (ast.AstType)
@@ -263,9 +272,11 @@ namespace Lang.Visitors
                 return;
             }
 
-            if (varDeclrAst.VariableValue.AstType != AstTypes.MethodDeclr)
+            var variableValue = varDeclrAst.VariableValue.ConvertedExpression ?? varDeclrAst.VariableValue;
+
+            if (variableValue.AstType != AstTypes.MethodDeclr)
             {
-                var value = Exec(varDeclrAst.VariableValue);
+                var value = Exec(variableValue);
 
                 if (value != null)
                 {
@@ -278,7 +289,7 @@ namespace Lang.Visitors
             {
                 var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
-                var resolvedMethod = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableValue.Token.TokenValue);
+                var resolvedMethod = varDeclrAst.CurrentScope.Resolve(variableValue.Token.TokenValue);
 
                 MemorySpaces.Current.Define(symbol.Name, resolvedMethod);
             }

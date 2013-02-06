@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;
@@ -19,8 +21,6 @@ namespace Lang.Visitors
         private Boolean ResolvingTypes { get; set; }
         public ScopeBuilderVisitor(bool resolvingTypes = false)
         {
-            ScopeTree = new ScopeStack<Scope>();
-
             ResolvingTypes = resolvingTypes;
         }
 
@@ -128,7 +128,53 @@ namespace Lang.Visitors
 
             SetScope(ast);
 
-            ast.AstSymbolType = ResolveType(ast.FunctionName, ast.CurrentScope);
+            var functionType = Resolve(ast.FunctionName) as MethodSymbol;
+
+            if (functionType != null && ast.Arguments.Count < functionType.MethodDeclr.Arguments.Count)
+            {
+                var curriedMethod = CreateCurriedMethod(ast, functionType);
+
+                curriedMethod.Visit(this);
+
+                var methodSymbol = DefineMethod(curriedMethod);
+
+                Current.Define(methodSymbol);
+
+                ast.ConvertedExpression = curriedMethod;
+            }
+            else
+            {
+                ast.AstSymbolType = ResolveType(ast.FunctionName, ast.CurrentScope);
+            }
+        }
+
+        private LambdaDeclr CreateCurriedMethod(FuncInvoke ast, MethodSymbol functionType)
+        {
+            var srcMethod = functionType.MethodDeclr;
+
+            var fixedAssignments = new List<VarDeclrAst>();
+
+            var count = 0;
+            foreach (var argValue in ast.Arguments)
+            {
+                var srcArg = srcMethod.Arguments[count] as VarDeclrAst;
+
+                var token = new Token(srcArg.DeclarationType.Token.TokenType, argValue.Token.TokenValue);
+
+                var declr = new VarDeclrAst(token, srcArg.Token, new Expr(argValue.Token));
+
+                fixedAssignments.Add(declr);
+
+                count++;
+            }
+
+            var newBody = fixedAssignments.Concat(srcMethod.Body.ScopedStatements).ToList();
+
+            var curriedMethod = new LambdaDeclr(srcMethod.Arguments.Skip(ast.Arguments.Count).ToList(), new ScopeDeclr(newBody));
+
+            SetScope(curriedMethod);
+
+            return curriedMethod;
         }
 
         private IType ResolveType(Ast ast, Scope currentScope = null)
@@ -411,6 +457,15 @@ namespace Lang.Visitors
             {
                 throw new InvalidSyntax("Cannot print a void expression");
             }
+        }
+
+        public void Start(Ast ast)
+        {
+            ScopeTree = new ScopeStack<Scope>();
+
+            LambdaDeclr.LambdaCount = 0;
+
+            ast.Visit(this);
         }
     }
 }

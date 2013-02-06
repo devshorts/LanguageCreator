@@ -130,6 +130,11 @@ namespace Lang.Visitors
             PrintWrap("Print", () => ast.Expression.Visit(this));
         }
 
+        public void Start(Ast ast)
+        {
+            ast.Visit(this);
+        }
+
         private void PrintWrap(string name, Action action, bool newLine = false)
         {
             if (newLine)

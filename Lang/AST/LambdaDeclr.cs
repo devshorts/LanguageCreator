@@ -8,6 +8,8 @@ namespace Lang.AST
 {
     public class LambdaDeclr : MethodDeclr
     {
+        public static int LambdaCount { get; set; }
+
         private static Random _rand = new Random();
 
         public LambdaDeclr(List<Ast> arguments, ScopeDeclr body )
@@ -17,7 +19,11 @@ namespace Lang.AST
 
          private static string AnonymousFunctionName
          {
-             get { return "anonymous" + _rand.Next(); }
+             get
+             {
+                 LambdaCount++;
+                 return "anonymous" + LambdaCount;
+             }
          }
 
     }
