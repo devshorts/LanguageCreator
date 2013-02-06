@@ -163,6 +163,20 @@ namespace Lang.Visitors
 
                 var declr = new VarDeclrAst(token, srcArg.Token, new Expr(argValue.Token));
 
+                var newArgType = ScopeUtil.CreateSymbolType(argValue);
+
+                var targetArgType = ScopeUtil.CreateSymbolType(srcArg.DeclarationType);
+
+                if (!TokenUtil.EqualOrPromotable(newArgType, targetArgType))
+                {
+                    throw new InvalidSyntax(String.Format("Cannot pass argument {0} of type {1} to partial function {2} as argument {3} of type {4}",
+                        argValue.Token.TokenValue, 
+                        newArgType.TypeName, 
+                        srcMethod.MethodName.Token.TokenValue, 
+                        srcArg.VariableName.Token.TokenValue,
+                        targetArgType.TypeName)); 
+                }
+
                 fixedAssignments.Add(declr);
 
                 count++;

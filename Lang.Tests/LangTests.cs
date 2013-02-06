@@ -609,5 +609,70 @@ namespace Lang.Tests
             new InterpretorVisitor().Start(ast);
 
         }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestCurryingInvalidArguments()
+        {
+            var test = @"
+                        var func(string printer, int x){
+                            print printer;
+                            print x;
+                        }
+            
+                        var curry = func(1);
+
+                        curry(1);
+
+                        curry(2);
+
+                        var otherCurry = func(""test"");
+
+                        otherCurry(3);
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestFunctionInvalidParamters()
+        {
+            var test = @"
+                        var func(string printer, int x){
+                            print printer;
+                            print x;
+                        }
+            
+                        func(""asdf"", ""asdf"",""asdf"");
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestFunctionInvalidTypeParamters()
+        {
+            var test = @"
+                        var func(string printer, int x){
+                            print printer;
+                            print x;
+                        }
+            
+                        func(""asdf"", ""asdf"");
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+
+        }
     }
 }

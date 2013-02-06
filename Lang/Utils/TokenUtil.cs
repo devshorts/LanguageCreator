@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Symbols;
 
 namespace Lang.Utils
 {
     public static class TokenUtil
     {
+        public static Boolean EqualOrPromotable(IType item1, IType item2)
+        {
+            return item1.ExpressionType == item2.ExpressionType;
+        }
+
         public static Boolean IsOperator(Token item)
         {
             switch (item.TokenType)

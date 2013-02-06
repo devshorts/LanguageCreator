@@ -241,18 +241,37 @@ namespace Lang.Visitors
             MemorySpaces.CreateScope();
 
             var count = 0;
-            foreach (VarDeclrAst arg in method.MethodDeclr.Arguments)
+
+            if (method.MethodDeclr.Arguments.Count != args.Count)
             {
-                arg.Visit(this);
+                throw new InvalidSyntax(String.Format("Wrong number of arguments passed to method {0}. Got {1}, expected {2}", 
+                    method.MethodDeclr.MethodName.Token.TokenValue,
+                    args.Count, method.MethodDeclr.Arguments.Count));
+            }
 
+            foreach (VarDeclrAst expectedArgument in method.MethodDeclr.Arguments)
+            {
+                expectedArgument.Visit(this);
 
-                if (arg.VariableValue == null)
+                var currentArgument = args[count];
+
+                if (expectedArgument.VariableValue == null)
                 {
-                    MemorySpaces.Current.Define(arg.Token.TokenValue, Exec(args[count]));
+                    MemorySpaces.Current.Define(expectedArgument.Token.TokenValue, Exec(currentArgument));
                 }
                 else
                 {
-                    MemorySpaces.Current.Assign(arg.Token.TokenValue, Exec(args[count]));
+                    MemorySpaces.Current.Assign(expectedArgument.Token.TokenValue, Exec(currentArgument));
+                }
+
+                if (!TokenUtil.EqualOrPromotable(expectedArgument.AstSymbolType, currentArgument.AstSymbolType))
+                {
+                    throw new InvalidSyntax(String.Format("Cannot pass argument {0} of type {1} to function {2} as argument {3} of type {4}",
+                        currentArgument.Token.TokenValue,
+                        currentArgument.AstSymbolType.TypeName,
+                        method.MethodDeclr.MethodName.Token.TokenValue,
+                        expectedArgument.VariableName.Token.TokenValue,
+                        expectedArgument.AstSymbolType.TypeName));
                 }
 
                 count++;
