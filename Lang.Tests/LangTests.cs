@@ -588,20 +588,20 @@ namespace Lang.Tests
         public void TestCurrying()
         {
             var test = @"
-                         var func(string printer, int x){
+                        var func(string printer, int x){
                             print printer;
                             print x;
-                         }
+                        }
             
-                         var curry = func(""anton"");
+                        var curry = func(""anton"");
 
-                         curry(1);
+                        curry(1);
 
-                         curry(2);
+                        curry(2);
 
-                         var otherCurry = func(""test"");
+                        var otherCurry = func(""test"");
 
-                         otherCurry(3);
+                        otherCurry(3);
                         ";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;

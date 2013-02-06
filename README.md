@@ -6,7 +6,7 @@ A place to practice language creation mechanisms. Currently can execute a weird 
 Supported Constructs
 ===
 
-The language supports variable assignment, if/else conditionals declaration, function declaration with variable arguments, anonymous functions, and quoted strings.  It also supports simple type inference. Things to do include and adding class or struct constructs. Supported built in types are int, float, string, void, and bool. Booleans are "true" and "false".  Operations are +, -, & (and), || (or), /, and ^.   Anonymous lambdas can take arguments and return values when stored in a type inferred "var" variable.  Regular functions can also be declared as "var" and type inferred from their return types. You can enforce static typing rules by giving a function a proper type, otherwise it'll just use the return type. If no return statement exists it'll default to void.
+The language supports variable assignment, if/else conditionals declaration, function declaration with variable arguments, anonymous functions, and quoted strings.  It also supports simple type inference. Things to do include and adding class or struct constructs. Supported built in types are int, float, string, void, and bool. Booleans are "true" and "false".  Operations are +, -, & (and), || (or), /, and ^.   Anonymous lambdas can take arguments and return values when stored in a type inferred "var" variable.  Regular functions can also be declared as "var" and type inferred from their return types. You can enforce static typing rules by giving a function a proper type, otherwise it'll just use the return type. If no return statement exists it'll default to void.  Partial functions are also supported.
 
 Example1
 ====
@@ -93,6 +93,35 @@ print foo("pong");
 
 ```
 testpong
+```
+
+Example4 (currying)
+===
+
+```csharp
+var func(string printer, int x){
+    print printer;
+    print x;
+}
+            
+var curry = func("anton");
+
+curry(1);
+
+curry(2);
+
+var otherCurry = func("test");
+
+otherCurry(3);
+```
+
+```
+anton
+1
+anton
+2
+test
+3
 ```
 
 Notes
