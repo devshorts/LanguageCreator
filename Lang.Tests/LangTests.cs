@@ -567,15 +567,15 @@ namespace Lang.Tests
         public void TestForwardReferences()
         {
             var test = @"
-                         var func(){
-                            foo();
+                         var func(string printer){
+                            return foo(printer);
                          }
 
-                         var foo(){
-                            print ""foo"";
+                         var foo(string printer){
+                            return printer + ""foo"";
                          }
                         
-                        func();
+                        print func(""zing"");
                         ";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
