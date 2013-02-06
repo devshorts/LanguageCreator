@@ -585,6 +585,46 @@ namespace Lang.Tests
         }
 
         [Test]
+        public void TestForwardReferences2()
+        {
+            var test = @"
+                         string item = func(""test"");
+
+                         var func(string printer){
+                            return ""yes"";
+                         }
+
+                         print item;
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestForwardReferences3()
+        {
+            var test = @"
+                         print item;
+                         string item = func(""test"");
+
+                         var func(string printer){
+                            return ""yes"";
+                         }
+
+                         
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
         public void TestCurrying()
         {
             var test = @"

@@ -467,9 +467,17 @@ namespace Lang.Visitors
         {
             ast.Expression.Visit(this);
 
-            if (!ResolvingTypes && ast.Expression.AstSymbolType.ExpressionType == ExpressionTypes.Void)
+            if (!ResolvingTypes)
             {
-                throw new InvalidSyntax("Cannot print a void expression");
+                if (ast.Expression.AstSymbolType == null)
+                {
+                    throw new InvalidSyntax("Undefined expression in print statement");
+                }
+
+                if (ast.Expression.AstSymbolType.ExpressionType == ExpressionTypes.Void)
+                {
+                    throw new InvalidSyntax("Cannot print a void expression");
+                }
             }
         }
 
