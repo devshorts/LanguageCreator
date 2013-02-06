@@ -16,9 +16,12 @@ namespace Lang.Visitors
 
         private MethodDeclr CurrentMethod { get; set; }
 
-        public ScopeBuilderVisitor()
+        private Boolean ResolvingTypes { get; set; }
+        public ScopeBuilderVisitor(bool resolvingTypes = false)
         {
             ScopeTree = new ScopeStack<Scope>();
+
+            ResolvingTypes = resolvingTypes;
         }
 
         public void Visit(Conditional ast)
@@ -35,7 +38,7 @@ namespace Lang.Visitors
                 ast.Alternate.Visit(this);
             }
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
         }
 
         public void Visit(Expr ast)
@@ -50,7 +53,7 @@ namespace Lang.Visitors
                 ast.Right.Visit(this);
             }
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
 
             if (ast.Left == null && ast.Right == null)
             {
@@ -58,7 +61,10 @@ namespace Lang.Visitors
             }
             else
             {
-                ast.AstSymbolType = GetExpressionType(ast.Left, ast.Right, ast.Token);
+                if (!ResolvingTypes)
+                {
+                    ast.AstSymbolType = GetExpressionType(ast.Left, ast.Right, ast.Token);
+                }
             }
         }
 
@@ -76,14 +82,7 @@ namespace Lang.Visitors
 
             switch (ast.Token.TokenType)
             {
-                case TokenType.Word:
-                    var resolved = Current.Resolve(ast.Token.TokenValue);
-                    if (resolved == null)
-                    {
-                        throw new UndefinedElementException(String.Format("{0} is undefined", ast.Token.TokenValue));
-                    }
-
-                    return resolved.Type;
+                case TokenType.Word: return ResolveType(ast);
             }
 
             return CreateSymbolType(ast);
@@ -110,6 +109,11 @@ namespace Lang.Visitors
                     return right.AstSymbolType;
             }
 
+            if (!ResolvingTypes && (left.AstSymbolType == null || right.AstSymbolType == null))
+            {
+                return null;
+            }
+
             if (left.AstSymbolType.ExpressionType != right.AstSymbolType.ExpressionType)
             {
                 throw new Exception("Mismatched types");
@@ -122,9 +126,71 @@ namespace Lang.Visitors
         {
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
 
-            ast.AstSymbolType = Current.Resolve(ast.FunctionName).Type;
+            ast.AstSymbolType = ResolveType(ast.FunctionName, ast.CurrentScope);
+        }
+
+        private IType ResolveType(Ast ast, Scope currentScope = null)
+        {
+            try
+            {
+                return Current.Resolve(ast).Type;
+            }
+            catch (Exception ex)
+            {
+                if (currentScope != null || ast.CurrentScope != null)
+                {
+                    if (currentScope == null && ast.CurrentScope != null)
+                    {
+                        currentScope = ast.CurrentScope;
+                    }
+
+                    if (currentScope == null)
+                    {
+                        if (ResolvingTypes)
+                        {
+                            throw;
+                        }
+                        return null;
+                    }
+
+                    try
+                    {
+                        return currentScope.Resolve(ast).Type;
+                    }
+                    catch (Exception ex1)
+                    {
+                        if (ResolvingTypes)
+                        {
+                            throw new UndefinedElementException(String.Format("Undefined element {0}",
+                                                                              ast.Token.TokenValue));
+                        }
+
+                        return null;
+                    }
+                }
+
+                throw;
+            }
+        }
+
+        private Symbol Resolve(Ast ast)
+        {
+            try
+            {
+                return Current.Resolve(ast);
+            }
+            catch (Exception ex)
+            {
+                if (ResolvingTypes)
+                {
+                    //
+                    return null;
+                }
+
+                throw;
+            }
         }
 
         public void Visit(VarDeclrAst ast)
@@ -154,14 +220,9 @@ namespace Lang.Visitors
                 }
             }
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
         }
-
-        private Symbol GetName(Ast ast)
-        {
-            return new Symbol(ast.Token.TokenValue);
-        }
-
+        
         private Symbol DefineUserSymbol(Ast astType, Ast name)
         {
             IType type = CreateSymbolType(astType);
@@ -226,9 +287,8 @@ namespace Lang.Visitors
 
             ast.Body.Visit(this);
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
 
-            
             if (symbol.Type.ExpressionType == ExpressionTypes.Inferred)
             {
                 if (ast.ReturnAst == null)
@@ -253,7 +313,11 @@ namespace Lang.Visitors
 
         private void ValidateReturnStatementType(MethodDeclr ast, Symbol symbol)
         {
-            
+            if (!ResolvingTypes)
+            {
+                return;
+            }
+
             IType returnStatementType;
 
             // no return found
@@ -287,7 +351,7 @@ namespace Lang.Visitors
 
             ast.Body.Visit(this);
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
         }
 
         public void Visit(ScopeDeclr ast)
@@ -296,9 +360,17 @@ namespace Lang.Visitors
 
             ast.ScopedStatements.ForEach(statement => statement.Visit(this));
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
 
             ScopeTree.PopScope();
+        }
+
+        private void SetScope(Ast ast)
+        {
+            if (ast.CurrentScope == null)
+            {
+                ast.CurrentScope = Current;
+            }
         }
 
         public void Visit(ForLoop ast)
@@ -307,7 +379,7 @@ namespace Lang.Visitors
 
             ast.Predicate.Visit(this);
 
-            if (ast.Predicate.AstSymbolType.ExpressionType != ExpressionTypes.Boolean)
+            if (!ResolvingTypes && ast.Predicate.AstSymbolType.ExpressionType != ExpressionTypes.Boolean)
             {
                 throw new InvalidSyntax("For loop predicate has to evaluate to a boolean");
             }
@@ -316,7 +388,7 @@ namespace Lang.Visitors
 
             ast.Body.Visit(this);
 
-            ast.CurrentScope = Current;
+            SetScope(ast);
         }
 
         public void Visit(ReturnAst ast)
@@ -335,7 +407,7 @@ namespace Lang.Visitors
         {
             ast.Expression.Visit(this);
 
-            if (ast.Expression.AstSymbolType.ExpressionType == ExpressionTypes.Void)
+            if (!ResolvingTypes && ast.Expression.AstSymbolType.ExpressionType == ExpressionTypes.Void)
             {
                 throw new InvalidSyntax("Cannot print a void expression");
             }

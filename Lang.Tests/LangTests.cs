@@ -324,13 +324,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var visitor = new InterpretorVisitor();
-
-            ast.Visit(visitor);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -351,13 +345,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var visitor = new InterpretorVisitor();
-
-            ast.Visit(visitor);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -371,13 +359,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse();
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var visitor = new InterpretorVisitor();
-
-            ast.Visit(visitor);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -391,7 +373,7 @@ namespace Lang.Tests
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
             var scopeBuilder = new ScopeBuilderVisitor();
-
+            
             ast.Visit(scopeBuilder);
 
             Assert.IsTrue(ast.ScopedStatements[0].AstSymbolType is BuiltInType);
@@ -413,13 +395,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -431,13 +407,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -478,13 +448,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -500,13 +464,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -531,13 +489,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -553,13 +505,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -576,13 +522,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -596,13 +536,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
-
-            ast.Visit(scopeBuilder);
-
-            var interpreter = new InterpretorVisitor();
-
-            ast.Visit(interpreter);
+            var interpreter = new InterpretorVisitor(ast);
         }
 
         [Test]
@@ -626,13 +560,29 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            var scopeBuilder = new ScopeBuilderVisitor();
+            var interpreter = new InterpretorVisitor(ast);
+        }
 
-            ast.Visit(scopeBuilder);
+        [Test]
+        public void TestForwardReferences()
+        {
+            var test = @"
+                         var func(){
+                            foo();
+                         }
 
-            var interpreter = new InterpretorVisitor();
+                         var foo(){
+                            print ""foo"";
+                         }
+                        
+                        func();
+                        ";
 
-            ast.Visit(interpreter);
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            
+            var interpreter = new InterpretorVisitor(ast);
+
         }
     }
 }

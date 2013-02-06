@@ -15,9 +15,18 @@ namespace Lang.Visitors
     {
         private ScopeStack<MemorySpace> MemorySpaces { get; set; }
 
-        public InterpretorVisitor()
+        public InterpretorVisitor(Ast ast)
         {
             MemorySpaces = new ScopeStack<MemorySpace>();
+
+            var scopeBuilder = new ScopeBuilderVisitor();
+            var resolver = new ScopeBuilderVisitor(true);
+
+            ast.Visit(scopeBuilder);
+
+            ast.Visit(resolver);
+
+            ast.Visit(this);
         }
 
 

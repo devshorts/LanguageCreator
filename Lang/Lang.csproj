@@ -95,12 +95,14 @@
     <Compile Include="Lexer\Tokenizer.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="Utils\Maybe.cs" />
+    <Compile Include="Utils\ScopeUtil.cs" />
     <Compile Include="Utils\TokenUtil.cs" />
     <Compile Include="Visitors\InterpretorVisitor.cs" />
     <Compile Include="Visitors\PrintAstVisitor.cs" />
     <Compile Include="Visitors\IAcceptVisitor.cs" />
     <Compile Include="Visitors\IAstVisitor.cs" />
     <Compile Include="Visitors\ScopeBuilderVisitor.cs" />
+    <Compile Include="Visitors\TypeResolver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
