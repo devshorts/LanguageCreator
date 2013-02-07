@@ -766,6 +766,29 @@ namespace Lang.Tests
         }
 
         [Test]
+        public void TestArgumentInfer2()
+        {
+            var test = @"
+                        var func(method printer, method printer2){
+                            print printer();
+                            printer2();
+                        }
+           
+                        var x = fun() -> { print 'curried'; return 1; };
+                        var two = fun() -> { print 'second function'; };
+                        var three = fun() -> { print 'third function'; };
+                        var z = func(x);
+                        z(two);
+                        z(three);
+
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
         [ExpectedException(typeof(InvalidSyntax))]
         public void TestArgumentInferInvalid()
         {

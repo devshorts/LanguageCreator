@@ -10,12 +10,14 @@ namespace Lang.Parser
 {
     public class LanguageParser
     {
-        
+
         private ParseableTokenStream TokenStream { get; set; }
 
         public LanguageParser(Tokenizer tokenizer)
         {
             TokenStream = new ParseableTokenStream(tokenizer);
+
+            LambdaDeclr.LambdaCount = 1000;
         }
 
         public Ast Parse()

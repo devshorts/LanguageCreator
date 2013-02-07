@@ -329,7 +329,7 @@ namespace Lang.Visitors
             Console.WriteLine(expression);
         }
 
-        private object Expression(Expr ast)
+        private dynamic Expression(Expr ast)
         {
             var lhs = ast.Left;
             var rhs = ast.Right;

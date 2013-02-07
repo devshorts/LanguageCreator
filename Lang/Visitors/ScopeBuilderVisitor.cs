@@ -297,9 +297,11 @@ namespace Lang.Visitors
                     // this way we can reference it later to determine not only that this is a method type, but what
                     // is the expected return value for static type checking later
 
-                    ast.AstSymbolType = ast.VariableValue is MethodDeclr
-                                            ? new BuiltInType(ExpressionTypes.Method, ast.VariableValue)
-                                            : ast.VariableValue.AstSymbolType;
+                    var val = ast.VariableValue.ConvertedExpression ?? ast.VariableValue;
+
+                    ast.AstSymbolType = val is MethodDeclr
+                                            ? new BuiltInType(ExpressionTypes.Method, val)
+                                            : val.AstSymbolType;
 
                     var symbol = DefineUserSymbol(ast.AstSymbolType, ast.VariableName);
 
