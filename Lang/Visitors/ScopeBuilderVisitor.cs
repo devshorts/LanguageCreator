@@ -169,9 +169,13 @@ namespace Lang.Visitors
 
                 var declr = new VarDeclrAst(token, srcArg.Token, new Expr(argValue.Token));
 
-                var newArgType = argValue.Token.TokenType == TokenType.Word ? ast.CurrentScope.Resolve(argValue).Type : 
-                                    ScopeUtil.CreateSymbolType(argValue);
+                // if we're creating a curry using a variable then we need to resolve the variable type
+                // otherwise we can make a symbol for the literal
+                var newArgType = argValue.Token.TokenType == TokenType.Word ? 
+                                        ast.CurrentScope.Resolve(argValue).Type
+                                    :   ScopeUtil.CreateSymbolType(argValue);
 
+                // create a symbol type for the target we're invoking on so we can do type checking
                 var targetArgType = ScopeUtil.CreateSymbolType(srcArg.DeclarationType);
 
                 if (!TokenUtil.EqualOrPromotable(newArgType, targetArgType))
@@ -202,6 +206,7 @@ namespace Lang.Visitors
         {
             try
             {
+               
                 return Current.Resolve(ast).Type;
             }
             catch (Exception ex)
@@ -277,8 +282,13 @@ namespace Lang.Visitors
             {
                 ast.VariableValue.Visit(this);
 
+                // if its type inferred, determine the declaration by the value's type
                 if (isVar)
                 {
+                    // if the right hand side is a method declaration, make sure to track the source value
+                    // this way we can reference it later to determine not only that this is a method type, but what
+                    // is the expected return value for static type checking later
+
                     ast.AstSymbolType = ast.VariableValue is MethodDeclr
                                             ? new BuiltInType(ExpressionTypes.Method, ast.VariableValue)
                                             : ast.VariableValue.AstSymbolType;
@@ -295,6 +305,9 @@ namespace Lang.Visitors
 
                     ReturnAst returnType = null;
 
+                    // when we're resolving types check if the rhs is a function invoke. if it is, see 
+                    // what the return value of the src expression is so we can make sure that the 
+                    // lhs and the rhs match.
                     try
                     {
                         returnType =

@@ -264,6 +264,8 @@ namespace Lang.Visitors
                     MemorySpaces.Current.Assign(expectedArgument.Token.TokenValue, Exec(currentArgument));
                 }
 
+                // if the passed in argument is a word and not a literal (like string or bool) then 
+                // pull its value from memory so we can match type to the target type 
                 var resolvedSymbol = (currentArgument.Token.TokenType == TokenType.Word ? 
                                                 MemorySpaces.Current.Get(currentArgument.Token.TokenValue)
                                             :   args[count]) as Symbol;

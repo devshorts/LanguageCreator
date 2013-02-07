@@ -750,16 +750,13 @@ namespace Lang.Tests
         public void TestArgumentInfer()
         {
             var test = @"
-                        var func(method printer, method printer1){
-                            printer();
-                            printer1();
+                        var func(method printer, method printer2){
+                            print printer();
+                            printer2();
                         }
            
-                        var x = fun() -> { print 'test'; };
-
-                        var curry = func(x);
-
-                        curry(x);
+                        var x = fun() -> { print 'test'; return 1; };
+                        func(x,x);
 
                         ";
 
