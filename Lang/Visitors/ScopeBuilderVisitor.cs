@@ -202,11 +202,19 @@ namespace Lang.Visitors
             return curriedMethod;
         }
 
+        /// <summary>
+        /// Resolve the target ast type from the current scope, OR give it a scope to use.  
+        /// Since things can be resolved in two passes (initial scope and forward reference scope)
+        /// we want to be able to pass in a scope override.  The second value is usually only ever used
+        /// on the second pass when determining forward references
+        /// </summary>
+        /// <param name="ast"></param>
+        /// <param name="currentScope"></param>
+        /// <returns></returns>
         private IType ResolveType(Ast ast, Scope currentScope = null)
         {
             try
             {
-               
                 return Current.Resolve(ast).Type;
             }
             catch (Exception ex)
