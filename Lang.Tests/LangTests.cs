@@ -767,5 +767,28 @@ namespace Lang.Tests
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax))]
+        public void TestArgumentInferInvalid()
+        {
+            var test = @"
+                        var func(method printer, method printer1){
+                            printer(1);
+                            printer1();
+                        }
+           
+                        var x = fun() -> { print 'test'; };
+
+                        var curry = func(x);
+
+                        curry(x);
+
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }
