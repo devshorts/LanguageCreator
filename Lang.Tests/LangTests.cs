@@ -633,13 +633,14 @@ namespace Lang.Tests
                             print x;
                         }
             
-                        var curry = func(""anton"");
+                        var curry = func('anton');
 
-                        curry(1);
+                        int x = 1;
+                        curry(x);
 
                         curry(2);
 
-                        var otherCurry = func(""test"");
+                        var otherCurry = func('test');
 
                         otherCurry(3);
                         ";
@@ -647,7 +648,6 @@ namespace Lang.Tests
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
-
         }
 
         [Test]
@@ -739,6 +739,28 @@ namespace Lang.Tests
                         string func(){
                             return ""test"";
                         }
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        public void TestArgumentInfer()
+        {
+            var test = @"
+                        var func(method printer, method printer1){
+                            printer();
+                            printer1();
+                        }
+           
+                        var x = fun() -> { print 'test'; };
+
+                        var curry = func(x);
+
+                        curry(x);
+
                         ";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;

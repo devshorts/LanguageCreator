@@ -63,7 +63,8 @@ namespace Lang
                                       new MatchKeyword(TokenType.True, "true"),
                                       new MatchKeyword(TokenType.False, "false"),
                                       new MatchKeyword(TokenType.Boolean, "bool"),
-                                      new MatchKeyword(TokenType.String, "string")
+                                      new MatchKeyword(TokenType.String, "string"),
+                                      new MatchKeyword(TokenType.Method, "method")
                                   };
 
             var specialCharacters = new List<IMatcher>
@@ -98,7 +99,8 @@ namespace Lang
                     current.SpecialCharacters = specialCharacters.Select(i => i as MatchKeyword).ToList();
                 });
 
-            matchers.Add(new MatchString());
+            matchers.Add(new MatchString(MatchString.QUOTE));
+            matchers.Add(new MatchString(MatchString.TIC));
             matchers.AddRange(specialCharacters);
             matchers.AddRange(keywordmatchers);
             matchers.AddRange(new List<IMatcher>

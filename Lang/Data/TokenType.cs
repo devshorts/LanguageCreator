@@ -41,6 +41,7 @@
         Or,
         Int,
         Double,
-        String
+        String,
+        Method
     }
 }

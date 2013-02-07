@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lang", "Lang\Lang.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lang.Tests", "Lang.Tests\Lang.Tests.csproj", "{BA58B05D-8EEE-4FF3-B644-46528525C0A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interpreter", "Interpreter\Interpreter.csproj", "{B311E47E-EC9D-4B07-BC63-84C602FB88DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +21,10 @@ Global
 		{BA58B05D-8EEE-4FF3-B644-46528525C0A8}.Debug|x86.Build.0 = Debug|x86
 		{BA58B05D-8EEE-4FF3-B644-46528525C0A8}.Release|x86.ActiveCfg = Release|x86
 		{BA58B05D-8EEE-4FF3-B644-46528525C0A8}.Release|x86.Build.0 = Release|x86
+		{B311E47E-EC9D-4B07-BC63-84C602FB88DE}.Debug|x86.ActiveCfg = Debug|x86
+		{B311E47E-EC9D-4B07-BC63-84C602FB88DE}.Debug|x86.Build.0 = Debug|x86
+		{B311E47E-EC9D-4B07-BC63-84C602FB88DE}.Release|x86.ActiveCfg = Release|x86
+		{B311E47E-EC9D-4B07-BC63-84C602FB88DE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

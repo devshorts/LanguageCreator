@@ -253,7 +253,7 @@ namespace Lang.Visitors
             {
                 expectedArgument.Visit(this);
 
-                var currentArgument = args[count];
+                var currentArgument = args[count]; 
 
                 if (expectedArgument.VariableValue == null)
                 {
@@ -264,7 +264,13 @@ namespace Lang.Visitors
                     MemorySpaces.Current.Assign(expectedArgument.Token.TokenValue, Exec(currentArgument));
                 }
 
-                if (!TokenUtil.EqualOrPromotable(expectedArgument.AstSymbolType, currentArgument.AstSymbolType))
+                var resolvedSymbol = (currentArgument.Token.TokenType == TokenType.Word ? 
+                                                MemorySpaces.Current.Get(currentArgument.Token.TokenValue)
+                                            :   args[count]) as Symbol;
+
+                var resolvedType = resolvedSymbol != null ? resolvedSymbol.Type : currentArgument.AstSymbolType;
+
+                if (!TokenUtil.EqualOrPromotable(expectedArgument.AstSymbolType, resolvedType))
                 {
                     throw new InvalidSyntax(String.Format("Cannot pass argument {0} of type {1} to function {2} as argument {3} of type {4}",
                         currentArgument.Token.TokenValue,

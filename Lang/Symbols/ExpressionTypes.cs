@@ -13,6 +13,7 @@ namespace Lang.Symbols
         Void,
         Boolean,
         Float,
-        Inferred
+        Inferred,
+        Method
     }
 }

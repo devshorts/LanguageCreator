@@ -105,7 +105,13 @@ namespace Lang.Visitors
                 case TokenType.LessThan:
                     return new BuiltInType(ExpressionTypes.Boolean);
                 
+                case TokenType.Method:
                 case TokenType.Infer:
+                    if (right is MethodDeclr)
+                    {
+                        return new BuiltInType(ExpressionTypes.Method, right);
+                    }
+
                     return right.AstSymbolType;
             }
 
@@ -163,7 +169,8 @@ namespace Lang.Visitors
 
                 var declr = new VarDeclrAst(token, srcArg.Token, new Expr(argValue.Token));
 
-                var newArgType = ScopeUtil.CreateSymbolType(argValue);
+                var newArgType = argValue.Token.TokenType == TokenType.Word ? ast.CurrentScope.Resolve(argValue).Type : 
+                                    ScopeUtil.CreateSymbolType(argValue);
 
                 var targetArgType = ScopeUtil.CreateSymbolType(srcArg.DeclarationType);
 
@@ -272,7 +279,9 @@ namespace Lang.Visitors
 
                 if (isVar)
                 {
-                    ast.AstSymbolType = ast.VariableValue.AstSymbolType;
+                    ast.AstSymbolType = ast.VariableValue is MethodDeclr
+                                            ? new BuiltInType(ExpressionTypes.Method, ast.VariableValue)
+                                            : ast.VariableValue.AstSymbolType;
 
                     var symbol = DefineUserSymbol(ast.AstSymbolType, ast.VariableName);
 
@@ -284,7 +293,23 @@ namespace Lang.Visitors
 
                     var value = ast.VariableValue.ConvertedExpression ?? ast.VariableValue;
 
-                    value = value is MethodDeclr ? (value as MethodDeclr).ReturnAst : value;
+                    ReturnAst returnType = null;
+
+                    try
+                    {
+                        returnType =
+                            value is FuncInvoke
+                                ? ((value as FuncInvoke).AstSymbolType) != null
+                                      ? ((value as FuncInvoke).AstSymbolType.Src as MethodDeclr).ReturnAst
+                                      : null
+                                : null;
+
+                    }
+                    catch
+                    {
+                    }
+
+                    value = returnType != null ? returnType.ReturnExpression : value;
 
                     if (!TokenUtil.EqualOrPromotable(value.AstSymbolType.ExpressionType, declaredType.ExpressionType))
                     {
@@ -337,6 +362,8 @@ namespace Lang.Visitors
                 case TokenType.True:
                 case TokenType.False:
                     return new BuiltInType(ExpressionTypes.Boolean);
+                case TokenType.Method:
+                    return new BuiltInType(ExpressionTypes.Method);
             }
 
             return null;

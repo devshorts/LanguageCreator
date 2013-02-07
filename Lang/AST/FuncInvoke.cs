@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Symbols;
 using Lang.Visitors;
 
 namespace Lang.AST
@@ -12,6 +13,8 @@ namespace Lang.AST
         public List<Ast> Arguments { get; private set; }
 
         public Ast FunctionName { get; set; }
+
+        public IType ReturnType { get; set; } 
 
         public FuncInvoke(Token token, List<Ast> args) : base(token)
         {

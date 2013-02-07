@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Lang.AST;
 
 namespace Lang.Symbols
 {
@@ -19,5 +20,6 @@ namespace Lang.Symbols
         }
 
         public ExpressionTypes ExpressionType { get; set; }
+        public Ast Src { get; set; }
     }
 }
