@@ -32,7 +32,34 @@ namespace Lang.Parser
             return new ScopeDeclr(statements);
         }
 
+
         #region Statement Parsers
+
+        private Ast Class()
+        {
+            Func<Ast> classTaker = () =>
+                {
+                    if (TokenStream.Current.TokenType == TokenType.Class)
+                    {
+                        TokenStream.Take(TokenType.Class);
+
+                        var className = TokenStream.Take(TokenType.Word);
+
+                        var body = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+
+                        return new ClassAst(className, body);
+                    }
+
+                    return null;
+                };
+
+            if (TokenStream.Alt(classTaker))
+            {
+                return TokenStream.Get(classTaker);
+            }
+
+            return null;
+        }
 
         #region Single statement 
         
@@ -42,6 +69,13 @@ namespace Lang.Parser
         /// <returns></returns>
         private Ast Statement()
         {
+            var classDeclr = Class();
+
+            if (classDeclr != null)
+            {
+                return classDeclr;
+            }
+
             if (TokenStream.Alt(MethodDeclaration))
             {
                 return TokenStream.Get(MethodDeclaration);
@@ -81,6 +115,45 @@ namespace Lang.Parser
             }
 
             throw new InvalidSyntax(String.Format("Unknown expression type {0} - {1}", TokenStream.Current.TokenType, TokenStream.Current.TokenValue));
+        }
+
+        private Ast ClassReferenceStatement(int classNestingLevel = 0)
+        {
+            Func<int, Ast> reference = count =>
+                {
+                    var name = FunctionCallStatement().Or(() => TokenStream.Current.TokenType == TokenType.Word ? new Expr(TokenStream.Take(TokenType.Word)) : null);
+
+                    if (name == null)
+                    {
+                        return null;
+                    }
+
+                    if (TokenStream.Current.TokenType == TokenType.Dot)
+                    {
+                        TokenStream.Take(TokenType.Dot);
+
+                        count++;
+
+                        return new ClassReference(name, ClassReferenceStatement(count));
+                    }
+
+                    // have to have at least one dot to access the class
+                    if (classNestingLevel > 0)
+                    {
+                        return new ClassReference(name);
+                    }
+
+                    return null;
+                };
+
+            Func<Ast> start = () => reference(classNestingLevel);
+
+            if (TokenStream.Alt(start))
+            {
+                return TokenStream.Get(start);
+            }
+
+            return null;
         }
 
         private Ast ScopeStart()
@@ -474,7 +547,7 @@ namespace Lang.Parser
 
         private Ast ConsumeFinalExpression()
         {
-            return FunctionCallStatement().Or(VariableAssignmentStatement)
+            return ClassReferenceStatement().Or(FunctionCallStatement).Or(VariableAssignmentStatement)
                                           .Or(SingleToken);
         }
 

@@ -135,6 +135,16 @@ namespace Lang.Visitors
             ast.Visit(this);
         }
 
+        public void Visit(ClassAst ast)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(ClassReference ast)
+        {
+            throw new NotImplementedException();
+        }
+
         private void PrintWrap(string name, Action action, bool newLine = false)
         {
             if (newLine)

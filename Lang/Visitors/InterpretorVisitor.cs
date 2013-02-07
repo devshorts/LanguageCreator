@@ -84,6 +84,16 @@ namespace Lang.Visitors
             ast.Visit(this);
         }
 
+        public void Visit(ClassAst ast)
+        {
+            Exec(ast);
+        }
+
+        public void Visit(ClassReference ast)
+        {
+            throw new NotImplementedException();
+        }
+
         private dynamic Exec(Ast ast)
         {
             try
@@ -134,6 +144,9 @@ namespace Lang.Visitors
                     case AstTypes.For:
                         ForDo(ast as ForLoop);
                         break;
+                    case AstTypes.Class:
+                        ClassDo(ast as ClassAst);
+                        break;
                 }
             }
             catch (ReturnException ex)
@@ -147,6 +160,11 @@ namespace Lang.Visitors
             }
 
             return null;
+        }
+
+        private void ClassDo(ClassAst classAst)
+        {
+            
         }
 
         private void ForDo(ForLoop forLoop)

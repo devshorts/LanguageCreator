@@ -810,5 +810,42 @@ namespace Lang.Tests
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestClassParsing()
+        {
+            var test = @"
+                        class anton{
+                            int x;
+                            int y;
+                        }
+
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr).ScopedStatements.FirstOrDefault() as ClassAst;
+
+            Assert.IsTrue(ast != null);
+
+            Assert.IsTrue(ast.Body.ScopedStatements.Count == 2);
+        }
+
+        [Test]
+        public void TestClassParsing2()
+        {
+            var test = @"
+                        class anton{
+                            int x;
+                            int y;
+                        }
+
+                        anton foo;
+
+                        var foo1 = x.y.z().f + 2;
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

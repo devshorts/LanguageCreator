@@ -21,6 +21,7 @@ namespace Lang.Symbols
         }
 
         public ExpressionTypes ExpressionType { get; set; }
+
         public Ast Src { get; set; }
     }
 }

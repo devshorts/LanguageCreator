@@ -16,5 +16,7 @@ namespace Lang.Visitors
         void Visit(PrintAst ast);
 
         void Start(Ast ast);
+        void Visit(ClassAst ast);
+        void Visit(ClassReference ast);
     }
 }

@@ -42,6 +42,7 @@
         Int,
         Double,
         String,
-        Method
+        Method,
+        Class
     }
 }

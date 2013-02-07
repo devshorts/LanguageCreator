@@ -370,23 +370,26 @@ namespace Lang.Visitors
             switch (astType.Token.TokenType)
             {
                 case TokenType.Int:
-                    return new BuiltInType(ExpressionTypes.Int);
+                    return new BuiltInType(ExpressionTypes.Int) { Src = astType };
                 case TokenType.Float:
-                    return new BuiltInType(ExpressionTypes.Float);
+                    return new BuiltInType(ExpressionTypes.Float) { Src = astType };
                 case TokenType.Void:
-                    return new BuiltInType(ExpressionTypes.Void);
+                    return new BuiltInType(ExpressionTypes.Void) { Src = astType };
                 case TokenType.Infer:
-                    return new BuiltInType(ExpressionTypes.Inferred);
+                    return new BuiltInType(ExpressionTypes.Inferred) { Src = astType };
                 case TokenType.QuotedString:
                 case TokenType.String:
-                    return new BuiltInType(ExpressionTypes.String);
+                    return new BuiltInType(ExpressionTypes.String) { Src = astType };
                 case TokenType.Word:
-                    return new UserDefinedType(astType.Token.TokenValue);
+                    return new UserDefinedType(astType.Token.TokenValue) { Src = astType };
+                case TokenType.Class:
+                    var c = new ClassSymbol(astType.Token.TokenValue) {Src = astType};
+                    return c;
                 case TokenType.True:
                 case TokenType.False:
-                    return new BuiltInType(ExpressionTypes.Boolean);
+                    return new BuiltInType(ExpressionTypes.Boolean) { Src = astType };
                 case TokenType.Method:
-                    return new BuiltInType(ExpressionTypes.Method);
+                    return new BuiltInType(ExpressionTypes.Method) { Src = astType };
             }
 
             return null;
@@ -554,6 +557,30 @@ namespace Lang.Visitors
             LambdaDeclr.LambdaCount = 0;
 
             ast.Visit(this);
+        }
+
+        public void Visit(ClassAst ast)
+        {
+            Current.Define(DefineUserSymbol(ast, ast));
+
+            var oldScopeTree = ScopeTree;
+
+            ScopeTree = new ScopeStack<Scope>();
+
+            ScopeTree.CreateScope();
+
+            ast.Body.Visit(this);
+
+            ScopeTree.Current.SetParentScope(oldScopeTree.Current);
+    
+            ScopeTree.PopScope();
+
+            ScopeTree = oldScopeTree;
+        }
+
+        public void Visit(ClassReference ast)
+        {
+            
         }
     }
 }

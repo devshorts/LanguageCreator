@@ -16,6 +16,8 @@ namespace Lang.AST
         While,
         Conditional,
         ScopeDeclr,
-        Print
+        Class,
+        Print,
+        ClassRef
     }
 }

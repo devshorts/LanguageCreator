@@ -64,8 +64,10 @@ namespace Lang
                                       new MatchKeyword(TokenType.False, "false"),
                                       new MatchKeyword(TokenType.Boolean, "bool"),
                                       new MatchKeyword(TokenType.String, "string"),
-                                      new MatchKeyword(TokenType.Method, "method")
+                                      new MatchKeyword(TokenType.Method, "method"),
+                                      new MatchKeyword(TokenType.Class, "class")
                                   };
+
 
             var specialCharacters = new List<IMatcher>
                                     {
