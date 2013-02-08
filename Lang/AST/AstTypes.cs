@@ -18,6 +18,7 @@ namespace Lang.AST
         ScopeDeclr,
         Class,
         Print,
-        ClassRef
+        ClassRef,
+        New
     }
 }

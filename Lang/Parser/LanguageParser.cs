@@ -107,6 +107,7 @@ namespace Lang.Parser
                                   .Or(GetFor)
                                   .Or(GetReturn)
                                   .Or(PrintStatement)
+                                  .Or(New)
                                   .Or(OperationExpression);
 
             if (ast != null)
@@ -115,6 +116,27 @@ namespace Lang.Parser
             }
 
             throw new InvalidSyntax(String.Format("Unknown expression type {0} - {1}", TokenStream.Current.TokenType, TokenStream.Current.TokenValue));
+        }
+
+        private Ast New()
+        {
+            Func<Ast> op = () =>
+                {
+                    if (TokenStream.Current.TokenType == TokenType.New)
+                    {
+                        TokenStream.Take(TokenType.New);
+
+                        var name = new Expr(TokenStream.Take(TokenType.Word));
+
+                        var args = GetArgumentList();
+
+                        return new NewAst(name, args);
+                    }
+
+                    return null;
+                };
+
+            return TokenStream.Capture(op);
         }
 
         private Ast ClassReferenceStatement(int classNestingLevel = 0)
@@ -629,54 +651,27 @@ namespace Lang.Parser
 
         private Ast VariableDeclWithAssignStatement()
         {
-            if (TokenStream.Alt(VariableDeclarationAndAssignment))
-            {
-                return TokenStream.Get(VariableDeclarationAndAssignment);
-            }
-
-            return null;
+            return TokenStream.Capture(VariableDeclarationAndAssignment);
         }
 
         private Ast VariableAssignmentStatement()
         {
-            if (TokenStream.Alt(VariableAssignment))
-            {
-                return TokenStream.Get(VariableAssignment);
-            }
-
-            return null;
+            return TokenStream.Capture(VariableAssignment);
         }
 
         private Ast VariableDeclrStatement()
         {
-            if (TokenStream.Alt(VariableDeclaration))
-            {
-                var declr = TokenStream.Get(VariableDeclaration);
-
-                return declr;
-            }
-
-            return null;
+            return TokenStream.Capture(VariableDeclaration);
         }
 
         private Ast FunctionCallStatement()
         {
-            if (TokenStream.Alt(FunctionCall))
-            {
-                return TokenStream.Get(FunctionCall);
-            }
-
-            return null;
+            return TokenStream.Capture(FunctionCall);
         }
 
         private Ast LambdaStatement()
         {
-            if (TokenStream.Alt(Lambda))
-            {
-                return TokenStream.Get(Lambda);
-            }
-
-            return null;
+            return TokenStream.Capture(Lambda);
         }
 
         private bool IsValidMethodReturnType()

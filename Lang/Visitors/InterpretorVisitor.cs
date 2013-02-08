@@ -94,6 +94,11 @@ namespace Lang.Visitors
             throw new NotImplementedException();
         }
 
+        public void Visit(NewAst ast)
+        {
+            throw new NotImplementedException();
+        }
+
         private dynamic Exec(Ast ast)
         {
             try
@@ -147,6 +152,9 @@ namespace Lang.Visitors
                     case AstTypes.Class:
                         ClassDo(ast as ClassAst);
                         break;
+                    case AstTypes.ClassRef:
+                        return ClassRefDo(ast as ClassReference);
+                        break;
                 }
             }
             catch (ReturnException ex)
@@ -159,6 +167,11 @@ namespace Lang.Visitors
                 throw;
             }
 
+            return null;
+        }
+
+        private dynamic ClassRefDo(ClassReference classReference)
+        {
             return null;
         }
 

@@ -145,6 +145,11 @@ namespace Lang.Visitors
             throw new NotImplementedException();
         }
 
+        public void Visit(NewAst ast)
+        {
+            throw new NotImplementedException();
+        }
+
         private void PrintWrap(string name, Action action, bool newLine = false)
         {
             if (newLine)

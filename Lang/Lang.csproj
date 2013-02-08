@@ -60,6 +60,7 @@
     <Compile Include="AST\FuncInvoke.cs" />
     <Compile Include="AST\LambdaDeclr.cs" />
     <Compile Include="AST\MethodDeclr.cs" />
+    <Compile Include="AST\NewAst.cs" />
     <Compile Include="AST\PrintAst.cs" />
     <Compile Include="AST\ReturnAst.cs" />
     <Compile Include="AST\ScopeDeclr.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Parser\ParseableTokenStream.cs" />
     <Compile Include="Spaces\IScopeable.cs" />
     <Compile Include="Spaces\MemorySpace.cs" />
+    <Compile Include="Spaces\ScopeContainer.cs" />
     <Compile Include="Spaces\ScopeStack.cs" />
     <Compile Include="Symbols\ExpressionTypes.cs" />
     <Compile Include="Symbols\UserDefinedType.cs" />

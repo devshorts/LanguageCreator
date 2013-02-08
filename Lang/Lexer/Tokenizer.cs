@@ -65,7 +65,8 @@ namespace Lang
                                       new MatchKeyword(TokenType.Boolean, "bool"),
                                       new MatchKeyword(TokenType.String, "string"),
                                       new MatchKeyword(TokenType.Method, "method"),
-                                      new MatchKeyword(TokenType.Class, "class")
+                                      new MatchKeyword(TokenType.Class, "class"),
+                                      new MatchKeyword(TokenType.New, "new")
                                   };
 
 

@@ -18,5 +18,6 @@ namespace Lang.Visitors
         void Start(Ast ast);
         void Visit(ClassAst ast);
         void Visit(ClassReference ast);
+        void Visit(NewAst ast);
     }
 }

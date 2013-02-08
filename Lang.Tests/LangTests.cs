@@ -838,7 +838,7 @@ namespace Lang.Tests
                             int y;
                         }
 
-                        anton foo;
+                        anton foo = new anton();
 
                         var foo1 = x.y.z().f + 2;
                         ";

@@ -12,16 +12,25 @@ namespace Lang.Visitors
 {
     public class ScopeBuilderVisitor : IAstVisitor
     {
+        private void SetScopeType(ScopeType scopeType)
+        {
+            ScopeContainer.CurrentScopeType = scopeType;
+        }
+
         public Scope Current { get { return ScopeTree.Current; } }
 
-        public ScopeStack<Scope> ScopeTree { get; private set; }
+        public ScopeStack<Scope> ScopeTree { get { return ScopeContainer.CurrentScopeStack; } }
 
         private MethodDeclr CurrentMethod { get; set; }
 
         private Boolean ResolvingTypes { get; set; }
+
+        private ScopeContainer ScopeContainer;
+
         public ScopeBuilderVisitor(bool resolvingTypes = false)
         {
             ResolvingTypes = resolvingTypes;
+            ScopeContainer = new ScopeContainer();
         }
 
         public void Visit(Conditional ast)
@@ -552,8 +561,6 @@ namespace Lang.Visitors
 
         public void Start(Ast ast)
         {
-            ScopeTree = new ScopeStack<Scope>();
-
             LambdaDeclr.LambdaCount = 0;
 
             ast.Visit(this);
@@ -563,24 +570,27 @@ namespace Lang.Visitors
         {
             Current.Define(DefineUserSymbol(ast, ast));
 
-            var oldScopeTree = ScopeTree;
-
-            ScopeTree = new ScopeStack<Scope>();
+            SetScopeType(ScopeType.Class);
 
             ScopeTree.CreateScope();
 
             ast.Body.Visit(this);
 
-            ScopeTree.Current.SetParentScope(oldScopeTree.Current);
-    
+            ast.CurrentScope = ast.Body.CurrentScope;
+
             ScopeTree.PopScope();
 
-            ScopeTree = oldScopeTree;
+            SetScopeType(ScopeType.Global);
         }
 
         public void Visit(ClassReference ast)
         {
             
+        }
+
+        public void Visit(NewAst ast)
+        {
+            throw new NotImplementedException();
         }
     }
 }

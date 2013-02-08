@@ -31,6 +31,16 @@ namespace Lang.Parser
             return false;
         }
 
+        public Ast Capture(Func<Ast> ast)
+        {
+            if (Alt(ast))
+            {
+                return Get(ast);
+            }
+
+            return null;
+        }
+
         public Token Take(TokenType type)
         {
             if (IsMatch(type))

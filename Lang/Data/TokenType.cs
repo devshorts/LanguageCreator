@@ -43,6 +43,7 @@
         Double,
         String,
         Method,
-        Class
+        Class,
+        New
     }
 }
