@@ -139,43 +139,40 @@ namespace Lang.Parser
             return TokenStream.Capture(op);
         }
 
-        private Ast ClassReferenceStatement(int classNestingLevel = 0)
+        private Ast ClassReferenceStatement()
         {
-            Func<int, Ast> reference = count =>
+            Func<Ast> reference = () =>
                 {
-                    var name = FunctionCallStatement().Or(() => TokenStream.Current.TokenType == TokenType.Word ? new Expr(TokenStream.Take(TokenType.Word)) : null);
+                    var references = new List<Ast>();
 
-                    if (name == null)
+                    var classInstance = new Expr(TokenStream.Take(TokenType.Word));
+
+                    while (true)
                     {
-                        return null;
+                        if (TokenStream.Current.TokenType == TokenType.Dot)
+                        {
+                            TokenStream.Take(TokenType.Dot);
+                        }
+                        else
+                        {
+                            if (references.Count == 0)
+                            {
+                                return null;
+                            }
+
+                            if (references.Count > 0)
+                            {
+                                return new ClassReference(classInstance, references);
+                            }
+                        }
+
+                        var deref = FunctionCallStatement().Or(() => TokenStream.Current.TokenType == TokenType.Word ? new Expr(TokenStream.Take(TokenType.Word)) : null);
+
+                        references.Add(deref);   
                     }
-
-                    if (TokenStream.Current.TokenType == TokenType.Dot)
-                    {
-                        TokenStream.Take(TokenType.Dot);
-
-                        count++;
-
-                        return new ClassReference(name, ClassReferenceStatement(count));
-                    }
-
-                    // have to have at least one dot to access the class
-                    if (classNestingLevel > 0)
-                    {
-                        return new ClassReference(name);
-                    }
-
-                    return null;
                 };
 
-            Func<Ast> start = () => reference(classNestingLevel);
-
-            if (TokenStream.Alt(start))
-            {
-                return TokenStream.Get(start);
-            }
-
-            return null;
+            return TokenStream.Capture(reference);
         }
 
         private Ast ScopeStart()

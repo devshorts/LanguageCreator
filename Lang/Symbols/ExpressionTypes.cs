@@ -14,6 +14,7 @@ namespace Lang.Symbols
         Boolean,
         Float,
         Inferred,
-        Method
+        Method,
+        Class
     }
 }

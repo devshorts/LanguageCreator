@@ -9,14 +9,15 @@ namespace Lang.AST
 {
     public class ClassReference : Ast
     {
-        public Ast Next { get; set; }
+        public Ast ClassInstance { get; set; }
 
-        public Ast Current { get; set; }
+        public List<Ast> Deferences  { get; set; }
 
-        public ClassReference(Ast current, Ast next = null) : base(current.Token)
+        public ClassReference(Ast classInstance, List<Ast> deferences)
+            : base(classInstance.Token)
         {
-            Current = current;
-            Next = next;
+            ClassInstance = classInstance;
+            Deferences = deferences;
         }
 
 
@@ -32,7 +33,7 @@ namespace Lang.AST
 
         public override string ToString()
         {
-            return Current != null ? Current + (Next != null ? Next.ToString() : "") : "";
+            return ClassInstance + Deferences.Aggregate("", (acc, item) => acc + "." + item);
         }
     }
 }

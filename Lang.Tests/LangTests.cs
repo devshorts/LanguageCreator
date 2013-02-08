@@ -834,13 +834,33 @@ namespace Lang.Tests
         {
             var test = @"
                         class anton{
-                            int x;
-                            int y;
+                            int x = 1;
+                            int y = 2;
                         }
 
                         anton foo = new anton();
 
-                        var foo1 = x.y.z().f + 2;
+                        print foo.x + 2;
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        [ExpectedException(typeof(UndefinedElementException))]
+        public void TestClassParsing3()
+        {
+            var test = @"
+                        class anton{
+                            int x = 1;
+                            int y = 2;
+                        }
+
+                        anton foo = new anton();
+
+                        print foo.p + 2;
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

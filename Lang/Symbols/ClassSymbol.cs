@@ -10,7 +10,7 @@ namespace Lang.Symbols
     public class ClassSymbol : Symbol, IType
     {
         public ClassSymbol(string name)
-            : base(name)
+            : base(name, new BuiltInType(ExpressionTypes.UserDefined))
         {
             ExpressionType = ExpressionTypes.UserDefined;
         }

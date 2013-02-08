@@ -17,7 +17,13 @@ namespace Lang.Visitors
             ScopeContainer.CurrentScopeType = scopeType;
         }
 
-        public Scope Current { get { return ScopeTree.Current; } }
+
+        private Scope _current = null;
+        public Scope Current
+        {
+            get { return _current ?? ScopeTree.Current; }
+            set { _current = value; }
+        }
 
         public ScopeStack<Scope> ScopeTree { get { return ScopeContainer.CurrentScopeStack; } }
 
@@ -70,7 +76,7 @@ namespace Lang.Visitors
             }
             else
             {
-                if (!ResolvingTypes)
+                if (ResolvingTypes)
                 {
                     ast.AstSymbolType = GetExpressionType(ast.Left, ast.Right, ast.Token);
                 }
@@ -258,6 +264,25 @@ namespace Lang.Visitors
 
                         return null;
                     }
+                }
+
+                throw;
+            }
+        }
+
+
+        private Symbol Resolve(String name)
+        {
+            try
+            {
+                return Current.Resolve(name);
+            }
+            catch (Exception ex)
+            {
+                if (ResolvingTypes)
+                {
+                    //
+                    return null;
                 }
 
                 throw;
@@ -545,7 +570,7 @@ namespace Lang.Visitors
         {
             ast.Expression.Visit(this);
 
-            if (!ResolvingTypes)
+            if (ResolvingTypes)
             {
                 if (ast.Expression.AstSymbolType == null)
                 {
@@ -568,7 +593,7 @@ namespace Lang.Visitors
 
         public void Visit(ClassAst ast)
         {
-            Current.Define(DefineUserSymbol(ast, ast));
+            Current.Define(DefineClassSymbol(ast));
 
             SetScopeType(ScopeType.Class);
 
@@ -583,14 +608,60 @@ namespace Lang.Visitors
             SetScopeType(ScopeType.Global);
         }
 
+        private Symbol DefineClassSymbol(ClassAst ast)
+        {
+            return new ClassSymbol(ast.Token.TokenValue) { Src = ast };
+        }
+
         public void Visit(ClassReference ast)
         {
-            
+            if (!ResolvingTypes)
+            {
+                return;
+            }
+
+            var declaredSymbol = Resolve(ast.ClassInstance);
+
+            var classScope = (Resolve(declaredSymbol.Type.TypeName) as ClassSymbol).Src.CurrentScope;
+
+            Current = classScope;
+
+            foreach (var reference in ast.Deferences)
+            {
+                reference.Visit(this);
+
+                var field = Resolve(reference);
+
+                if (field == null)
+                {
+                    throw new InvalidSyntax(String.Format("Class {0} has no field named {1}", declaredSymbol.Type.TypeName, reference.Token.TokenValue));
+                }
+            }
+
+            Current = null;
+
+            ast.AstSymbolType = ast.Deferences.Last().AstSymbolType;
         }
 
         public void Visit(NewAst ast)
         {
-            throw new NotImplementedException();
+            ast.Args.ForEach(arg => arg.Visit(this));
+
+            var className = Resolve(ast.Name);
+
+            if (className == null)
+            {
+                throw new InvalidSyntax(String.Format("Class {0} is undefined", ast.Name.Token.TokenValue));
+            }
+
+            if (ResolvingTypes)
+            {
+                ast.AstSymbolType = className.Type;
+            }
+
+            
+
+            SetScope(ast);
         }
     }
 }
