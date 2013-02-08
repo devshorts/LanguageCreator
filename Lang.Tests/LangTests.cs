@@ -831,7 +831,7 @@ namespace Lang.Tests
         {
             var test = @"
                         class anton{
-                            int x = 1;
+                            int x = y;
                             int y = 2;
                         }
 

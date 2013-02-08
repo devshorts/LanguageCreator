@@ -254,7 +254,8 @@ namespace Lang.Visitors
                     {
                         var resolvedType = currentScope.Resolve(ast);
 
-                        if (resolvedType is ClassSymbol ||
+                        if (currentScope.AllowAllForwardReferences || 
+                            resolvedType is ClassSymbol ||
                             resolvedType is MethodSymbol)
                         {
                             return resolvedType.Type;
@@ -610,6 +611,8 @@ namespace Lang.Visitors
             ast.Body.Visit(this);
 
             ast.CurrentScope = ast.Body.CurrentScope;
+
+            ast.CurrentScope.AllowAllForwardReferences = true;
 
             ScopeTree.PopScope();
 

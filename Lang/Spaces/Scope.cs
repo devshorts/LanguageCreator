@@ -12,6 +12,8 @@ namespace Lang.Spaces
 
         public Scope EnclosingScope { get; private set; }
 
+        public Boolean AllowAllForwardReferences { get; set; }
+
         public void SetParentScope(Scope scope)
         {
             EnclosingScope = scope;
@@ -24,6 +26,8 @@ namespace Lang.Spaces
             Symbols = new Dictionary<string, Symbol>();
 
             ChildScopes = new List<IScopeable<Scope>>(64);
+
+            AllowAllForwardReferences = false;
         }
 
         public String ScopeName

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Lang.Spaces;
 using Lang.Data;
@@ -18,6 +19,7 @@ namespace Lang.AST
         public List<Ast> Children { get; private set; }
 
         public Ast ConvertedExpression { get; set; }
+
 
         public Ast(Token token)
         {
