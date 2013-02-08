@@ -613,7 +613,7 @@ namespace Lang.Visitors
 
             ast.Body.Visit(this);
 
-            classSymbol.SetParentScope(ast.Body.CurrentScope);
+            classSymbol.Symbols = ast.Body.CurrentScope.Symbols;
 
             ScopeTree.PopScope();
 

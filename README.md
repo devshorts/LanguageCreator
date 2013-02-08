@@ -124,6 +124,40 @@ test
 3
 ```
 
+Example 5 (classes)
+===
+
+```csharp
+class anton{
+    int x = 1;
+    int y = 2;
+
+    void foo(){
+        print x;
+    }
+             
+}
+
+var ant = new anton();
+var foo = new anton();
+    
+foo.x = 2;
+
+ant.foo();                
+
+foo.foo();
+
+foo.x = 10;
+
+foo.foo();
+```
+
+```
+1
+2
+10
+```
+
 Notes
 ===
-I started working on classes and I realized the way scoping and memory states are managed isn't nice. They need to be completely redone. For single monolothic scoping things are fine, but when the are multiple different paths of memory and scope then things got nasty.  I think the thing to do is to start at how scopes are defined and work from there, instead of how I was originally doing it which was to add scope trackign when I ran into a place that needed it.  Take a queue from F# and do some data driven design here.
+Classes can only be derefenced one level deep, so accessing classes within classes doesn't work.  Also constructors aren't supported.

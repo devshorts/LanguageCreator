@@ -894,6 +894,39 @@ namespace Lang.Tests
         }
 
         [Test]
+        public void TestClassParsing5()
+        {
+            var test = @"
+                        class anton{
+                            int x = 1;
+                            int y = 2;
+
+                            int foo(){
+                                return x;
+                            }
+             
+                        }
+
+                        var ant = new anton();
+                        var foo = new anton();
+    
+                        foo.x = 2;
+
+                        print ant.foo();                
+
+                        print foo.foo();
+
+                        foo.x = 10;
+
+                        print foo.foo();
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
         [ExpectedException(typeof(UndefinedElementException))]
         public void TestClassParsing3()
         {
