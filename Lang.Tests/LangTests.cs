@@ -604,7 +604,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        [ExpectedException(typeof(InvalidSyntax))]
+        [ExpectedException(typeof(UndefinedElementException))]
         public void TestForwardReferences3()
         {
             var test = @"
@@ -613,13 +613,10 @@ namespace Lang.Tests
 
                          var func(string printer){
                             return ""yes"";
-                         }
-
-                         
+                         }                         
                         ";
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
-
 
             new InterpretorVisitor().Start(ast);
         }

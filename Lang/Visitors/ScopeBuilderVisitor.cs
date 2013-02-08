@@ -252,7 +252,15 @@ namespace Lang.Visitors
 
                     try
                     {
-                        return currentScope.Resolve(ast).Type;
+                        var resolvedType = currentScope.Resolve(ast);
+
+                        if (resolvedType is ClassSymbol ||
+                            resolvedType is MethodSymbol)
+                        {
+                            return resolvedType.Type;
+                        }
+                        throw new UndefinedElementException(String.Format("Undefined element {0}",
+                                                                          ast.Token.TokenValue));
                     }
                     catch (Exception ex1)
                     {
@@ -542,7 +550,7 @@ namespace Lang.Visitors
 
             ast.Predicate.Visit(this);
 
-            if (!ResolvingTypes && ast.Predicate.AstSymbolType.ExpressionType != ExpressionTypes.Boolean)
+            if (ResolvingTypes && ast.Predicate.AstSymbolType.ExpressionType != ExpressionTypes.Boolean)
             {
                 throw new InvalidSyntax("For loop predicate has to evaluate to a boolean");
             }
