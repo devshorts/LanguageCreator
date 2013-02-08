@@ -126,4 +126,4 @@ test
 
 Notes
 ===
-So, progress is being made.  Type values are checked, but there is no type promotion yet.  
+I started working on classes and I realized the way scoping and memory states are managed isn't nice. They need to be completely redone. For single monolothic scoping things are fine, but when the are multiple different paths of memory and scope then things got nasty.  I think the thing to do is to start at how scopes are defined and work from there, instead of how I was originally doing it which was to add scope trackign when I ran into a place that needed it.  Take a queue from F# and do some data driven design here.
