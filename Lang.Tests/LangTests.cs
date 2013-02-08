@@ -375,6 +375,10 @@ namespace Lang.Tests
             
             scopeBuilder.Start(ast);
 
+            var typeResolver = new ScopeBuilderVisitor(true);
+
+            typeResolver.Start(ast);
+
             Assert.IsTrue(ast.ScopedStatements[0].AstSymbolType is BuiltInType);
             Assert.IsTrue(ast.ScopedStatements[1].AstSymbolType is UserDefinedType);
             Assert.IsTrue(ast.ScopedStatements[2].AstSymbolType is BuiltInType);
@@ -831,13 +835,19 @@ namespace Lang.Tests
         {
             var test = @"
                         class anton{
-                            int x = y;
+                            int x = 1;
                             int y = 2;
                         }
 
                         anton foo = new anton();
 
+                        foo.x = 5;
+
                         print foo.x + 2;
+
+                        anton test = new anton();
+
+                        print test.x + 2;
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

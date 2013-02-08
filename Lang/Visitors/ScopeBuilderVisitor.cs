@@ -652,6 +652,10 @@ namespace Lang.Visitors
             Current = null;
 
             ast.AstSymbolType = ast.Deferences.Last().AstSymbolType;
+
+            SetScope(ast);
+
+            SetScope(ast.ClassInstance);
         }
 
         public void Visit(NewAst ast)
@@ -669,8 +673,6 @@ namespace Lang.Visitors
             {
                 ast.AstSymbolType = className.Type;
             }
-
-            
 
             SetScope(ast);
         }

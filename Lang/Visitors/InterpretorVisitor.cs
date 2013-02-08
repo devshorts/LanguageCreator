@@ -91,12 +91,12 @@ namespace Lang.Visitors
 
         public void Visit(ClassReference ast)
         {
-            throw new NotImplementedException();
+            Exec(ast);
         }
 
         public void Visit(NewAst ast)
         {
-            throw new NotImplementedException();
+            Exec(ast);
         }
 
         private dynamic Exec(Ast ast)
@@ -155,10 +155,15 @@ namespace Lang.Visitors
                     case AstTypes.ClassRef:
                         return ClassRefDo(ast as ClassReference);
                         break;
+                    case AstTypes.New:
+                        return NewDo(ast as NewAst);
+                        break;
                 }
             }
             catch (ReturnException ex)
             {
+                // let the return value bubble up through all the exectuions until we
+                // get to the source syntax tree that invoked it. at that point safely return the value
                 if (ast.AstType == AstTypes.FunctionInvoke)
                 {
                     return ex.Value;
@@ -170,8 +175,46 @@ namespace Lang.Visitors
             return null;
         }
 
+        private object NewDo(NewAst ast)
+        {
+            var className = Resolve(ast);
+
+            var classType = (className as ClassSymbol).Src as ClassAst;
+
+            var space = new MemorySpace();
+
+            foreach (var symbol in classType.Body.ScopedStatements)
+            {
+                var symbolType = classType.CurrentScope.Resolve(symbol);
+
+                symbolType.Memory = space;
+
+                Exec(symbol);
+            }
+
+            return space;
+        }
+
         private dynamic ClassRefDo(ClassReference classReference)
         {
+            var memorySpace = Get(classReference.ClassInstance) as MemorySpace;
+
+            foreach (var item in classReference.Deferences)
+            {
+                if (item.AstType == AstTypes.Class)
+                {
+                    
+                }
+                else if (item.AstType == AstTypes.FunctionInvoke)
+                {
+                    return Exec(item);
+                }
+                else
+                {
+                    return memorySpace.Get(item.Token.TokenValue);
+                }
+            }
+
             return null;
         }
 
@@ -332,6 +375,7 @@ namespace Lang.Visitors
 
             var variableValue = varDeclrAst.VariableValue.ConvertedExpression ?? varDeclrAst.VariableValue;
 
+            // if the rhs of a variable is not a method, then execute it, 
             if (variableValue.AstType != AstTypes.MethodDeclr)
             {
                 var value = Exec(variableValue);
@@ -340,7 +384,9 @@ namespace Lang.Visitors
                 {
                     var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
-                    MemorySpaces.Current.Define(symbol.Name, value);
+                    var space = symbol.Memory ?? MemorySpaces.Current;
+                    
+                    space.Define(symbol.Name, value);
                 }
             }
             else
@@ -349,7 +395,9 @@ namespace Lang.Visitors
 
                 var resolvedMethod = varDeclrAst.CurrentScope.Resolve(variableValue.Token.TokenValue);
 
-                MemorySpaces.Current.Define(symbol.Name, resolvedMethod);
+                var space = symbol.Memory ?? MemorySpaces.Current;
+                    
+                space.Define(symbol.Name, resolvedMethod);
             }
         }
 
@@ -358,6 +406,33 @@ namespace Lang.Visitors
             var expression = Exec(ast.Expression);
 
             Console.WriteLine(expression);
+        }
+
+        private void Assign(Ast ast, dynamic value)
+        {
+            var symbol = ast.CurrentScope.Resolve(ast);
+
+            if (symbol.Memory != null)
+            {
+                symbol.Memory.Assign(ast.Token.TokenValue, value);
+            }
+
+            else
+            {
+                MemorySpaces.Current.Assign(ast.Token.TokenValue, value);
+            }
+        }
+
+        private dynamic Get(Ast ast)
+        {
+            var symbol = ast.CurrentScope.Resolve(ast);
+
+            if (symbol.Memory != null)
+            {
+                return symbol.Memory.Get(ast.Token.TokenValue);
+            }
+
+            return MemorySpaces.Current.Get(ast.Token.TokenValue);
         }
 
         private dynamic Expression(Expr ast)
@@ -369,13 +444,16 @@ namespace Lang.Visitors
             switch (ast.Token.TokenType)
             {
                 case TokenType.Equals:
-                    MemorySpaces.Current.Assign(lhs.Token.TokenValue, Exec(rhs));
+                    if (lhs.AstType == AstTypes.ClassRef)
+                    {
+                        lhs = (lhs as ClassReference).Deferences.Last();
+                    }
+
+                    Assign(lhs, Exec(rhs));
                     return null;
 
                 case TokenType.Word:
-                    var symbol = Resolve(ast);
-
-                    return MemorySpaces.Current.Get(symbol.Name);
+                    return Get(ast);
                   
                 case TokenType.Int:
                     return Convert.ToInt32(ast.Token.TokenValue);

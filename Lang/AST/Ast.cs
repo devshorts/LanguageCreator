@@ -42,6 +42,9 @@ namespace Lang.AST
 
         public abstract void Visit(IAstVisitor visitor);
 
+        /// <summary>
+        /// Used instead of reflection to determine the syntax tree type
+        /// </summary>
         public abstract AstTypes AstType { get; }
     }
 }
