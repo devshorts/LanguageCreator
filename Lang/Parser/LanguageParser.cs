@@ -45,7 +45,7 @@ namespace Lang.Parser
 
                         var className = TokenStream.Take(TokenType.Word);
 
-                        var body = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+                        var body = GetTypesInScope(TokenType.LBracket, TokenType.RBracket, Statement, false);
 
                         return new ClassAst(className, body);
                     }
@@ -611,13 +611,13 @@ namespace Lang.Parser
             return new Tuple<Ast, ScopeDeclr>(predicate, statements);
         } 
 
-        private ScopeDeclr GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
+        private ScopeDeclr GetTypesInScope(TokenType open, TokenType close, Func<Ast> getter, bool expectSemicolon = true)
         {
             TokenStream.Take(open);
             var lines = new List<Ast>();
             while (TokenStream.Current.TokenType != close)
             {
-                var statement = Expression();
+                var statement = getter();
 
                 lines.Add(statement);
 
@@ -630,6 +630,11 @@ namespace Lang.Parser
             TokenStream.Take(close);
 
             return new ScopeDeclr(lines);
+        }
+
+        private ScopeDeclr GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
+        {
+            return GetTypesInScope(open, close, Expression, expectSemicolon);
         }
 
         private bool StatementExpectsSemiColon(Ast statement)

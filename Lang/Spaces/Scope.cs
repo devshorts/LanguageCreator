@@ -8,7 +8,7 @@ namespace Lang.Spaces
     [Serializable]
     public class Scope : IScopeable<Scope>
     {
-        private Dictionary<string, Symbol> Symbols { get; set; }
+        public Dictionary<string, Symbol> Symbols { get; set; }
 
         public Scope EnclosingScope { get; private set; }
 
@@ -31,10 +31,7 @@ namespace Lang.Spaces
 
         }
 
-        public String ScopeName
-        {
-            get { return "current"; }
-        }
+        public String ScopeName { get; set; }
 
         public void Define(Symbol symbol)
         {

@@ -6,7 +6,7 @@ namespace Lang.Spaces
     {
         private Stack<T> Stack { get; set; }
 
-        public T Current { get; private set; }
+        public T Current { get; set; }
 
         public ScopeStack()
         {

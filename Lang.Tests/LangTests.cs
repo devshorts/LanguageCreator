@@ -837,17 +837,55 @@ namespace Lang.Tests
                         class anton{
                             int x = 1;
                             int y = 2;
+
+                            void foo(){}
                         }
 
-                        anton foo = new anton();
+                        var ant = new anton();
+                        var foo = new anton();
+    
+                        foo.x = 2;
 
-                        foo.x = 5;
+                        print ant.x;
 
-                        print foo.x + 2;
+                        print foo.x;
 
-                        anton test = new anton();
+                        ant.x = foo.x;
 
-                        print test.x + 2;
+                        print ant.x;                
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        public void TestClassParsing4()
+        {
+            var test = @"
+                        class anton{
+                            int x = 1;
+                            int y = 2;
+
+                            void foo(){
+                                print x;
+                            }
+             
+                        }
+
+                        var ant = new anton();
+                        var foo = new anton();
+    
+                        foo.x = 2;
+
+                        ant.foo();                
+
+                        foo.foo();
+
+                        foo.x = 10;
+
+                        foo.foo();
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

@@ -17,12 +17,11 @@ namespace Lang.Visitors
             ScopeContainer.CurrentScopeType = scopeType;
         }
 
-
         private Scope _current = null;
         public Scope Current
         {
-            get { return _current ?? ScopeTree.Current; }
-            set { _current = value; }
+            get { return ScopeTree.Current; }
+            set { ScopeContainer.CurrentScopeStack.Current = value; }
         }
 
         public ScopeStack<Scope> ScopeTree { get { return ScopeContainer.CurrentScopeStack; } }
@@ -602,26 +601,33 @@ namespace Lang.Visitors
 
         public void Visit(ClassAst ast)
         {
-            Current.Define(DefineClassSymbol(ast));
+            var classSymbol = DefineClassSymbol(ast);
+
+            Current.Define(classSymbol);
 
             SetScopeType(ScopeType.Class);
+
+            SetScopeSource(classSymbol);
 
             ScopeTree.CreateScope();
 
             ast.Body.Visit(this);
 
-            ast.CurrentScope = ast.Body.CurrentScope;
-
-            ast.CurrentScope.AllowAllForwardReferences = true;
+            classSymbol.SetParentScope(ast.Body.CurrentScope);
 
             ScopeTree.PopScope();
 
             SetScopeType(ScopeType.Global);
         }
 
+        private void SetScopeSource(Symbol classSymbol)
+        {
+            Current = classSymbol;
+        }
+
         private Symbol DefineClassSymbol(ClassAst ast)
         {
-            return new ClassSymbol(ast.Token.TokenValue) { Src = ast };
+            return new ClassSymbol(ast.Token.TokenValue) { Src = ast, ScopeName = ast.Token.TokenValue };
         }
 
         public void Visit(ClassReference ast)
@@ -633,8 +639,10 @@ namespace Lang.Visitors
 
             var declaredSymbol = Resolve(ast.ClassInstance);
 
-            var classScope = (Resolve(declaredSymbol.Type.TypeName) as ClassSymbol).Src.CurrentScope;
+            var classScope = Resolve(declaredSymbol.Type.TypeName) as ClassSymbol;
 
+            var oldScope = Current;
+            
             Current = classScope;
 
             foreach (var reference in ast.Deferences)
@@ -649,7 +657,7 @@ namespace Lang.Visitors
                 }
             }
 
-            Current = null;
+            Current = oldScope;
 
             ast.AstSymbolType = ast.Deferences.Last().AstSymbolType;
 

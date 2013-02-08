@@ -183,36 +183,48 @@ namespace Lang.Visitors
 
             var space = new MemorySpace();
 
+            var oldSpace = MemorySpaces.Current;
+
+            MemorySpaces.Current = space;
             foreach (var symbol in classType.Body.ScopedStatements)
             {
-                var symbolType = classType.CurrentScope.Resolve(symbol);
-
-                symbolType.Memory = space;
-
                 Exec(symbol);
             }
+
+            MemorySpaces.Current = oldSpace;
 
             return space;
         }
 
         private dynamic ClassRefDo(ClassReference classReference)
         {
+            var oldSpace = MemorySpaces.Current;
+
             var memorySpace = Get(classReference.ClassInstance) as MemorySpace;
 
-            foreach (var item in classReference.Deferences)
+            MemorySpaces.Current = memorySpace;
+
+            try
             {
-                if (item.AstType == AstTypes.Class)
+                foreach (var item in classReference.Deferences)
                 {
-                    
+                    if (item.AstType == AstTypes.Class)
+                    {
+
+                    }
+                    else if (item.AstType == AstTypes.FunctionInvoke)
+                    {
+                        return Exec(item);
+                    }
+                    else
+                    {
+                        return memorySpace.Get(item.Token.TokenValue);
+                    }
                 }
-                else if (item.AstType == AstTypes.FunctionInvoke)
-                {
-                    return Exec(item);
-                }
-                else
-                {
-                    return memorySpace.Get(item.Token.TokenValue);
-                }
+            }
+            finally
+            {
+                MemorySpaces.Current = oldSpace;
             }
 
             return null;
@@ -384,7 +396,7 @@ namespace Lang.Visitors
                 {
                     var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
-                    var space = symbol.Memory ?? MemorySpaces.Current;
+                    var space = MemorySpaces.Current;
                     
                     space.Define(symbol.Name, value);
                 }
@@ -395,7 +407,7 @@ namespace Lang.Visitors
 
                 var resolvedMethod = varDeclrAst.CurrentScope.Resolve(variableValue.Token.TokenValue);
 
-                var space = symbol.Memory ?? MemorySpaces.Current;
+                var space = MemorySpaces.Current;
                     
                 space.Define(symbol.Name, resolvedMethod);
             }
@@ -408,13 +420,11 @@ namespace Lang.Visitors
             Console.WriteLine(expression);
         }
 
-        private void Assign(Ast ast, dynamic value)
+        private void Assign(Ast ast, dynamic value, MemorySpace space = null)
         {
-            var symbol = ast.CurrentScope.Resolve(ast);
-
-            if (symbol.Memory != null)
+            if (space != null)
             {
-                symbol.Memory.Assign(ast.Token.TokenValue, value);
+                space.Assign(ast.Token.TokenValue, value);
             }
 
             else
@@ -425,13 +435,6 @@ namespace Lang.Visitors
 
         private dynamic Get(Ast ast)
         {
-            var symbol = ast.CurrentScope.Resolve(ast);
-
-            if (symbol.Memory != null)
-            {
-                return symbol.Memory.Get(ast.Token.TokenValue);
-            }
-
             return MemorySpaces.Current.Get(ast.Token.TokenValue);
         }
 
@@ -440,16 +443,24 @@ namespace Lang.Visitors
             var lhs = ast.Left;
             var rhs = ast.Right;
 
-            
             switch (ast.Token.TokenType)
             {
                 case TokenType.Equals:
                     if (lhs.AstType == AstTypes.ClassRef)
                     {
+                        var classRef = lhs as ClassReference;
+
+                        var space = Get(classRef);
+
                         lhs = (lhs as ClassReference).Deferences.Last();
+
+                        Assign(lhs, Exec(rhs), space);
                     }
 
-                    Assign(lhs, Exec(rhs));
+                    else
+                    {
+                        Assign(lhs, Exec(rhs));
+                    }
                     return null;
 
                 case TokenType.Word:
