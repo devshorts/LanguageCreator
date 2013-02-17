@@ -976,7 +976,7 @@ namespace Lang.Tests
             var test = @"
                 class bob{
                     var z = 1;
-                    
+                    var printer = fun() -> { return z; };
                 }
 
                 class anton{
@@ -991,6 +991,10 @@ namespace Lang.Tests
                 foo.x.z = 2;
 
                 print foo.x.z;
+
+                var foo2 = new anton();
+
+                print foo2.x.printer();
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

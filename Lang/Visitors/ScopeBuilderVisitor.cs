@@ -19,8 +19,6 @@ namespace Lang.Visitors
 
         private Scope Global { get; set; }
 
-        private Scope _current = null;
-
         public Scope Current
         {
             get { return ScopeTree.Current; }
@@ -612,6 +610,22 @@ namespace Lang.Visitors
                 if (ast.Expression.AstSymbolType.ExpressionType == ExpressionTypes.Void)
                 {
                     throw new InvalidSyntax("Cannot print a void expression");
+                }
+
+                if (ast.Expression.AstSymbolType.ExpressionType == ExpressionTypes.Method)
+                {
+                    var returnAst = (ast.Expression.AstSymbolType.Src as MethodDeclr);
+
+                    if (returnAst != null)
+                    {
+                        var retStatement = returnAst.ReturnAst;
+
+                        if (retStatement == null)
+                        {
+                            throw new InvalidSyntax("Cannot print a void expression");
+                        }
+                    }
+
                 }
             }
         }

@@ -210,20 +210,25 @@ namespace Lang.Visitors
 
             try
             {
-               var count = 0;
-               foreach (var deref in classReference.Deferences)
-               {
-                   var newSpace = Exec(deref);
+                if (classReference.Deferences.Count == 0)
+                {
+                    return memorySpace;
+                }
 
-                   if (count == classReference.Deferences.Count - 1)
-                   {
-                       return newSpace;
-                   }
+                var count = 0;
+                foreach (var deref in classReference.Deferences)
+                {
+                    var newSpace = Exec(deref);
 
-                   MemorySpaces.Current = newSpace;
+                    if (count == classReference.Deferences.Count - 1)
+                    {
+                        return newSpace;
+                    }
 
-                   count++;
-               }
+                    MemorySpaces.Current = newSpace;
+
+                    count++;
+                }
             }
             finally
             {
