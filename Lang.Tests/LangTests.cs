@@ -945,5 +945,28 @@ namespace Lang.Tests
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestClassParsing6()
+        {
+            var test = @"
+                        class bob{
+                            var z = 1;
+                        }
+
+                        class anton{
+                            var x = new bob();
+                            int y = 0;
+                        }
+
+                        anton foo = new anton();
+
+                        print foo.x.z;
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

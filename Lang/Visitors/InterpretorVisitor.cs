@@ -15,6 +15,8 @@ namespace Lang.Visitors
     {
         private ScopeStack<MemorySpace> MemorySpaces { get; set; }
 
+        public MemorySpace Global { get; set; }
+
         public InterpretorVisitor()
         {
             MemorySpaces = new ScopeStack<MemorySpace>();
@@ -81,6 +83,8 @@ namespace Lang.Visitors
 
             resolver.Start(ast);
 
+            Global = MemorySpaces.Current;
+            
             ast.Visit(this);
         }
 
@@ -206,21 +210,20 @@ namespace Lang.Visitors
 
             try
             {
-                foreach (var item in classReference.Deferences)
-                {
-                    if (item.AstType == AstTypes.Class)
-                    {
+               var count = 0;
+               foreach (var deref in classReference.Deferences)
+               {
+                   var newSpace = Exec(deref);
 
-                    }
-                    else if (item.AstType == AstTypes.FunctionInvoke)
-                    {
-                        return Exec(item);
-                    }
-                    else
-                    {
-                        return memorySpace.Get(item.Token.TokenValue);
-                    }
-                }
+                   if (count == classReference.Deferences.Count - 1)
+                   {
+                       return newSpace;
+                   }
+
+                   MemorySpaces.Current = newSpace;
+
+                   count++;
+               }
             }
             finally
             {
@@ -534,11 +537,16 @@ namespace Lang.Visitors
 
             if (resolved == null)
             {
-                var msg = String.Format("Trying to access undefined function {0}", ast.Token.TokenValue);
+                resolved = ast.Global.Resolve(ast.Token.TokenValue);
 
-                Console.WriteLine(msg);
+                if (resolved == null)
+                {
+                    var msg = String.Format("Trying to access undefined function {0}", ast.Token.TokenValue);
 
-                throw new UndefinedElementException(msg);
+                    Console.WriteLine(msg);
+
+                    throw new UndefinedElementException(msg);
+                }
             }
 
             return resolved;

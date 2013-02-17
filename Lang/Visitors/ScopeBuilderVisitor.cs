@@ -17,7 +17,10 @@ namespace Lang.Visitors
             ScopeContainer.CurrentScopeType = scopeType;
         }
 
+        private Scope Global { get; set; }
+
         private Scope _current = null;
+
         public Scope Current
         {
             get { return ScopeTree.Current; }
@@ -162,7 +165,7 @@ namespace Lang.Visitors
 
                 ast.ConvertedExpression = curriedMethod;
             }
-            else
+            else if(ResolvingTypes)
             {
                 ast.AstSymbolType = ResolveType(ast.FunctionName, ast.CurrentScope);
             }
@@ -323,7 +326,7 @@ namespace Lang.Visitors
             {
                 var symbol = DefineUserSymbol(ast.DeclarationType, ast.VariableName);
 
-                Current.Define(symbol);
+                DefineToScope(ast, symbol);
 
                 ast.AstSymbolType = symbol.Type;
             }
@@ -347,7 +350,7 @@ namespace Lang.Visitors
 
                     var symbol = DefineUserSymbol(ast.AstSymbolType, ast.VariableName);
 
-                    Current.Define(symbol);
+                    DefineToScope(ast, symbol);
                 }
                 else if (ResolvingTypes)
                 {
@@ -388,7 +391,21 @@ namespace Lang.Visitors
 
             SetScope(ast);
         }
-        
+
+        private void DefineToScope(VarDeclrAst ast, Symbol symbol)
+        {
+            if (ast.CurrentScope != null && ast.CurrentScope.Symbols.ContainsKey(symbol.Name))
+            {
+                Symbol old = ast.CurrentScope.Resolve(symbol.Name);
+                if (old.Type == null)
+                {
+                    ast.CurrentScope.Define(symbol);
+                }
+            }
+
+            Current.Define(symbol);
+        }
+
         private Symbol DefineUserSymbol(Ast astType, Ast name)
         {
             IType type = CreateSymbolType(astType);
@@ -541,6 +558,13 @@ namespace Lang.Visitors
             if (ast.CurrentScope == null)
             {
                 ast.CurrentScope = Current;
+
+                ast.Global = ScopeContainer.Global.Current;
+            }
+
+            else if (ast.CurrentScope != null && ast.CurrentScope.Symbols.Count < Current.Symbols.Count)
+            {
+                ast.CurrentScope = Current;
             }
         }
 
@@ -641,6 +665,11 @@ namespace Lang.Visitors
 
             var classScope = Resolve(declaredSymbol.Type.TypeName) as ClassSymbol;
 
+            if (Global == null)
+            {
+                Global = Current;
+            }
+
             var oldScope = Current;
             
             Current = classScope;
@@ -651,9 +680,15 @@ namespace Lang.Visitors
 
                 var field = Resolve(reference);
 
+
                 if (field == null)
                 {
                     throw new InvalidSyntax(String.Format("Class {0} has no field named {1}", declaredSymbol.Type.TypeName, reference.Token.TokenValue));
+                }
+
+                if (field.Type.ExpressionType == ExpressionTypes.UserDefined)
+                {
+                    Current = Global.Resolve(field.Type.TypeName) as ClassSymbol;
                 }
             }
 
@@ -670,15 +705,20 @@ namespace Lang.Visitors
         {
             ast.Args.ForEach(arg => arg.Visit(this));
 
-            var className = Resolve(ast.Name);
-
-            if (className == null)
-            {
-                throw new InvalidSyntax(String.Format("Class {0} is undefined", ast.Name.Token.TokenValue));
-            }
-
             if (ResolvingTypes)
             {
+                var className = Resolve(ast.Name);
+
+                if (className == null)
+                {
+                    className = ScopeContainer.Global.Current.Resolve(ast.Name);
+
+                    if (className == null)
+                    {
+                        throw new InvalidSyntax(String.Format("Class {0} is undefined", ast.Name.Token.TokenValue));
+                    }
+                }
+
                 ast.AstSymbolType = className.Type;
             }
 

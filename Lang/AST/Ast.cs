@@ -12,6 +12,8 @@ namespace Lang.AST
     {
         public Scope CurrentScope { get; set; }
 
+        public Scope Global { get; set; }
+
         public Token Token { get; set; }
 
         public IType AstSymbolType { get; set; } 
