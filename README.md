@@ -179,6 +179,33 @@ print foo.x.z;
 1
 ```
 
+Example 7
+===
+```csharp
+class bob{
+    var z = 1;
+                    
+}
+
+class anton{
+    var x = new bob();
+    int y = 0;
+}
+
+anton foo = new anton();
+
+print foo.x.z;
+
+foo.x.z = 2;
+
+print foo.x.z;
+```
+
+```
+1
+2
+```
+
 Notes
 ===
-I haven't tested setting class values from multiple dereferenced nesting yet. Also creating a new class of the same one you are in will create an infinite loop because there is no concept of a constructor vs member initialization.
+Creating a new class of the same one you are in will create an infinite loop because there is no concept of a constructor vs member initialization.  Also returning new items from functions and dereferencing them still doesn't quite work because of some remaining scope calculation bugs.

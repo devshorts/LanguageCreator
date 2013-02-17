@@ -451,13 +451,24 @@ namespace Lang.Visitors
                 case TokenType.Equals:
                     if (lhs.AstType == AstTypes.ClassRef)
                     {
-                        var classRef = lhs as ClassReference;
+                        // a litle trickery here. create a copy of the class reference
+                        // with everytihng up to the second to last item. this gives you
+                        // the workign memory space that the very last item should sit in
+                        // then lets execute this as if we are asking for the memory space
+                        // and finally assign the very last symbol to the calculated memory
+                        // space we got
 
-                        var space = Get(classRef);
+                        var classRef = (lhs as ClassReference);
 
-                        lhs = (lhs as ClassReference).Deferences.Last();
+                        var lastItem = classRef.Deferences.Last();
 
-                        Assign(lhs, Exec(rhs), space);
+                        var fakeRef = new ClassReference(classRef.ClassInstance,
+                                                         classRef.Deferences.Take(classRef.Deferences.Count - 1)
+                                                                 .ToList());
+
+                        var space = Exec(fakeRef);
+
+                        Assign(lastItem, Exec(rhs), space);
                     }
 
                     else

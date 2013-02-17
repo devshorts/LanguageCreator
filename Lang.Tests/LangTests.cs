@@ -950,18 +950,47 @@ namespace Lang.Tests
         public void TestClassParsing6()
         {
             var test = @"
-                        class bob{
-                            var z = 1;
-                        }
+                class bob{
+                    var z = fun() -> { return 'in bob';} ;
+                    
+                }
 
-                        class anton{
-                            var x = new bob();
-                            int y = 0;
-                        }
+                class anton{
+                    var x = new bob();
+                    int y = 0;
+                }
 
-                        anton foo = new anton();
+                anton foo = new anton();
 
-                        print foo.x.z;
+                print foo.x.z();
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        public void TestClassParsing7()
+        {
+            var test = @"
+                class bob{
+                    var z = 1;
+                    
+                }
+
+                class anton{
+                    var x = new bob();
+                    int y = 0;
+                }
+
+                anton foo = new anton();
+
+                print foo.x.z;
+
+                foo.x.z = 2;
+
+                print foo.x.z;
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
