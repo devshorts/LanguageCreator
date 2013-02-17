@@ -156,8 +156,29 @@ foo.foo();
 1
 2
 10
+```                                                                          
+
+Example 6
+===
+```csharp
+class bob{
+    var z = 1;
+}
+
+class anton{
+    var x = new bob();
+    int y = 0;
+}
+
+anton foo = new anton();
+
+print foo.x.z;
+```
+
+```
+1
 ```
 
 Notes
 ===
-Classes can only be derefenced one level deep, so accessing classes within classes doesn't work.  Also constructors aren't supported.
+I haven't tested setting class values from multiple dereferenced nesting yet. Also creating a new class of the same one you are in will create an infinite loop because there is no concept of a constructor vs member initialization.
