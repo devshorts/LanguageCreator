@@ -589,6 +589,20 @@ namespace Lang.Tests
         }
 
         [Test]
+        [ExpectedException(typeof(UndefinedElementException))]
+        public void InvalidForwardReferences()
+        {
+            var test = @"
+                         int x = y;
+                         int y = 0;
+                        ";
+
+            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
         public void TestForwardReferences2()
         {
             var test = @"
