@@ -1081,6 +1081,8 @@ namespace Lang.Tests
                 var proxyCopy = fun(string i) -> { print i; };
 
                 person.methodProxy(proxyCopy);
+
+                person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

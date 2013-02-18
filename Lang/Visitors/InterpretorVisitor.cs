@@ -463,15 +463,13 @@ namespace Lang.Visitors
 
         private dynamic Get(Ast ast)
         {
-            object item = null;
-            if (ast.CallingMemory != null)
+            object item;
+            
+            item = MemorySpaces.Current.Get(ast.Token.TokenValue);
+
+            if (ast.CallingMemory != null && item == null)
             {
                 item = ast.CallingMemory.Get(ast.Token.TokenValue);
-            }
-
-            if (item == null)
-            {
-                return MemorySpaces.Current.Get(ast.Token.TokenValue);
             }
 
             return item;
