@@ -1001,5 +1001,30 @@ namespace Lang.Tests
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestClassParsing8()
+        {
+            var test = @"
+               
+                class anton{
+                    var x = fun() -> { return new anton(); };
+                    int y = 10;
+                }
+
+                var x = new anton();
+
+                var dynamicAnton = x.x();
+
+                dynamicAnton.y = 52;
+
+                print dynamicAnton.y;
+                
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

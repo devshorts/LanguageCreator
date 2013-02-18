@@ -710,6 +710,18 @@ namespace Lang.Visitors
 
             ast.AstSymbolType = ast.Deferences.Last().AstSymbolType;
 
+            if (ast.AstSymbolType.ExpressionType == ExpressionTypes.Method)
+            {
+                try
+                {
+                    ast.AstSymbolType = (ast.AstSymbolType.Src as MethodDeclr).ReturnAst.AstSymbolType;
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+            }
+
             SetScope(ast);
 
             SetScope(ast.ClassInstance);

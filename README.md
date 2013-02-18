@@ -206,6 +206,26 @@ print foo.x.z;
 2
 ```
 
+Example 8
+===
+```
+class anton{
+    var x = fun() -> { return new anton(); };
+    int y = 10;
+}
+
+var x = new anton();
+
+var dynamicAnton = x.x();
+
+dynamicAnton.y = 52;
+
+print dynamicAnton.y;
+```
+
+```
+52
+```
+
 Notes
 ===
-Creating a new class of the same one you are in will create an infinite loop because there is no concept of a constructor vs member initialization.  Also returning new items from functions and dereferencing them still doesn't quite work because of some remaining scope calculation bugs.
