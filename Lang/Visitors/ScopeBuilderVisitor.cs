@@ -22,7 +22,10 @@ namespace Lang.Visitors
         public Scope Current
         {
             get { return ScopeTree.Current; }
-            set { ScopeContainer.CurrentScopeStack.Current = value; }
+            set
+            {
+                ScopeContainer.CurrentScopeStack.Current = value;
+            }
         }
 
         public ScopeStack<Scope> ScopeTree { get { return ScopeContainer.CurrentScopeStack; } }
@@ -254,7 +257,10 @@ namespace Lang.Visitors
                     {
                         var resolvedType = currentScope.Resolve(ast);
 
-                        if (currentScope.AllowAllForwardReferences || 
+                        var allowedFwdReferences = currentScope.AllowedForwardReferences(ast);
+
+                        if (allowedFwdReferences || 
+                            currentScope.AllowAllForwardReferences || 
                             resolvedType is ClassSymbol ||
                             resolvedType is MethodSymbol)
                         {
@@ -493,8 +499,8 @@ namespace Lang.Visitors
 
             ValidateReturnStatementType(ast, symbol);
 
-
             ScopeTree.PopScope();
+
         }
 
         private void ValidateReturnStatementType(MethodDeclr ast, Symbol symbol)
@@ -652,6 +658,8 @@ namespace Lang.Visitors
             ast.Body.Visit(this);
 
             classSymbol.Symbols = ast.Body.CurrentScope.Symbols;
+
+            ast.Body.CurrentScope.AllowAllForwardReferences = true;
 
             ScopeTree.PopScope();
 

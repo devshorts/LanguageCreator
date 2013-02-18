@@ -227,5 +227,46 @@ print dynamicAnton.y;
 52
 ```
 
+Example 9 (forward referencing and object passing)
+===
+```
+class human{
+    void init(string id){
+        age = 1;
+        person = new human();
+        name = id;
+    }
+
+    int age = 99;
+    string name = 'jane doe';
+    human person;
+}
+
+var person = new human();
+person.init('anton');
+
+void printPerson(human person){
+    print 'age of  ' + person.name + ' = ';
+    print person.age;
+    print '----';
+}
+
+person.age = 29;
+
+printPerson(person);
+
+printPerson(person.person);
+```
+
+```
+age of  anton = 
+29
+----
+age of  jane doe = 
+99
+----
+```
+
 Notes
 ===
+Type promotion doesn't exist and neither does inheritance. So you can't print a string and an int on the same line because the expression won't match properly, but thats intentional right now.

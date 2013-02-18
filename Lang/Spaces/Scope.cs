@@ -38,6 +38,21 @@ namespace Lang.Spaces
             Symbols[symbol.Name] = symbol;
         }
 
+        public Boolean AllowedForwardReferences(Ast ast)
+        {
+            if (Symbols.ContainsKey(ast.Token.TokenValue))
+            {
+                return AllowAllForwardReferences;
+            }
+
+            if (EnclosingScope == null)
+            {
+                return false;
+            }
+
+            return EnclosingScope.AllowedForwardReferences(ast);
+        }
+
         public Symbol Resolve(Ast ast)
         {
             return Resolve(ast.Token.TokenValue);

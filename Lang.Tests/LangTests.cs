@@ -1007,19 +1007,32 @@ namespace Lang.Tests
         {
             var test = @"
                
-                class anton{
-                    var x = fun() -> { return new anton(); };
-                    int y = 10;
+                class human{
+                    void init(string id){
+                        age = 1;
+                        person = new human();
+                        name = id;
+                    }
+
+                    int age = 99;
+                    string name = 'jane doe';
+                    human person;
                 }
 
-                var x = new anton();
+                var person = new human();
+                person.init('anton');
 
-                var dynamicAnton = x.x();
+                void printPerson(human person){
+                    print 'age of  ' + person.name + ' = ';
+                    print person.age;
+                    print '----';
+                }
 
-                dynamicAnton.y = 52;
+                person.age = 29;
 
-                print dynamicAnton.y;
-                
+                printPerson(person);
+
+                printPerson(person.person);
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

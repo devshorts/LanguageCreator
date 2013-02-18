@@ -345,8 +345,6 @@ namespace Lang.Visitors
 
             foreach (VarDeclrAst expectedArgument in method.MethodDeclr.Arguments)
             {
-                expectedArgument.Visit(this);
-
                 var currentArgument = args[count]; 
 
                 if (expectedArgument.VariableValue == null)
@@ -390,6 +388,12 @@ namespace Lang.Visitors
         {
             if (varDeclrAst.VariableValue == null)
             {
+                var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
+
+                var space = MemorySpaces.Current;
+
+                space.Define(symbol.Name, null);
+
                 return;
             }
 
