@@ -142,7 +142,8 @@ namespace Lang.Visitors
                         ConditionalDo(ast as Conditional);
                         break;
                     case AstTypes.MethodDeclr:
-                        return ast;
+                        var methodDeclr = ast as MethodDeclr;
+                        return new MethodSymbol(methodDeclr.Token.TokenValue, ScopeBuilderVisitor.CreateSymbolType(methodDeclr.ReturnAst), methodDeclr);
 
                     case AstTypes.While:
                         WhileDo(ast as WhileLoop);
@@ -218,6 +219,11 @@ namespace Lang.Visitors
                 var count = 0;
                 foreach (var deref in classReference.Deferences)
                 {
+                    if (deref == classReference.Deferences.Last())
+                    {
+                        deref.CallingMemory = oldSpace;
+                    }
+
                     var newSpace = Exec(deref);
 
                     if (count == classReference.Deferences.Count - 1)
@@ -324,6 +330,11 @@ namespace Lang.Visitors
                     invoker = MemorySpaces.Current.Get(method.Name) as MethodSymbol;
                 }
 
+                if (funcInvoke.CallingMemory != null && !CollectionUtil.IsNullOrEmpty(funcInvoke.Arguments))
+                {
+                    funcInvoke.Arguments.ForEach(arg => arg.CallingMemory = funcInvoke.CallingMemory);
+                }
+
                 return InvokeMethodSymbol(invoker, funcInvoke.Arguments);
             }
 
@@ -363,6 +374,11 @@ namespace Lang.Visitors
                                             :   args[count]) as Symbol;
 
                 var resolvedType = resolvedSymbol != null ? resolvedSymbol.Type : currentArgument.AstSymbolType;
+
+                if (currentArgument is MethodDeclr)
+                {
+                    resolvedType = new BuiltInType(ExpressionTypes.Method);
+                }
 
                 if (!TokenUtil.EqualOrPromotable(expectedArgument.AstSymbolType, resolvedType))
                 {
@@ -447,7 +463,18 @@ namespace Lang.Visitors
 
         private dynamic Get(Ast ast)
         {
-            return MemorySpaces.Current.Get(ast.Token.TokenValue);
+            object item = null;
+            if (ast.CallingMemory != null)
+            {
+                item = ast.CallingMemory.Get(ast.Token.TokenValue);
+            }
+
+            if (item == null)
+            {
+                return MemorySpaces.Current.Get(ast.Token.TokenValue);
+            }
+
+            return item;
         }
 
         private dynamic Expression(Expr ast)

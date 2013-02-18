@@ -148,6 +148,11 @@ namespace Lang.Visitors
 
         public void Visit(FuncInvoke ast)
         {
+            if (ast.CallingScope != null)
+            {
+                ast.Arguments.ForEach(arg => arg.CallingScope = ast.CallingScope);
+            }
+
             ast.Arguments.ForEach(arg => arg.Visit(this));
 
             SetScope(ast);
@@ -231,58 +236,56 @@ namespace Lang.Visitors
         /// <returns></returns>
         private IType ResolveType(Ast ast, Scope currentScope = null)
         {
+            var scopeTrys = new List<Scope> { currentScope, ast.CurrentScope };
+
             try
             {
                 return Current.Resolve(ast).Type;
             }
             catch (Exception ex)
             {
-                if (currentScope != null || ast.CurrentScope != null)
+                try
                 {
-                    if (currentScope == null && ast.CurrentScope != null)
+                    return ast.CallingScope.Resolve(ast).Type;
+                }
+                catch
+                {
+                    foreach (var scopeTry in scopeTrys)
                     {
-                        currentScope = ast.CurrentScope;
-                    }
-
-                    if (currentScope == null)
-                    {
-                        if (ResolvingTypes)
+                        try
                         {
-                            throw;
+                            if (scopeTry == null)
+                            {
+                                continue;
+                            }
+
+                            var resolvedType = scopeTry.Resolve(ast);
+
+                            var allowedFwdReferences = scopeTry.AllowedForwardReferences(ast);
+
+                            if (allowedFwdReferences ||
+                                scopeTry.AllowAllForwardReferences ||
+                                resolvedType is ClassSymbol ||
+                                resolvedType is MethodSymbol)
+                            {
+                                return resolvedType.Type;
+                            }
                         }
-                        return null;
-                    }
-
-                    try
-                    {
-                        var resolvedType = currentScope.Resolve(ast);
-
-                        var allowedFwdReferences = currentScope.AllowedForwardReferences(ast);
-
-                        if (allowedFwdReferences || 
-                            currentScope.AllowAllForwardReferences || 
-                            resolvedType is ClassSymbol ||
-                            resolvedType is MethodSymbol)
+                        catch
                         {
-                            return resolvedType.Type;
-                        }
-                        throw new UndefinedElementException(String.Format("Undefined element {0}",
-                                                                          ast.Token.TokenValue));
-                    }
-                    catch (Exception ex1)
-                    {
-                        if (ResolvingTypes)
-                        {
-                            throw new UndefinedElementException(String.Format("Undefined element {0}",
-                                                                              ast.Token.TokenValue));
-                        }
 
-                        return null;
+                        }
                     }
                 }
-
-                throw;
             }
+
+            if (ResolvingTypes)
+            {
+                throw new UndefinedElementException(String.Format("Undefined element {0}",
+                                                                          ast.Token.TokenValue));
+            }
+
+            return null;
         }
 
 
@@ -423,7 +426,7 @@ namespace Lang.Visitors
         }
 
 
-        private IType CreateSymbolType(Ast astType)
+        public static IType CreateSymbolType(Ast astType)
         {
             if (astType == null)
             {
@@ -698,6 +701,11 @@ namespace Lang.Visitors
 
             foreach (var reference in ast.Deferences)
             {
+                if (reference == ast.Deferences.Last())
+                {
+                    reference.CallingScope = oldScope;
+                }
+
                 reference.Visit(this);
 
                 var field = Resolve(reference);

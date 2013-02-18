@@ -1053,5 +1053,39 @@ namespace Lang.Tests
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestMethodPassing()
+        {
+            var test = @"
+               
+                class human{
+                    void init(string id){
+                        age = 1;
+                        person = new human();
+                        name = id;
+                    }
+
+                    void methodProxy(method nameAcceptor){
+                        nameAcceptor(name);
+                    }
+
+                    int age = 99;
+                    string name = 'jane doe';
+                    human person;
+                }
+
+                var person = new human();
+                person.init('anton');
+
+                var proxyCopy = fun(string i) -> { print i; };
+
+                person.methodProxy(proxyCopy);
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

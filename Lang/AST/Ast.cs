@@ -10,6 +10,10 @@ namespace Lang.AST
 {
     public abstract class Ast : IAcceptVisitor
     {
+        public MemorySpace CallingMemory { get; set; }
+
+        public Scope CallingScope { get; set; }
+
         public Scope CurrentScope { get; set; }
 
         public Scope Global { get; set; }
