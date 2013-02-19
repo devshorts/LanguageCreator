@@ -335,6 +335,27 @@ namespace Lang.Visitors
                     funcInvoke.Arguments.ForEach(arg => arg.CallingMemory = funcInvoke.CallingMemory);
                 }
 
+                if (invoker != null && invoker.MethodDeclr.CallingMemory != null)
+                {
+                    var oldMemory = MemorySpaces.Current;
+
+                    if (invoker.MethodDeclr.CallingMemory != MemorySpaces.Current)
+                    {
+                        // merge lambda spaces with the current space so we can get their
+                        // environment
+                        foreach (var item in invoker.MethodDeclr.CallingMemory.Values)
+                        {
+                            MemorySpaces.Current.Values.Add(item.Key, item.Value);
+                        }
+                    }
+
+                    var result = InvokeMethodSymbol(invoker, funcInvoke.Arguments);
+
+                    MemorySpaces.Current = oldMemory;
+
+                    return result;
+                }
+
                 return InvokeMethodSymbol(invoker, funcInvoke.Arguments);
             }
 
@@ -446,9 +467,11 @@ namespace Lang.Visitors
             {
                 var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
-                var resolvedMethod = varDeclrAst.CurrentScope.Resolve(variableValue.Token.TokenValue);
+                var resolvedMethod = varDeclrAst.CurrentScope.Resolve(variableValue.Token.TokenValue) as MethodSymbol;
 
                 var space = MemorySpaces.Current;
+
+                resolvedMethod.MethodDeclr.CallingMemory = space;
                     
                 space.Define(symbol.Name, resolvedMethod);
             }

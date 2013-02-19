@@ -13,7 +13,7 @@ namespace Lang.Tests
     [TestFixture]
     public class LangTests
     {
-        
+
         [Test]
         public void TestFloatTokenizer()
         {
@@ -372,7 +372,7 @@ namespace Lang.Tests
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
             var scopeBuilder = new ScopeBuilderVisitor();
-            
+
             scopeBuilder.Start(ast);
 
             var typeResolver = new ScopeBuilderVisitor(true);
@@ -583,7 +583,7 @@ namespace Lang.Tests
 
             var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
 
-            
+
             new InterpretorVisitor().Start(ast);
 
         }
@@ -1098,8 +1098,8 @@ namespace Lang.Tests
                 class bob{
                     int y = 1;
 
-                    void pr1(int x){
-                        print x;   
+                    void pr1(method x){
+                        print x();   
                     }
                 }
 
@@ -1108,20 +1108,25 @@ namespace Lang.Tests
                     
                     var b = new bob();
 
-                    void pr(){
-                        b.pr1(y);
+                    void pr(method z){                                             
+                        b.pr1(z);
                     }
                 }
 
                 var a = new human();
+                var b = new bob();
 
-                var b = new human();
+                b.y = 69;
 
-                a.y = 5;
+                var lambda = fun() ->{
+                                 return b.y;
+                             };
 
-                a.pr();
+                a.pr(lambda);
 
-                b.pr();
+                b.y = 20;
+
+                b.pr1(lambda);
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

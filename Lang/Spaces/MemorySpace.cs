@@ -7,7 +7,7 @@ namespace Lang.Symbols
 {
     public class MemorySpace : IScopeable<MemorySpace>
     {
-        private Dictionary<string, object> Values { get; set; }
+        public Dictionary<string, object> Values { get; set; }
 
         public MemorySpace EnclosingSpace { get; private set; }
 
