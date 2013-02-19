@@ -1096,18 +1096,20 @@ namespace Lang.Tests
             var test = @"
                
                 class bob{
+                    int y = 1;
+
                     void pr1(int x){
                         print x;   
                     }
                 }
 
                 class human{
-                    int x = 0;
+                    int y = 0;
                     
                     var b = new bob();
 
                     void pr(){
-                        b.pr1(x);
+                        b.pr1(y);
                     }
                 }
 
@@ -1115,7 +1117,7 @@ namespace Lang.Tests
 
                 var b = new human();
 
-                a.x = 5;
+                a.y = 5;
 
                 a.pr();
 

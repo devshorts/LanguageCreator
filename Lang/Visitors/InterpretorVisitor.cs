@@ -356,15 +356,26 @@ namespace Lang.Visitors
 
             foreach (VarDeclrAst expectedArgument in method.MethodDeclr.Arguments)
             {
-                var currentArgument = args[count]; 
+                var currentArgument = args[count];
+
+                var oldmemory = MemorySpaces.Current;
+
+                if (currentArgument.CallingMemory != null)
+                {
+                    MemorySpaces.Current = currentArgument.CallingMemory;
+                }
+
+                var value = Exec(currentArgument);
+
+                MemorySpaces.Current = oldmemory;
 
                 if (expectedArgument.VariableValue == null)
                 {
-                    MemorySpaces.Current.Define(expectedArgument.Token.TokenValue, Exec(currentArgument));
+                    MemorySpaces.Current.Define(expectedArgument.Token.TokenValue, value);
                 }
                 else
                 {
-                    MemorySpaces.Current.Assign(expectedArgument.Token.TokenValue, Exec(currentArgument));
+                    MemorySpaces.Current.Assign(expectedArgument.Token.TokenValue, value);
                 }
 
                 // if the passed in argument is a word and not a literal (like string or bool) then 
