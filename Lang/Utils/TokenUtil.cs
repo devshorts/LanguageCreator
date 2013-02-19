@@ -11,7 +11,7 @@ namespace Lang.Utils
     {
         public static Boolean EqualOrPromotable(IType item1, IType item2)
         {
-            return item1.ExpressionType == item2.ExpressionType || item1.TypeName == "Inferred" || item2.TypeName == "Inferred";
+            return EqualOrPromotable(item1.ExpressionType, item2.ExpressionType);
         }
 
         public static Boolean IsOperator(Token item)
@@ -35,7 +35,10 @@ namespace Lang.Utils
 
         public static bool EqualOrPromotable(ExpressionTypes item1, ExpressionTypes item2)
         {
-            return item1 == item2 || item1 == ExpressionTypes.Inferred || item2 == ExpressionTypes.Inferred;
+            return item1 == item2 ||
+                   item1 == ExpressionTypes.Inferred ||
+                   item2 == ExpressionTypes.Inferred ||
+                   item2 == ExpressionTypes.Nil || item1 == ExpressionTypes.Nil;
         }
     }
 }

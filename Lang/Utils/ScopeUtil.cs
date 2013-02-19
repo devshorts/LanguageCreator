@@ -54,6 +54,8 @@ namespace Lang.Utils
                     return new BuiltInType(ExpressionTypes.Float);
                 case TokenType.Void:
                     return new BuiltInType(ExpressionTypes.Void);
+                case TokenType.Nil:
+                    return new BuiltInType(ExpressionTypes.Nil);
                 case TokenType.Infer:
                     return new BuiltInType(ExpressionTypes.Inferred);
                 case TokenType.QuotedString:

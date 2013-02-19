@@ -1147,5 +1147,29 @@ namespace Lang.Tests
             new InterpretorVisitor().Start(ast);
         }
 
+        [Test]
+        public void TestAssigningClasses()
+        {
+            var test = @"
+               
+                class bob{
+                    int x = 44;
+                }
+
+                class human{
+                    bob x;
+                }
+
+                var a = new human();
+
+                a.x = new bob();
+
+                print a.x.x;
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

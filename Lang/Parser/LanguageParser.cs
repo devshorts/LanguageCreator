@@ -230,6 +230,9 @@ namespace Lang.Parser
             switch (TokenStream.Current.TokenType)
             {
 
+                case TokenType.New:
+                    return New();
+
                 case TokenType.OpenParenth:
 
                     Func<Ast> basicOp = () =>
@@ -701,6 +704,7 @@ namespace Lang.Parser
                 case TokenType.Word:
                 case TokenType.True:
                 case TokenType.Float:
+                case TokenType.Nil:
                 case TokenType.False:
                     return true;
             }

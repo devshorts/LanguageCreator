@@ -44,6 +44,7 @@
         String,
         Method,
         Class,
-        New
+        New,
+        Nil
     }
 }
