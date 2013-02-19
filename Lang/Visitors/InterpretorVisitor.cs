@@ -360,6 +360,8 @@ namespace Lang.Visitors
 
                 var oldmemory = MemorySpaces.Current;
 
+                // if the argument is coming from somewhere else, make sure to be able to 
+                // load the argument from its preferred space. 
                 if (currentArgument.CallingMemory != null)
                 {
                     MemorySpaces.Current = currentArgument.CallingMemory;
