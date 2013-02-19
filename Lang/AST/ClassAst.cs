@@ -9,6 +9,8 @@ namespace Lang.AST
 {
     public class ClassAst : Ast
     {
+        public MethodDeclr Constructor { get; set; }
+
         public ScopeDeclr Body { get; set; }
 
         public ClassAst(Token token, ScopeDeclr body) : base(token)

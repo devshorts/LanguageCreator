@@ -198,6 +198,15 @@ namespace Lang.Visitors
                 Exec(symbol);
             }
 
+            if (classType.Constructor != null)
+            {
+                var funcInvoke = new FuncInvoke(classType.Constructor.Token, ast.Args);
+
+                funcInvoke.CurrentScope = classType.Body.CurrentScope;
+
+                Exec(funcInvoke);
+            }
+
             MemorySpaces.Current = oldSpace;
 
             return space;

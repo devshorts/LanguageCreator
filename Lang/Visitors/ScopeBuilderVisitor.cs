@@ -685,6 +685,13 @@ namespace Lang.Visitors
             SetScopeType(ScopeType.Global);
         }
 
+        public static MethodDeclr GetConstructorForClass(ClassAst ast)
+        {
+            return
+                ast.Body.ScopedStatements.Where(i => i is MethodDeclr)
+                                         .FirstOrDefault(i => (i as MethodDeclr).MethodName.Token.TokenValue == SpecialNames.CONSTRUCTOR_NAME) as MethodDeclr;
+        }
+
         private void SetScopeSource(Symbol classSymbol)
         {
             Current = classSymbol;
@@ -772,11 +779,11 @@ namespace Lang.Visitors
 
             if (ResolvingTypes)
             {
-                var className = Resolve(ast.Name);
+                var className = Resolve(ast.Name) as ClassSymbol;
 
                 if (className == null)
                 {
-                    className = ast.Global.Resolve(ast.Name);
+                    className = ast.Global.Resolve(ast.Name) as ClassSymbol;
 
                     if (className == null)
                     {
@@ -784,10 +791,42 @@ namespace Lang.Visitors
                     }
                 }
 
+                ValidateClassConstructorArgs(ast, className);
+
                 ast.AstSymbolType = className.Type;
             }
 
             SetScope(ast);
+        }
+
+        private void ValidateClassConstructorArgs(NewAst ast, ClassSymbol classSource)
+        {
+            if (!ResolvingTypes)
+            {
+                return;
+            }
+
+            if (classSource == null)
+            {
+                throw new ArgumentException("classSource");
+            }
+
+            var constructor = GetConstructorForClass(classSource.Src as ClassAst);
+
+            if (constructor != null)
+            {
+                if (CollectionUtil.IsNullOrEmpty(ast.Args) && !CollectionUtil.IsNullOrEmpty(constructor.Arguments))
+                {
+                    throw new InvalidSyntax("Not enough arguments for constructor arguments");
+                }
+
+                if (ast.Args.Count != constructor.Arguments.Count)
+                {
+                    throw new InvalidSyntax("Not enough arguments for constructor arguments");
+                }
+
+                (classSource.Src as ClassAst).Constructor = constructor;
+            }
         }
     }
 }

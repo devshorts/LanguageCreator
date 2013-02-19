@@ -1024,17 +1024,20 @@ namespace Lang.Tests
                 class human{
                     void init(string id){
                         age = 1;
-                        person = new human();
                         name = id;
+                    }
+
+                    void create(){
+                        person = new human('test');
                     }
 
                     int age = 99;
                     string name = 'jane doe';
+
                     human person;
                 }
 
-                var person = new human();
-                person.init('anton');
+                var person = new human('anton');
 
                 void printPerson(human person){
                     print 'age of  ' + person.name + ' = ';
@@ -1043,6 +1046,7 @@ namespace Lang.Tests
                 }
 
                 person.age = 29;
+                person.create();            
 
                 printPerson(person);
 
@@ -1062,8 +1066,12 @@ namespace Lang.Tests
                 class human{
                     void init(string id){
                         age = 1;
-                        person = new human();
+                        
                         name = id;
+                    }
+
+                    void create(){
+                        person = new human('test');
                     }
 
                     void methodProxy(method nameAcceptor){
@@ -1075,8 +1083,7 @@ namespace Lang.Tests
                     human person;
                 }
 
-                var person = new human();
-                person.init('anton');
+                var person = new human('anton');
 
                 var proxyCopy = fun(string i) -> { print i; };
 
