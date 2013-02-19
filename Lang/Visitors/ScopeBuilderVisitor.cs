@@ -648,6 +648,11 @@ namespace Lang.Visitors
 
         public void Visit(ClassAst ast)
         {
+            if (Global == null)
+            {
+                Global = Current;
+            }
+
             var classSymbol = DefineClassSymbol(ast);
 
             Current.Define(classSymbol);
@@ -661,6 +666,9 @@ namespace Lang.Visitors
             ast.Body.Visit(this);
 
             classSymbol.Symbols = ast.Body.CurrentScope.Symbols;
+
+            //redefine the class symbol now with actual symbols
+            Current.Define(classSymbol);
 
             ast.Body.CurrentScope.AllowAllForwardReferences = true;
 
@@ -690,9 +698,9 @@ namespace Lang.Visitors
 
             var classScope = Resolve(declaredSymbol.Type.TypeName) as ClassSymbol;
 
-            if (Global == null)
+            if (classScope == null)
             {
-                Global = Current;
+                classScope = Global.Resolve(declaredSymbol.Type.TypeName) as ClassSymbol;
             }
 
             var oldScope = Current;
@@ -705,6 +713,8 @@ namespace Lang.Visitors
                 {
                     reference.CallingScope = oldScope;
                 }
+
+                reference.CurrentScope = Current;
 
                 reference.Visit(this);
 

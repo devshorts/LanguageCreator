@@ -1089,5 +1089,43 @@ namespace Lang.Tests
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestMethodSpaceInvocationClasses()
+        {
+            var test = @"
+               
+                class bob{
+                    void pr1(int x){
+                        print x;   
+                    }
+                }
+
+                class human{
+                    int x = 0;
+                    
+                    var b = new bob();
+
+                    void pr(){
+                        b.pr1(x);
+                    }
+                }
+
+                var a = new human();
+
+                var b = new human();
+
+                a.x = 5;
+
+                a.pr();
+
+                b.pr();
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
     }
 }
