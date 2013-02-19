@@ -1099,6 +1099,11 @@ namespace Lang.Tests
                     int y = 1;
 
                     void pr1(method x){
+
+                        var a = new human();
+                        a.y = 100;
+
+                        print a.y;
                         print x();   
                     }
                 }
@@ -1108,7 +1113,8 @@ namespace Lang.Tests
                     
                     var b = new bob();
 
-                    void pr(method z){                                             
+                    void pr(method z){ 
+                                                                    
                         b.pr1(z);
                     }
                 }

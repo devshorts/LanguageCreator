@@ -463,8 +463,12 @@ namespace Lang.Visitors
 
                 var space = MemorySpaces.Current;
 
-                resolvedMethod.Environment = space;
-                    
+                if (variableValue is LambdaDeclr)
+                {
+                    // build out referenced environmental from what is in the method
+                    resolvedMethod.Environment = space;
+                }
+
                 space.Define(symbol.Name, resolvedMethod);
             }
         }

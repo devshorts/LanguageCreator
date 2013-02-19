@@ -297,10 +297,16 @@ namespace Lang.Visitors
             }
             catch (Exception ex)
             {
-                if (ResolvingTypes)
+                try
                 {
-                    //
-                    return null;
+                    return Global.Resolve(name);
+                }
+                catch
+                {
+                    if (ResolvingTypes)
+                    {
+                        return null;
+                    }
                 }
 
                 throw;
@@ -309,20 +315,7 @@ namespace Lang.Visitors
 
         private Symbol Resolve(Ast ast)
         {
-            try
-            {
-                return Current.Resolve(ast);
-            }
-            catch (Exception ex)
-            {
-                if (ResolvingTypes)
-                {
-                    //
-                    return null;
-                }
-
-                throw;
-            }
+            return Resolve(ast.Token.TokenValue);
         }
 
         public void Visit(VarDeclrAst ast)
@@ -566,12 +559,17 @@ namespace Lang.Visitors
             {
                 ast.CurrentScope = Current;
 
-                ast.Global = ScopeContainer.Global.Current;
+                ast.Global = Global;
             }
 
-            else if (ast.CurrentScope != null && ast.CurrentScope.Symbols.Count < Current.Symbols.Count)
+            if (ast.CurrentScope != null && ast.CurrentScope.Symbols.Count < Current.Symbols.Count)
             {
                 ast.CurrentScope = Current;
+            }
+
+            if (ast.Global != null && ast.Global.Symbols.Count < Global.Symbols.Count)
+            {
+                ast.Global = Global;
             }
         }
 
@@ -643,6 +641,11 @@ namespace Lang.Visitors
         {
             LambdaDeclr.LambdaCount = 0;
 
+            if (ast.Global != null)
+            {
+                Global = ast.Global;
+            }
+
             ast.Visit(this);
         }
 
@@ -674,6 +677,11 @@ namespace Lang.Visitors
 
             ScopeTree.PopScope();
 
+            if (ast.Global == null)
+            {
+                ast.Global = Global;
+            }
+
             SetScopeType(ScopeType.Global);
         }
 
@@ -695,6 +703,11 @@ namespace Lang.Visitors
             }
 
             var declaredSymbol = Resolve(ast.ClassInstance);
+
+            if (declaredSymbol == null)
+            {
+                throw new UndefinedElementException(string.Format("Class instance '{0}' does not exist in current scope", ast.ClassInstance.Token.TokenValue));
+            }
 
             var classScope = Resolve(declaredSymbol.Type.TypeName) as ClassSymbol;
 
@@ -763,7 +776,7 @@ namespace Lang.Visitors
 
                 if (className == null)
                 {
-                    className = ScopeContainer.Global.Current.Resolve(ast.Name);
+                    className = ast.Global.Resolve(ast.Name);
 
                     if (className == null)
                     {
