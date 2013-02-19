@@ -11,6 +11,8 @@ namespace Lang.Symbols
     {
         public MethodDeclr MethodDeclr { get; private set; }
 
+        public MemorySpace Environment { get; set; }
+
         public MethodSymbol(string name, IType returnType, MethodDeclr declr)
             : base(name, returnType)
         {

@@ -15,6 +15,8 @@ namespace Lang.Visitors
     {
         private ScopeStack<MemorySpace> MemorySpaces { get; set; }
 
+        public MemorySpace Environment { get; set; }
+
         public MemorySpace Global { get; set; }
 
         public InterpretorVisitor()
@@ -335,28 +337,18 @@ namespace Lang.Visitors
                     funcInvoke.Arguments.ForEach(arg => arg.CallingMemory = funcInvoke.CallingMemory);
                 }
 
-                if (invoker != null && invoker.MethodDeclr.CallingMemory != null)
+                MemorySpace oldEnvironment = Environment;
+
+                if (invoker != null && invoker.Environment != null)
                 {
-                    var oldMemory = MemorySpaces.Current;
-
-                    if (invoker.MethodDeclr.CallingMemory != MemorySpaces.Current)
-                    {
-                        // merge lambda spaces with the current space so we can get their
-                        // environment
-                        foreach (var item in invoker.MethodDeclr.CallingMemory.Values)
-                        {
-                            MemorySpaces.Current.Values.Add(item.Key, item.Value);
-                        }
-                    }
-
-                    var result = InvokeMethodSymbol(invoker, funcInvoke.Arguments);
-
-                    MemorySpaces.Current = oldMemory;
-
-                    return result;
+                    Environment = invoker.Environment;
                 }
 
-                return InvokeMethodSymbol(invoker, funcInvoke.Arguments);
+                var value = InvokeMethodSymbol(invoker, funcInvoke.Arguments);
+
+                Environment = oldEnvironment;
+
+                return value;
             }
 
             throw new UndefinedElementException("Undefined method");
@@ -471,7 +463,7 @@ namespace Lang.Visitors
 
                 var space = MemorySpaces.Current;
 
-                resolvedMethod.MethodDeclr.CallingMemory = space;
+                resolvedMethod.Environment = space;
                     
                 space.Define(symbol.Name, resolvedMethod);
             }
@@ -499,13 +491,16 @@ namespace Lang.Visitors
 
         private dynamic Get(Ast ast)
         {
-            object item;
-            
-            item = MemorySpaces.Current.Get(ast.Token.TokenValue);
+            object item = MemorySpaces.Current.Get(ast.Token.TokenValue);
 
             if (ast.CallingMemory != null && item == null)
             {
                 item = ast.CallingMemory.Get(ast.Token.TokenValue);
+            }
+
+            if (item == null && Environment != null)
+            {
+                item = Environment.Get(ast.Token.TokenValue);
             }
 
             return item;
