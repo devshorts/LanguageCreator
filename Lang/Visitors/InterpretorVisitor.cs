@@ -15,12 +15,13 @@ namespace Lang.Visitors
     {
         private ScopeStack<MemorySpace> MemorySpaces { get; set; }
 
-        public MemorySpace Environment { get; set; }
+        public Stack<MemorySpace> Environment { get; set; }
 
         public MemorySpace Global { get; set; }
 
         public InterpretorVisitor()
         {
+            Environment = new Stack<MemorySpace>();
             MemorySpaces = new ScopeStack<MemorySpace>();
         }
 
@@ -216,7 +217,7 @@ namespace Lang.Visitors
         {
             var oldSpace = MemorySpaces.Current;
 
-            var memorySpace = Get(classReference.ClassInstance) as MemorySpace;
+            var memorySpace = Get(classReference.ClassInstance).Value as MemorySpace;
 
             MemorySpaces.Current = memorySpace;
 
@@ -235,7 +236,7 @@ namespace Lang.Visitors
                         deref.CallingMemory = oldSpace;
                     }
 
-                    var newSpace = Exec(deref);
+                    var newSpace = GetValue(Exec(deref));
 
                     if (count == classReference.Deferences.Count - 1)
                     {
@@ -266,7 +267,7 @@ namespace Lang.Visitors
 
             Exec(forLoop.Setup);
 
-            while (Exec(forLoop.Predicate))
+            while (GetValue(Exec(forLoop.Predicate)))
             {
                 Exec(forLoop.Update);
 
@@ -292,7 +293,7 @@ namespace Lang.Visitors
         {
             MemorySpaces.CreateScope();
 
-            while (Exec(whileLoop.Predicate))
+            while (GetValue(Exec(whileLoop.Predicate)))
             {
                 whileLoop.Body.ScopedStatements.ForEach(statement => Exec(statement));
             }
@@ -346,21 +347,30 @@ namespace Lang.Visitors
                     funcInvoke.Arguments.ForEach(arg => arg.CallingMemory = funcInvoke.CallingMemory);
                 }
 
-                MemorySpace oldEnvironment = Environment;
-
+                var needPop = false;
                 if (invoker != null && invoker.Environment != null)
                 {
-                    Environment = invoker.Environment;
+                    Environment.Push(invoker.Environment);
+
+                    needPop = true;
                 }
 
                 var value = InvokeMethodSymbol(invoker, funcInvoke.Arguments);
 
-                Environment = oldEnvironment;
+                if (needPop)
+                {
+                    Environment.Pop();
+                }
 
                 return value;
             }
 
             throw new UndefinedElementException("Undefined method");
+        }
+
+        private dynamic GetValue(dynamic value)
+        {
+            return value is ValueMemory ? (value as ValueMemory).Value : value;
         }
 
         private object InvokeMethodSymbol(MethodSymbol method, List<Ast> args)
@@ -389,7 +399,7 @@ namespace Lang.Visitors
                     MemorySpaces.Current = currentArgument.CallingMemory;
                 }
 
-                var value = Exec(currentArgument);
+                var value = GetValue(Exec(currentArgument));
 
                 MemorySpaces.Current = oldmemory;
 
@@ -453,7 +463,7 @@ namespace Lang.Visitors
             // if the rhs of a variable is not a method, then execute it, 
             if (variableValue.AstType != AstTypes.MethodDeclr)
             {
-                var value = Exec(variableValue);
+                var value = GetValue(Exec(variableValue));
 
                 if (value != null)
                 {
@@ -474,7 +484,6 @@ namespace Lang.Visitors
 
                 if (variableValue is LambdaDeclr)
                 {
-                    // build out referenced environmental from what is in the method
                     resolvedMethod.Environment = space;
                 }
 
@@ -484,39 +493,64 @@ namespace Lang.Visitors
 
         private void Print(PrintAst ast)
         {
-            var expression = Exec(ast.Expression);
+            var expression = GetValue(Exec(ast.Expression));
 
             Console.WriteLine(expression);
         }
 
         private void Assign(Ast ast, dynamic value, MemorySpace space = null)
         {
+            if (value is ValueMemory)
+            {
+                var tup = value as ValueMemory;
+
+                tup.Memory.Assign(ast.Token.TokenValue, tup.Value);
+
+                return;
+            }
+
             if (space != null)
             {
                 space.Assign(ast.Token.TokenValue, value);
+                return;
             }
 
-            else
-            {
-                MemorySpaces.Current.Assign(ast.Token.TokenValue, value);
-            }
+            MemorySpaces.Current.Assign(ast.Token.TokenValue, value);
         }
 
-        private dynamic Get(Ast ast)
+        private ValueMemory Get(Ast ast)
         {
-            object item = MemorySpaces.Current.Get(ast.Token.TokenValue);
+            object item;
 
-            if (ast.CallingMemory != null && item == null)
+            if (Environment.Count > 0)
             {
-                item = ast.CallingMemory.Get(ast.Token.TokenValue);
+                foreach (var env in Environment)
+                {
+                    item = env.Get(ast.Token.TokenValue, true);
+                    if (item != null)
+                    {
+                        //return item;
+                        return new ValueMemory(item, env);
+                    }
+                }
             }
 
-            if (item == null && Environment != null)
+            item = MemorySpaces.Current.Get(ast.Token.TokenValue);
+
+            if (item != null)
             {
-                item = Environment.Get(ast.Token.TokenValue);
+                return new ValueMemory(item, MemorySpaces.Current);
             }
 
-            return item;
+            if (ast.CallingMemory != null)
+            {
+                return new ValueMemory(ast.CallingMemory.Get(ast.Token.TokenValue), ast.CallingMemory);
+            }
+
+            
+
+
+            return null;
         }
 
         private dynamic Expression(Expr ast)
@@ -544,14 +578,16 @@ namespace Lang.Visitors
                                                          classRef.Deferences.Take(classRef.Deferences.Count - 1)
                                                                  .ToList());
 
-                        var space = Exec(fakeRef);
+                        var space = GetValue(Exec(fakeRef));
 
                         Assign(lastItem, Exec(rhs), space);
                     }
 
                     else
                     {
-                        Assign(lhs, Exec(rhs));
+                        ValueMemory itemSpace = Get(lhs);
+
+                        Assign(lhs, Exec(rhs), itemSpace != null ? itemSpace.Memory : null);
                     }
                     return null;
 
@@ -584,8 +620,11 @@ namespace Lang.Visitors
 
         private object ApplyOperation(Expr ast)
         {
-            dynamic left = Exec(ast.Left);
-            dynamic right = Exec(ast.Right);
+            dynamic leftExec = Exec(ast.Left);
+            dynamic rightExec = Exec(ast.Right);
+
+            var left = leftExec is ValueMemory ? (leftExec as ValueMemory).Value : leftExec;
+            var right = rightExec is ValueMemory ? (rightExec as ValueMemory).Value : rightExec;
 
             switch (ast.Token.TokenType)
             {

@@ -138,7 +138,7 @@ namespace Lang.Visitors
                 return null;
             }
 
-            if (left.AstSymbolType.ExpressionType != right.AstSymbolType.ExpressionType)
+            if (!TokenUtil.EqualOrPromotable(left.AstSymbolType.ExpressionType, right.AstSymbolType.ExpressionType))
             {
                 throw new Exception("Mismatched types");
             }
@@ -526,7 +526,7 @@ namespace Lang.Visitors
                 return;
             }
 
-            if (returnStatementType.ExpressionType != delcaredSymbol.ExpressionType)
+            if (!TokenUtil.EqualOrPromotable(returnStatementType.ExpressionType, delcaredSymbol.ExpressionType))
             {
                 throw new InvalidSyntax(String.Format("Return type {0} for function {1} is not of the same type of declared method (type {2})",
                     returnStatementType.ExpressionType, symbol.Name, delcaredSymbol.ExpressionType));

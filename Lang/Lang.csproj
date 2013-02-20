@@ -67,6 +67,7 @@
     <Compile Include="AST\VarDeclrAst.cs" />
     <Compile Include="AST\WhileLoop.cs" />
     <Compile Include="Data\SpecialNames.cs" />
+    <Compile Include="Data\ValueMemory.cs" />
     <Compile Include="Exceptions\ReturnException.cs" />
     <Compile Include="Exceptions\UndefinedElementException.cs" />
     <Compile Include="Matches\MatchNumber.cs" />

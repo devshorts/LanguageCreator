@@ -208,7 +208,7 @@ print foo.x.z;
 
 Example 8
 ===
-```
+```csharp
 class anton{
     var x = fun() -> { return new anton(); };
     int y = 10;
@@ -229,7 +229,7 @@ print dynamicAnton.y;
 
 Example 9 (forward referencing and object passing)
 ===
-```
+```csharp
 class human{
     void init(string id){
         age = 1;
@@ -265,6 +265,56 @@ age of  anton =
 age of  jane doe = 
 99
 ----
+```      
+
+Example 10 basic closures
+
+```csharp
+class bob{
+    int x = 0;
+    string pr1(method x){
+        return x('test') + ' in class bob pr1';   
+    }
+}
+
+class human{
+    int x = 1;
+                    
+    var b = new bob();
+
+    void pr(method z){                                                                     
+        print b.pr1(z) + ' from class human pr';
+    }
+}
+
+var a = new human();
+var b = new bob();
+
+int x = 100;
+var lambda = fun(string v) ->{
+                    var p = fun() -> { 
+                                x = x + 1;
+                                print x;
+                                print v + ' in second lambda'; 
+                            };
+                    p();
+                    return v;      
+                };
+
+a.pr(lambda);
+
+print b.pr1(lambda) + ' from main';
+
+print x;
+```
+
+```
+102
+test in second lambda
+test in class bob pr1 from class human pr
+102
+test in second lambda
+test in class bob pr1 from main
 ```
 
 Notes

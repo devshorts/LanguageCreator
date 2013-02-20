@@ -36,6 +36,8 @@ namespace Lang.Utils
         public static bool EqualOrPromotable(ExpressionTypes item1, ExpressionTypes item2)
         {
             return item1 == item2 ||
+                   item1 == ExpressionTypes.Method ||
+                   item2 == ExpressionTypes.Method || 
                    item1 == ExpressionTypes.Inferred ||
                    item2 == ExpressionTypes.Inferred ||
                    item2 == ExpressionTypes.Nil || item1 == ExpressionTypes.Nil;

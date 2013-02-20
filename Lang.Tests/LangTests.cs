@@ -643,9 +643,9 @@ namespace Lang.Tests
         public void TestCurrying()
         {
             var test = @"
-                        var func(string printer, int x){
+                        void func(string printer, int y){
                             print printer;
-                            print x;
+                            print y;
                         }
             
                         var curry = func('anton');
@@ -1140,6 +1140,54 @@ namespace Lang.Tests
                 b.y = 20;
 
                 b.pr1(lambda);
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        public void TestMethodSpaceInvocationClasses2()
+        {
+            var test = @"
+               
+                class bob{
+                    int x = 0;
+                    string pr1(method x){
+                        return x('test') + ' in class bob pr1';   
+                    }
+                }
+
+                class human{
+                    int x = 1;
+                    
+                    var b = new bob();
+
+                    void pr(method z){                                                                     
+                        print b.pr1(z) + ' from class human pr';
+                    }
+                }
+
+                var a = new human();
+                var b = new bob();
+
+                int x = 100;
+                var lambda = fun(string v) ->{
+                                 var p = fun() -> { 
+                                                x = x + 1;
+                                                print x;
+                                                print v + ' in second lambda'; 
+                                            };
+                                 p();
+                                 return v;      
+                             };
+
+                a.pr(lambda);
+
+                print b.pr1(lambda) + ' from main';
+
+                print x;
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

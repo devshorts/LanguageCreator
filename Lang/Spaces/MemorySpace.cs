@@ -45,7 +45,7 @@ namespace Lang.Symbols
             }
         }
 
-        public object Get(string name)
+        public object Get(string name, bool local = false)
         {
             object o;
             if (Values.TryGetValue(name, out o))
@@ -53,7 +53,7 @@ namespace Lang.Symbols
                 return o;
             }
 
-            if (EnclosingSpace != null)
+            if (EnclosingSpace != null && local == false)
             {
                 return EnclosingSpace.Get(name);
             }
