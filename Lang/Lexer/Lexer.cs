@@ -8,10 +8,10 @@ namespace Lang
 {
     public class Lexer : LexableStreamBase<String>
     {
-        public Lexer(String source) : base(() => source.ToCharArray().Select(i => i.ToString(CultureInfo.InvariantCulture)).ToList())
+        public Lexer(String source)
+            : base(() => source.ToCharArray().Select(i => i.ToString(CultureInfo.InvariantCulture)).ToList())
         {
-            
-        }
 
+        }
     }
 }

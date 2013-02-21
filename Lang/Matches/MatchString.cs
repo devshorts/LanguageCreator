@@ -21,7 +21,7 @@ namespace Lang.Matches
 
         protected override Token IsMatchImpl(Lexer lexer)
         {
-            String str = null;
+            var str = new StringBuilder();
 
             if (lexer.Current == StringDelim)
             {
@@ -29,7 +29,7 @@ namespace Lang.Matches
 
                 while (!lexer.End() && lexer.Current != StringDelim)
                 {
-                    str += lexer.Current;
+                    str.Append(lexer.Current);
                     lexer.Consume();
                 }
 
@@ -39,9 +39,9 @@ namespace Lang.Matches
                 }
             }
 
-            if (str != null)
+            if (str.Length > 0)
             {
-                return new Token(TokenType.QuotedString, str);
+                return new Token(TokenType.QuotedString, str.ToString());
             }
 
             return null;

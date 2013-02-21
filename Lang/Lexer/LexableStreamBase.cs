@@ -12,7 +12,7 @@ namespace Lang
             Items = extractor();
 
             SnapshotIndexes = new Stack<int>();
-        } 
+        }
 
         private List<T> Items { get; set; }
 

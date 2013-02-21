@@ -37,9 +37,14 @@ namespace Lang.Tests
         [Test]
         public void TestTokenizer()
         {
-            var test = @"function void int ""void int"" {} ->*/test^void,5,6,7";
+            var test = @"function void int ""void int"" {} ->*/test^void,5,6,7 8.0";
 
             var tokens = new Tokenizer(test).Tokenize().ToList();
+
+            foreach (var token in tokens)
+            {
+                Console.WriteLine(token.TokenType + " - " + token.TokenValue);
+            }
         }
 
         [Test]

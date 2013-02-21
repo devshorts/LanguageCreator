@@ -17,7 +17,6 @@ namespace Lang
 
         private List<IMatcher> Matchers { get; set; } 
 
-
         public Tokenizer(String source)
         {
             Lexer = new Lexer(source);

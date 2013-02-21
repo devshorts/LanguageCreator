@@ -342,27 +342,33 @@ namespace Lang.Visitors
                     invoker = MemorySpaces.Current.Get(method.Name) as MethodSymbol;
                 }
 
+                if (funcInvoke.CallingMemory == null)
+                {
+                    funcInvoke.CallingMemory = MemorySpaces.Current;
+                }
+
                 if (funcInvoke.CallingMemory != null && !CollectionUtil.IsNullOrEmpty(funcInvoke.Arguments))
                 {
                     funcInvoke.Arguments.ForEach(arg => arg.CallingMemory = funcInvoke.CallingMemory);
                 }
 
-                var needPop = false;
-                if (invoker != null && invoker.Environment != null)
+                var oldMemory = MemorySpaces.Current;
+
+                try
                 {
-                    Environment.Push(invoker.Environment);
+                    if (invoker.Environment != null)
+                    {
+                        MemorySpaces.Current = invoker.Environment;
+                    }
 
-                    needPop = true;
+                    var value = InvokeMethodSymbol(invoker, funcInvoke.Arguments);
+
+                    return value;
                 }
-
-                var value = InvokeMethodSymbol(invoker, funcInvoke.Arguments);
-
-                if (needPop)
+                finally
                 {
-                    Environment.Pop();
+                    MemorySpaces.Current = oldMemory;
                 }
-
-                return value;
             }
 
             throw new UndefinedElementException("Undefined method");
@@ -480,14 +486,17 @@ namespace Lang.Visitors
 
                 var resolvedMethod = varDeclrAst.CurrentScope.Resolve(variableValue.Token.TokenValue) as MethodSymbol;
 
+                var localMethodCopy = new MethodSymbol(resolvedMethod.Name, resolvedMethod.Type,
+                                                       resolvedMethod.MethodDeclr);
+
                 var space = MemorySpaces.Current;
 
                 if (variableValue is LambdaDeclr)
                 {
-                    resolvedMethod.Environment = space;
+                    localMethodCopy.Environment = space;
                 }
 
-                space.Define(symbol.Name, resolvedMethod);
+                space.Define(symbol.Name, localMethodCopy);
             }
         }
 
