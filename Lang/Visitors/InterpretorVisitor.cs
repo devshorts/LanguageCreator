@@ -194,6 +194,7 @@ namespace Lang.Visitors
             var oldSpace = MemorySpaces.Current;
 
             MemorySpaces.Current = space;
+
             foreach (var symbol in classType.Body.ScopedStatements)
             {
                 Exec(symbol);
@@ -228,9 +229,13 @@ namespace Lang.Visitors
                     return memorySpace;
                 }
 
-                var count = 0;
                 foreach (var deref in classReference.Deferences)
                 {
+                    // make sure that the last dereference knows how to pull
+                    // its arguments, which are from the original memory space and not
+                    // the relative class space. i.e. A.b.foo(x), x is loaded from the 
+                    // space that contains A, not from the space of b.
+
                     if (deref == classReference.Deferences.Last())
                     {
                         deref.CallingMemory = oldSpace;
@@ -238,14 +243,12 @@ namespace Lang.Visitors
 
                     var newSpace = GetValue(Exec(deref));
 
-                    if (count == classReference.Deferences.Count - 1)
+                    if (deref == classReference.Deferences.Last())
                     {
                         return newSpace;
                     }
 
                     MemorySpaces.Current = newSpace;
-
-                    count++;
                 }
             }
             finally
@@ -258,7 +261,7 @@ namespace Lang.Visitors
 
         private void ClassDo(ClassAst classAst)
         {
-            
+            // nothing to do here
         }
 
         private void ForDo(ForLoop forLoop)
@@ -342,6 +345,8 @@ namespace Lang.Visitors
                     invoker = MemorySpaces.Current.Get(method.Name) as MethodSymbol;
                 }
 
+                // arguments should always be resolved from the current calling space
+                // so make sure the invoking function knows which space it comes from
                 if (funcInvoke.CallingMemory == null)
                 {
                     funcInvoke.CallingMemory = MemorySpaces.Current;
@@ -356,6 +361,8 @@ namespace Lang.Visitors
 
                 try
                 {
+                    // if we're a lambda and we have some sort of closure
+                    // set our working space to be that. 
                     if (invoker.Environment != null)
                     {
                         MemorySpaces.Current = invoker.Environment;
@@ -381,6 +388,8 @@ namespace Lang.Visitors
 
         private object InvokeMethodSymbol(MethodSymbol method, List<Ast> args)
         {
+            // create a new memory scope. this is where arguments will get defined
+            // we wont overwrite any memory values since they will all be local here
             MemorySpaces.CreateScope();
 
             var count = 0;
@@ -407,6 +416,9 @@ namespace Lang.Visitors
 
                 var value = GetValue(Exec(currentArgument));
 
+                // since we were just loading values from the argument space
+                // switch back to the current space so we can assign the argument value
+                // into our local working memory
                 MemorySpaces.Current = oldmemory;
 
                 if (expectedArgument.VariableValue == null)
@@ -485,6 +497,11 @@ namespace Lang.Visitors
                 var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
                 var resolvedMethod = varDeclrAst.CurrentScope.Resolve(variableValue.Token.TokenValue) as MethodSymbol;
+
+                // make sure to create a NEW method symbol. this way each time we declare this item
+                // it will create a local copy and get its own memory space for closures.  
+                // if we shared the same method symbol then all instances of the same declaration would share the memory space, 
+                // which may not be what we want given class instances having their own spaces
 
                 var localMethodCopy = new MethodSymbol(resolvedMethod.Name, resolvedMethod.Type,
                                                        resolvedMethod.MethodDeclr);
