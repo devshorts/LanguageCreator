@@ -1253,5 +1253,57 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestMethodSpaceInvocationClasses_WithLinks()
+        {
+            var test = @"
+               
+                class bob{
+                    int x = 0;
+                    string pr1(method x){
+                        return x('test') + ' in class bob pr1';   
+                    }
+                }
+
+                class human{
+                    int x = 1;
+                    
+                    var b = new bob();
+
+                    void pr(method z){                                                                     
+                        print b.pr1(z) + ' from class human pr';
+                    }
+                }
+
+                var a = new human();
+                var b = new bob();
+
+                int y = 100;
+                int f = &y;
+                int x = &f;
+                
+
+                var lambda = fun(string v) ->{
+                                 var p = fun() -> { 
+                                                x = x + 1;
+                                                print x;
+                                                print v + ' in second lambda'; 
+                                            };
+                                 p();
+                                 return v;      
+                             };
+
+                a.pr(lambda);
+
+                print b.pr1(lambda) + ' from main';
+
+                print y;
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

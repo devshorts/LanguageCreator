@@ -357,6 +357,64 @@ print y;
 4
 ```
 
+Example 12 (complex reference linking passing via different memory scopes)
+===
+
+```csharp
+class bob{
+    int x = 0;
+    string pr1(method x){
+        return x('test') + ' in class bob pr1';   
+    }
+}
+
+class human{
+    int x = 1;
+                    
+    var b = new bob();
+
+    void pr(method z){                                                                     
+        print b.pr1(z) + ' from class human pr';
+    }
+}
+
+var a = new human();
+var b = new bob();
+
+int y = 100;
+int f = &y;
+int x = &f;
+                
+
+var lambda = fun(string v) ->{
+                    var p = fun() -> { 
+                                x = x + 1;
+                                print x;
+                                print v + ' in second lambda'; 
+                            };
+                    p();
+                    return v;      
+                };
+
+a.pr(lambda);
+
+print b.pr1(lambda) + ' from main';
+
+print y;
+```
+
+```
+101
+test in second lambda
+test in class bob pr1 from class human pr
+102
+test in second lambda
+test in class bob pr1 from main
+102
+```
+
+(note, this is supposed to have the same result as example 10 which has no links)
+
 Notes
 ===
 Type promotion doesn't exist and neither does inheritance. So you can't print a string and an int on the same line because the expression won't match properly, but thats intentional right now.

@@ -35,7 +35,7 @@ namespace Lang.Symbols
         public void Assign(string name, object value)
         {
             string link;
-            if (Links.TryGetValue(name, out link))
+            while (Links.TryGetValue(name, out link))
             {
                 name = link;
             }
