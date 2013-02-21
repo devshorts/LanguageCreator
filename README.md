@@ -236,18 +236,21 @@ Example 9 (forward referencing and object passing)
 ```csharp
 class human{
     void init(string id){
-        age = 1;
-        person = new human();
+        age = 99;
         name = id;
     }
 
-    int age = 99;
-    string name = 'jane doe';
+    void create(){
+        person = new human('test');
+    }
+
+    int age;
+    string name;
+
     human person;
 }
 
-var person = new human();
-person.init('anton');
+var person = new human('anton');
 
 void printPerson(human person){
     print 'age of  ' + person.name + ' = ';
@@ -256,6 +259,7 @@ void printPerson(human person){
 }
 
 person.age = 29;
+person.create();            
 
 printPerson(person);
 
