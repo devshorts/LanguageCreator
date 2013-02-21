@@ -326,6 +326,36 @@ test in class bob pr1 from main
 102
 ```
 
+Example 11 (basic reference linking)
+===
+
+```csharp
+int x = 1;
+
+int y = &x;
+
+print y;
+
+y = 2;
+
+print x;   
+
+y = 3;
+
+print x;             
+
+x = 4;
+
+print y;
+```
+
+```
+1
+2
+3
+4
+```
+
 Notes
 ===
 Type promotion doesn't exist and neither does inheritance. So you can't print a string and an int on the same line because the expression won't match properly, but thats intentional right now.

@@ -26,6 +26,7 @@ namespace Lang.AST
 
         public Ast ConvertedExpression { get; set; }
 
+        public bool IsLink { get; set; }
 
         public Ast(Token token)
         {

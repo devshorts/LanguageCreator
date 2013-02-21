@@ -9,6 +9,8 @@ namespace Lang.Symbols
     {
         public Dictionary<string, object> Values { get; set; }
 
+        public Dictionary<string, string> Links { get; set; }
+ 
         public MemorySpace EnclosingSpace { get; private set; }
 
         public MemorySpace()
@@ -16,6 +18,8 @@ namespace Lang.Symbols
             Values = new Dictionary<string, object>();
 
             ChildScopes = new List<IScopeable<MemorySpace>>(64);
+
+            Links = new Dictionary<string, string>();
         }
 
         public void Define(string name, object value)
@@ -23,8 +27,19 @@ namespace Lang.Symbols
             Values[name] = value;
         }
 
+        public void Link(string target, string source)
+        {
+            Links[target] = source;
+        }
+
         public void Assign(string name, object value)
         {
+            string link;
+            if (Links.TryGetValue(name, out link))
+            {
+                name = link;
+            }
+
             if (Values.ContainsKey(name))
             {
                 Values[name] = value;
@@ -47,6 +62,13 @@ namespace Lang.Symbols
 
         public object Get(string name, bool local = false)
         {
+            string link;
+
+            if (Links.TryGetValue(name, out link))
+            {
+                return Get(link);
+            }
+
             object o;
             if (Values.TryGetValue(name, out o))
             {

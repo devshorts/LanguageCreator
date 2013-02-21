@@ -367,7 +367,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestScopeTypes()
+        public void TestTypeResolutionUserDefined()
         {
             var test = @"
                         int x = 100 + 1;
@@ -391,7 +391,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestScopeTypes2()
+        public void TestWhileLoop()
         {
             var test = @"
                         int x = 5;
@@ -407,7 +407,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestScopeTypes4()
+        public void TestNestedExpressions()
         {
             var test = @"
                         var x = (1 + 2) + (2 + 3) + 4;
@@ -419,7 +419,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestScopeTypes3()
+        public void TestLambdaAssignments()
         {
             var test = @"
             
@@ -548,7 +548,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestReferences()
+        public void TestAssingingVariableToVariable()
         {
             var test = @"
                          var x = true;
@@ -572,7 +572,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestForwardReferences()
+        public void TestFunctionInternalsBeingForwardReferences()
         {
             var test = @"
                          var func(string printer){
@@ -608,7 +608,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestForwardReferences2()
+        public void TestCallingFunctionAsForwardReferences()
         {
             var test = @"
                          string item = func(""test"");
@@ -737,7 +737,7 @@ namespace Lang.Tests
 
         [Test]
         [ExpectedException(typeof(InvalidSyntax))]
-        public void TestInvalidAssignment()
+        public void TestInvalidTypeAssignment()
         {
             var test = @"
                         int x = 1.0;
@@ -767,7 +767,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestArgumentInfer()
+        public void TestArgumentInferWithLambdasAsMethodPassing()
         {
             var test = @"
                         var func(method printer, method printer2){
@@ -786,7 +786,7 @@ namespace Lang.Tests
         }
 
         [Test]
-        public void TestArgumentInfer2()
+        public void TestArgumentInferAndTypeCheckWithLambdasAsMethods()
         {
             var test = @"
                         var func(method printer, method printer2){
@@ -794,9 +794,9 @@ namespace Lang.Tests
                             printer2();
                         }
            
-                        var x = fun() -> { print 'curried'; return 1; };
-                        var two = fun() -> { print 'second function'; };
-                        var three = fun() -> { print 'third function'; };
+                        var x = fun() -> { print 'x'; return 1; };
+                        var two = fun() -> { print 'two function'; };
+                        var three = fun() -> { print 'three function'; };
                         var z = func(x);
                         z(two);
                         z(three);
@@ -1055,7 +1055,7 @@ namespace Lang.Tests
 
                 printPerson(person);
 
-                printPerson(person.person);
+                printPerson(person.person); 
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
@@ -1068,33 +1068,33 @@ namespace Lang.Tests
         {
             var test = @"
                
-                class human{
-                    void init(string id){
-                        age = 1;
+class human{
+    void init(string id){
+        age = 1;
                         
-                        name = id;
-                    }
+        name = id;
+    }
 
-                    void create(){
-                        person = new human('test');
-                    }
+    void create(){
+        person = new human('test');
+    }
 
-                    void methodProxy(method nameAcceptor){
-                        nameAcceptor(name);
-                    }
+    void methodProxy(method nameAcceptor){
+        nameAcceptor(name);
+    }
 
-                    int age = 99;
-                    string name = 'jane doe';
-                    human person;
-                }
+    int age = 99;
+    string name = 'jane doe';
+    human person;
+}
 
-                var person = new human('anton');
+var person = new human('anton');
 
-                var proxyCopy = fun(string i) -> { print i; };
+var proxyCopy = fun(string i) -> { print i; };
 
-                person.methodProxy(proxyCopy);
+person.methodProxy(proxyCopy);
 
-                person.methodProxy(fun(string i) -> { print i + 'proxy'; });
+person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
@@ -1218,6 +1218,35 @@ namespace Lang.Tests
                 a.x = new bob();
 
                 print a.x.x;
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        public void TestBasicLinks()
+        {
+            var test = @"
+               
+                int x = 1;
+
+                int y = &x;
+
+                print y;
+
+                y = 2;
+
+                print x;   
+
+                y = 3;
+
+                print x;             
+
+                x = 4;
+
+                print y;
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

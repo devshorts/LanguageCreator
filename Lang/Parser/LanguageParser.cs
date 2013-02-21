@@ -534,7 +534,18 @@ namespace Lang.Parser
 
                 TokenStream.Take(TokenType.Equals);
 
-                return new VarDeclrAst(type, name, Expression());
+                bool isLink = false;
+                if (TokenStream.Current.TokenType == TokenType.Ampersand)
+                {
+                    isLink = true;
+                    TokenStream.Take(TokenType.Ampersand);
+                }
+
+                var expr = Expression();
+
+                expr.IsLink = isLink;
+
+                return new VarDeclrAst(type, name, expr);
             }
 
             return null;

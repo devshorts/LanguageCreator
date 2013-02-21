@@ -487,8 +487,15 @@ namespace Lang.Visitors
                     var symbol = varDeclrAst.CurrentScope.Resolve(varDeclrAst.VariableName.Token.TokenValue);
 
                     var space = MemorySpaces.Current;
-                    
-                    space.Define(symbol.Name, value);
+
+                    if (variableValue.IsLink)
+                    {
+                        space.Link(symbol.Name, variableValue.Token.TokenValue);
+                    }
+                    else
+                    {
+                        space.Define(symbol.Name, value);
+                    }
                 }
             }
             else
