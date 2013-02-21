@@ -1028,7 +1028,7 @@ namespace Lang.Tests
                
                 class human{
                     void init(string id){
-                        age = 1;
+                        age = 99;
                         name = id;
                     }
 
@@ -1036,8 +1036,8 @@ namespace Lang.Tests
                         person = new human('test');
                     }
 
-                    int age = 99;
-                    string name = 'jane doe';
+                    int age;
+                    string name;
 
                     human person;
                 }

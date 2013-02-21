@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;

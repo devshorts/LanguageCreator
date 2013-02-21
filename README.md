@@ -8,6 +8,10 @@ Supported Constructs
 
 The language supports variable assignment, if/else conditionals declaration, function declaration with variable arguments, anonymous functions, and quoted strings.  It also supports simple type inference and basic classes. Supported built in types are int, float, string, void, and bool. Booleans are "true" and "false".  Operations are +, -, & (and), || (or), /, and ^.   Anonymous lambdas can take arguments and return values when stored in a type inferred "var" variable.  Regular functions can also be declared as "var" and type inferred from their return types. You can enforce static typing rules by giving a function a proper type, otherwise it'll just use the return type. If no return statement exists it'll default to void.  Partial functions are also supported.
 
+Closures can reference their parent's memory space but not their callers memory space.  
+
+If a class has a function called "init" then that is treated as the constructor and is called when a class is created.  
+
 Example1
 ====
 
@@ -309,12 +313,13 @@ print x;
 ```
 
 ```
-102
+101
 test in second lambda
 test in class bob pr1 from class human pr
 102
 test in second lambda
 test in class bob pr1 from main
+102
 ```
 
 Notes
