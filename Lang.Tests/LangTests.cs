@@ -1322,12 +1322,13 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
         {
             var test = @"
                
-                void printNull(test item){
-                    if(item == nil){
+                void printNull(var d){
+                    if(d == nil){
                         print 'is nil';
                     }
                     else {
                         print 'is not nil';
+                        print d;
                     }
                 }
 
@@ -1336,11 +1337,11 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
 
                 test item;
                 
-                printNull(item);
+                printNull(item);  
 
-                item = new test();
+                int x = 2;
 
-                printNull(item);                     
+                printNull(x);                
            ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

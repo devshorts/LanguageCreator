@@ -333,7 +333,16 @@ namespace Lang.Visitors
                 ast.AstSymbolType = symbol.Type;
             }
 
-            if (ast.VariableValue != null)
+            if (ast.VariableValue == null && isVar)
+            {
+                var symbol = DefineUserSymbol(ast.DeclarationType, ast.VariableName);
+
+                DefineToScope(ast, symbol);
+
+                ast.AstSymbolType = symbol.Type;
+            }
+
+            else if (ast.VariableValue != null)
             {
                 ast.VariableValue.Visit(this);
 
