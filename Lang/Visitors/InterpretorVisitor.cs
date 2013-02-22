@@ -105,6 +105,22 @@ namespace Lang.Visitors
             Exec(ast);
         }
 
+        public void Visit(TryCatchAst ast)
+        {
+            try
+            {
+                Exec(ast.TryBody);
+            }
+            catch (ReturnException ex)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                Exec(ast.CatchBody);
+            }
+        }
+
         private dynamic Exec(Ast ast)
         {
             try

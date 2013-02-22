@@ -19,5 +19,6 @@ namespace Lang.Visitors
         void Visit(ClassAst ast);
         void Visit(ClassReference ast);
         void Visit(NewAst ast);
+        void Visit(TryCatchAst ast);
     }
 }

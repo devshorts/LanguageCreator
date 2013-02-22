@@ -817,6 +817,16 @@ namespace Lang.Visitors
             SetScope(ast);
         }
 
+        public void Visit(TryCatchAst ast)
+        {
+            ast.TryBody.Visit(this);
+
+            if (ast.CatchBody != null)
+            {
+                ast.CatchBody.Visit(this);
+            }
+        }
+
         private void ValidateClassConstructorArgs(NewAst ast, ClassSymbol classSource)
         {
             if (!ResolvingTypes)

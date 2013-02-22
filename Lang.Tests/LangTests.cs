@@ -1413,5 +1413,29 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestTryCatch()
+        {
+            var test = @"
+               
+                class test{
+                    int x;
+                }
+
+                test item;
+
+                try{
+                    print item.x;
+                }
+                catch{
+                    print 'exception!';
+                }
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

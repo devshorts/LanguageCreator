@@ -64,6 +64,7 @@
     <Compile Include="AST\PrintAst.cs" />
     <Compile Include="AST\ReturnAst.cs" />
     <Compile Include="AST\ScopeDeclr.cs" />
+    <Compile Include="AST\TryCatchAst.cs" />
     <Compile Include="AST\VarDeclrAst.cs" />
     <Compile Include="AST\WhileLoop.cs" />
     <Compile Include="Data\SpecialNames.cs" />

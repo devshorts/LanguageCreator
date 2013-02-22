@@ -99,16 +99,17 @@ namespace Lang.Parser
         private Ast Expression()
         {
             // ordering here matters since it resolves to precedence
-            var ast = ScopeStart().Or(LambdaStatement)
-                                  .Or(VariableDeclWithAssignStatement)
-                                  .Or(VariableDeclrStatement)
-                                  .Or(GetIf)
-                                  .Or(GetWhile)
-                                  .Or(GetFor)
-                                  .Or(GetReturn)
-                                  .Or(PrintStatement)
-                                  .Or(New)
-                                  .Or(OperationExpression);
+            var ast = TryCatch().Or(ScopeStart)
+                                .Or(LambdaStatement)
+                                .Or(VariableDeclWithAssignStatement)
+                                .Or(VariableDeclrStatement)
+                                .Or(GetIf)
+                                .Or(GetWhile)
+                                .Or(GetFor)
+                                .Or(GetReturn)
+                                .Or(PrintStatement)
+                                .Or(New)
+                                .Or(OperationExpression);
 
             if (ast != null)
             {
@@ -116,6 +117,28 @@ namespace Lang.Parser
             }
 
             throw new InvalidSyntax(String.Format("Unknown expression type {0} - {1}", TokenStream.Current.TokenType, TokenStream.Current.TokenValue));
+        }
+
+        private Ast TryCatch()
+        {
+            if (TokenStream.Current.TokenType == TokenType.Try)
+            {
+                TokenStream.Take(TokenType.Try);
+
+                var tryBody = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+
+                ScopeDeclr catchBody = null;
+                if (TokenStream.Current.TokenType == TokenType.Catch)
+                {
+                    TokenStream.Take(TokenType.Catch);
+
+                    catchBody = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+                }
+
+                return new TryCatchAst(tryBody, catchBody);
+            }
+
+            return null;
         }
 
         private Ast New()

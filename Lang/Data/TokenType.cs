@@ -47,6 +47,9 @@
         New,
         Compare,
         Nil,
-        NotCompare
+        NotCompare,
+        Try,
+        Catch
+
     }
 }
