@@ -415,6 +415,37 @@ test in class bob pr1 from main
 
 (note, this is supposed to have the same result as example 10 which has no links)
 
+Example 13 - nil comparison
+===
+
+```csharp
+void printNull(int item){
+    if(item == nil){
+        print 'is nil';
+    }
+    else {
+        print 'is not nil';
+    }
+}
+
+int x;
+                
+int y = 1;
+                
+printNull(x);
+printNull(y);
+    
+x = 2;
+
+printNull(x);
+```          
+
+```
+is nil
+is not nil
+is not nil
+```
+
 Notes
 ===
 Type promotion doesn't exist and neither does inheritance. So you can't print a string and an int on the same line because the expression won't match properly, but thats intentional right now.
