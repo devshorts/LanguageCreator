@@ -673,9 +673,28 @@ namespace Lang.Visitors
         private object ApplyOperation(Expr ast)
         {
             dynamic leftExec = Exec(ast.Left);
-            dynamic rightExec = Exec(ast.Right);
 
             var left = leftExec is ValueMemory ? (leftExec as ValueMemory).Value : leftExec;
+            // short circuit
+            if (ast.Token.TokenType == TokenType.Or)
+            {
+                if (left is bool && left == true)
+                {
+                    return true;
+                }
+            }
+
+            if (ast.Token.TokenType == TokenType.Compare)
+            {
+                if (left is bool && left == false)
+                {
+                    return false;
+                }
+            }
+
+            dynamic rightExec = Exec(ast.Right);
+
+            
             var right = rightExec is ValueMemory ? (rightExec as ValueMemory).Value : rightExec;
 
             switch (ast.Token.TokenType)

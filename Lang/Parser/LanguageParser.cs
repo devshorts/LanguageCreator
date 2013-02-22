@@ -679,6 +679,7 @@ namespace Lang.Parser
             return !(statement is MethodDeclr || 
                      statement is Conditional || 
                      statement is WhileLoop || 
+                     statement is TryCatchAst || 
                      statement is ForLoop);
         }
 

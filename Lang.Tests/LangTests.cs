@@ -1323,18 +1323,13 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
             var test = @"
                
                 void printNull(var d){
-                    if(d == nil){
-                        print 'is nil';
+                    try{
+                        if((d == nil) || (d.z == nil)){
+                            print 'is nil';
+                        }   
                     }
-                    else {
-                        print 'd is not null';
-                        if(d.z == nil){
-                            print 'd.z is null';
-                        }
-                        else{
-                            print 'is not nil';
-                            print d.z;
-                        }
+                    catch{
+                        print 'an exception occurred, something was probably nil';
                     }
                 }
 
