@@ -1315,6 +1315,39 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
             new InterpretorVisitor().Start(ast);
         }
 
+
+
+        [Test]
+        public void TestNilClasses()
+        {
+            var test = @"
+               
+                void printNull(test item){
+                    if(item == nil){
+                        print 'is nil';
+                    }
+                    else {
+                        print 'is not nil';
+                    }
+                }
+
+                class test{
+                }
+
+                test item;
+                
+                printNull(item);
+
+                item = new test();
+
+                printNull(item);                     
+           ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
         [Test]
         public void TestNil()
         {
