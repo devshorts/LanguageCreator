@@ -1345,5 +1345,36 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
 
             new InterpretorVisitor().Start(ast);
         }
+
+        [Test]
+        public void TestNotNil()
+        {
+            var test = @"
+               
+                void printNull(int item){
+                    if(item != nil){
+                        print 'is not nil';
+                    }
+                    else {
+                        print 'is nil';
+                    }
+                }
+
+                int x;
+                
+                int y = 1;
+                
+                printNull(x);
+                printNull(y);
+    
+                x = 2;
+
+                printNull(x);
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
     }
 }

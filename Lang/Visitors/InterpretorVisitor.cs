@@ -671,6 +671,13 @@ namespace Lang.Visitors
                     }
 
                     return left == right;
+                case TokenType.NotCompare:
+                    if (left is TokenType || right is TokenType)
+                    {
+                        return !NullTester.NullEqual(left, right);
+                    }
+                    return left != right;
+
                 case TokenType.GreaterThan:
                     return left > right;
                 case TokenType.LessThan:

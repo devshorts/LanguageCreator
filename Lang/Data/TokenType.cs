@@ -46,6 +46,7 @@
         Class,
         New,
         Compare,
-        Nil
+        Nil,
+        NotCompare
     }
 }

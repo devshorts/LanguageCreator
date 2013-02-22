@@ -122,6 +122,7 @@ namespace Lang.Visitors
                 case TokenType.GreaterThan:
                 case TokenType.Compare:
                 case TokenType.LessThan:
+                case TokenType.NotCompare:
                     return new BuiltInType(ExpressionTypes.Boolean);
                 
                 case TokenType.Method:

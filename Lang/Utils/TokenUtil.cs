@@ -26,6 +26,7 @@ namespace Lang.Utils
                 case TokenType.GreaterThan:
                 case TokenType.LessThan:
                 case TokenType.Compare:
+                case TokenType.NotCompare:
                 case TokenType.Ampersand:
                 case TokenType.Or:
                 case TokenType.Slash:
