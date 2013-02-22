@@ -120,6 +120,7 @@ namespace Lang.Visitors
                 case TokenType.Ampersand:
                 case TokenType.Or:
                 case TokenType.GreaterThan:
+                case TokenType.Compare:
                 case TokenType.LessThan:
                     return new BuiltInType(ExpressionTypes.Boolean);
                 

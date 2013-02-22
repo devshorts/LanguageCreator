@@ -101,6 +101,7 @@
     <Compile Include="Lexer\Tokenizer.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="Utils\Maybe.cs" />
+    <Compile Include="Utils\NullTester.cs" />
     <Compile Include="Utils\ScopeUtil.cs" />
     <Compile Include="Utils\TokenUtil.cs" />
     <Compile Include="Visitors\InterpretorVisitor.cs" />

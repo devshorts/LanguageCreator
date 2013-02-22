@@ -77,6 +77,7 @@ namespace Lang
                                         new MatchKeyword(TokenType.RBracket, "}"),
                                         new MatchKeyword(TokenType.Plus, "+"),
                                         new MatchKeyword(TokenType.Minus, "-"),
+                                        new MatchKeyword(TokenType.Compare, "=="),
                                         new MatchKeyword(TokenType.Equals, "="),
                                         new MatchKeyword(TokenType.HashTag, "#"),
                                         new MatchKeyword(TokenType.Comma, ","),

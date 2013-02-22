@@ -45,6 +45,7 @@
         Method,
         Class,
         New,
+        Compare,
         Nil
     }
 }

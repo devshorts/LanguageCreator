@@ -1261,7 +1261,10 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                
                 class bob{
                     int x = 0;
+                    int y = 0;
                     string pr1(method x){
+                        y = y + 1;
+                        print y;
                         return x('test') + ' in class bob pr1';   
                     }
                 }
@@ -1271,13 +1274,16 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                     
                     var b = new bob();
 
-                    void pr(method z){                                                                     
+                    void pr(method z){      
+                        x = x + 1;
+                        print x;                                                                                       
                         print b.pr1(z) + ' from class human pr';
                     }
                 }
 
                 var a = new human();
                 var b = new bob();
+                var c = new bob();
 
                 int y = 100;
                 int f = &y;
@@ -1297,8 +1303,42 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 a.pr(lambda);
 
                 print b.pr1(lambda) + ' from main';
+                print c.pr1(lambda) + ' from main2';
+                print c.pr1(lambda) + ' from main3';
+                print b.y;
 
                 print y;
+                        ";
+
+            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        public void TestNil()
+        {
+            var test = @"
+               
+                void printNull(int item){
+                    if(item == nil){
+                        print 'is nil';
+                    }
+                    else {
+                        print 'is not nil';
+                    }
+                }
+
+                int x;
+                
+                int y = 1;
+                
+                printNull(x);
+                printNull(y);
+    
+                x = 2;
+
+                printNull(x);
                         ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

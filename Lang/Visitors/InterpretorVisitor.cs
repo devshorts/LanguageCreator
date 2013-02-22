@@ -470,7 +470,7 @@ namespace Lang.Visitors
 
                 var space = MemorySpaces.Current;
 
-                space.Define(symbol.Name, null);
+                space.Define(symbol.Name, TokenType.Nil);
 
                 return;
             }
@@ -635,6 +635,9 @@ namespace Lang.Visitors
                 case TokenType.QuotedString:
                     return ast.Token.TokenValue;
 
+                case TokenType.Nil:
+                    return TokenType.Nil;
+
                 case TokenType.True:
                     return true;
 
@@ -650,6 +653,7 @@ namespace Lang.Visitors
             return null;
         }
 
+
         private object ApplyOperation(Expr ast)
         {
             dynamic leftExec = Exec(ast.Left);
@@ -660,6 +664,13 @@ namespace Lang.Visitors
 
             switch (ast.Token.TokenType)
             {
+                case TokenType.Compare:
+                    if (left is TokenType || right is TokenType)
+                    {
+                        return NullTester.NullEqual(left, right);
+                    }
+
+                    return left == right;
                 case TokenType.GreaterThan:
                     return left > right;
                 case TokenType.LessThan:
