@@ -1327,21 +1327,24 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                         print 'is nil';
                     }
                     else {
-                        print 'is not nil';
-                        print d;
+                        print 'd is not null';
+                        if(d.z == nil){
+                            print 'd.z is null';
+                        }
+                        else{
+                            print 'is not nil';
+                            print d.z;
+                        }
                     }
                 }
 
                 class test{
+                    int z;
                 }
 
-                test item;
+                test item = new test();
                 
-                printNull(item);  
-
-                int x = 2;
-
-                printNull(x);                
+                printNull(item);                
            ";
 
             var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);

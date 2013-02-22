@@ -53,5 +53,10 @@ namespace Lang.AST
         /// Used instead of reflection to determine the syntax tree type
         /// </summary>
         public abstract AstTypes AstType { get; }
+
+        /// <summary>
+        /// Pure dynamic's are resolved only at runtime
+        /// </summary>
+        public bool IsPureDynamic { get; set; }
     }
 }

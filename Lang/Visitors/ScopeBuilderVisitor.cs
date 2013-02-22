@@ -283,6 +283,11 @@ namespace Lang.Visitors
 
             if (ResolvingTypes)
             {
+                if (ast.IsPureDynamic)
+                {
+                    return new BuiltInType(ExpressionTypes.Inferred);
+                }
+
                 throw new UndefinedElementException(String.Format("Undefined element {0}",
                                                                           ast.Token.TokenValue));
             }
@@ -747,17 +752,19 @@ namespace Lang.Visitors
 
                 reference.CurrentScope = Current;
 
+                reference.IsPureDynamic = Current == null;
+
                 reference.Visit(this);
 
                 var field = Resolve(reference);
 
 
-                if (field == null)
+                if (field == null && !reference.IsPureDynamic)
                 {
                     throw new InvalidSyntax(String.Format("Class {0} has no field named {1}", declaredSymbol.Type.TypeName, reference.Token.TokenValue));
                 }
 
-                if (field.Type.ExpressionType == ExpressionTypes.UserDefined)
+                if (field != null && field.Type.ExpressionType == ExpressionTypes.UserDefined)
                 {
                     Current = Global.Resolve(field.Type.TypeName) as ClassSymbol;
                 }
