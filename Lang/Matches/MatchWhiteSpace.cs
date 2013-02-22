@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Lexers;
 
 namespace Lang.Matches
 {
     class MatchWhiteSpace : MatcherBase
     {
-        protected override Token IsMatchImpl(Lexer lexer)
+        protected override Token IsMatchImpl(Tokenizer tokenizer)
         {
             bool foundWhiteSpace = false;
 
-            while (!lexer.End() && String.IsNullOrWhiteSpace(lexer.Current))
+            while (!tokenizer.End() && String.IsNullOrWhiteSpace(tokenizer.Current))
             {
                 foundWhiteSpace = true;
 
-                lexer.Consume();
+                tokenizer.Consume();
             }
 
             if (foundWhiteSpace)

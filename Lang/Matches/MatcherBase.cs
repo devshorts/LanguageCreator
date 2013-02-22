@@ -3,34 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Lexers;
 
 namespace Lang.Matches
 {
     public abstract class MatcherBase : IMatcher
     {
-        public Token IsMatch(Lexer lexer)
+        public Token IsMatch(Tokenizer tokenizer)
         {
-            if (lexer.End())
+            if (tokenizer.End())
             {
                 return new Token(TokenType.EOF);
             }
 
-            lexer.TakeSnapshot();
+            tokenizer.TakeSnapshot();
 
-            var match = IsMatchImpl(lexer);
+            var match = IsMatchImpl(tokenizer);
 
             if (match == null)
             {
-                lexer.RollbackSnapshot();
+                tokenizer.RollbackSnapshot();
             }
             else
             {
-                lexer.CommitSnapshot();
+                tokenizer.CommitSnapshot();
             }
 
             return match;
         }
 
-        protected abstract Token IsMatchImpl(Lexer lexer);
+        protected abstract Token IsMatchImpl(Tokenizer tokenizer);
     }
 }

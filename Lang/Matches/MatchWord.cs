@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Lang.Data;
 using Lang.Exceptions;
+using Lang.Lexers;
 
 namespace Lang.Matches
 {
@@ -15,14 +16,14 @@ namespace Lang.Matches
             SpecialCharacters = keywordMatchers.Select(i=>i as MatchKeyword).Where(i=> i != null).ToList();
         }
 
-        protected override Token IsMatchImpl(Lexer lexer)
+        protected override Token IsMatchImpl(Tokenizer tokenizer)
         {
             String current = null;
 
-            while (!lexer.End() && !String.IsNullOrWhiteSpace(lexer.Current) && SpecialCharacters.All(m => m.Match != lexer.Current))
+            while (!tokenizer.End() && !String.IsNullOrWhiteSpace(tokenizer.Current) && SpecialCharacters.All(m => m.Match != tokenizer.Current))
             {
-                current += lexer.Current;
-                lexer.Consume();
+                current += tokenizer.Current;
+                tokenizer.Consume();
             }
 
             if (current == null)

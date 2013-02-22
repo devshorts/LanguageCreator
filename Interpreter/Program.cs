@@ -1,4 +1,4 @@
-﻿using Lang;
+﻿using Lang.Lexers;
 using Lang.Parser;
 using Lang.Visitors;
 
@@ -10,7 +10,7 @@ namespace Interpreter
         {
             var str = args[0];
 
-            var ast = new LanguageParser(new Tokenizer(str)).Parse();
+            var ast = new LanguageParser(new Lexer(str)).Parse();
 
             new InterpretorVisitor().Start(ast);
         }

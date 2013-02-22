@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Lang.Data;
-using Lang.Matches;
+using Lang.Lexers;
 
-namespace Lang
+namespace Lang.Matches
 {
     public class MatchKeyword : MatcherBase
     {
@@ -29,13 +29,13 @@ namespace Lang
             AllowAsSubString = true;
         }
 
-        protected override Token IsMatchImpl(Lexer lexer)
+        protected override Token IsMatchImpl(Tokenizer tokenizer)
         {
             foreach (var character in Match)
             {
-                if (lexer.Current == character.ToString(CultureInfo.InvariantCulture))
+                if (tokenizer.Current == character.ToString(CultureInfo.InvariantCulture))
                 {
-                    lexer.Consume();
+                    tokenizer.Consume();
                 }
                 else
                 {
@@ -47,7 +47,7 @@ namespace Lang
 
             if (!AllowAsSubString)
             {
-                var next = lexer.Current;
+                var next = tokenizer.Current;
 
                 found = String.IsNullOrWhiteSpace(next) || SpecialCharacters.Any(character => character.Match == next);
             }

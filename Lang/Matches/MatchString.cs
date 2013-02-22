@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Lang.Data;
+using Lang.Lexers;
 
 namespace Lang.Matches
 {
     public class MatchString : MatcherBase
     {
-        public static string QUOTE = "\"";
+        public const string QUOTE = "\"";
 
-        public static string TIC = "'";
+        public const string TIC = "'";
 
         private String StringDelim { get; set; }
 
@@ -19,23 +20,23 @@ namespace Lang.Matches
             StringDelim = delim;
         }
 
-        protected override Token IsMatchImpl(Lexer lexer)
+        protected override Token IsMatchImpl(Tokenizer tokenizer)
         {
             var str = new StringBuilder();
 
-            if (lexer.Current == StringDelim)
+            if (tokenizer.Current == StringDelim)
             {
-                lexer.Consume();
+                tokenizer.Consume();
 
-                while (!lexer.End() && lexer.Current != StringDelim)
+                while (!tokenizer.End() && tokenizer.Current != StringDelim)
                 {
-                    str.Append(lexer.Current);
-                    lexer.Consume();
+                    str.Append(tokenizer.Current);
+                    tokenizer.Consume();
                 }
 
-                if (lexer.Current == StringDelim)
+                if (tokenizer.Current == StringDelim)
                 {
-                    lexer.Consume();
+                    tokenizer.Consume();
                 }
             }
 

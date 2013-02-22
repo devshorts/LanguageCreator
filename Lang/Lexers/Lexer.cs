@@ -1,29 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Lang.Data;
-using Lang.Exceptions;
 using Lang.Matches;
 
-
-namespace Lang
+namespace Lang.Lexers
 {
-    public class Tokenizer
+    public class Lexer
     {
-        private Lexer Lexer { get; set; }
+        private Tokenizer Tokenizer { get; set; }
 
         private List<Token> Tokens { get; set; }
 
         private List<IMatcher> Matchers { get; set; } 
 
-        public Tokenizer(String source)
+        public Lexer(String source)
         {
-            Lexer = new Lexer(source);
+            Tokenizer = new Tokenizer(source);
             Tokens = new List<Token>(1024);
         }
 
-        public IEnumerable<Token> Tokenize()
+        public IEnumerable<Token> Lex()
         {
             Matchers = InitializeMatchList();
 
@@ -122,14 +119,14 @@ namespace Lang
 
         private Token Next()
         {
-            if (Lexer.End())
+            if (Tokenizer.End())
             {
                 return new Token(TokenType.EOF);
             }
 
             return 
                  (from match in Matchers
-                 let token = match.IsMatch(Lexer)
+                 let token = match.IsMatch(Tokenizer)
                  where token != null
                  select token).FirstOrDefault();
         }

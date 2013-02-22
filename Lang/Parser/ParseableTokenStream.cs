@@ -4,6 +4,7 @@ using System.Linq;
 using Lang.AST;
 using Lang.Data;
 using Lang.Exceptions;
+using Lang.Lexers;
 
 namespace Lang.Parser
 {
@@ -13,9 +14,9 @@ namespace Lang.Parser
         public int NextIndex { get; set; }
     }
 
-    public class ParseableTokenStream : LexableStreamBase<Token>
+    public class ParseableTokenStream : TokenizableStreamBase<Token>
     {
-        public ParseableTokenStream(Tokenizer tokenizer) : base (() => tokenizer.Tokenize().ToList())
+        public ParseableTokenStream(Lexer lexer) : base (() => lexer.Tokenize().ToList())
         {
         }
 

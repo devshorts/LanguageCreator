@@ -13,9 +13,9 @@ namespace Lang.Parser
 
         private ParseableTokenStream TokenStream { get; set; }
 
-        public LanguageParser(Tokenizer tokenizer)
+        public LanguageParser(Lexers.Lexer lexer)
         {
-            TokenStream = new ParseableTokenStream(tokenizer);
+            TokenStream = new ParseableTokenStream(lexer);
 
             LambdaDeclr.LambdaCount = 1000;
         }

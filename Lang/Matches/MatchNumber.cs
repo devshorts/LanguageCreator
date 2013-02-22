@@ -4,23 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Lang.Data;
+using Lang.Lexers;
 
 namespace Lang.Matches
 {
     public class MatchNumber : MatcherBase
     {
-        protected override Token IsMatchImpl(Lexer lexer)
+        protected override Token IsMatchImpl(Tokenizer tokenizer)
         {
 
-            var leftOperand = GetIntegers(lexer);
+            var leftOperand = GetIntegers(tokenizer);
 
             if (leftOperand != null)
             {
-                if (lexer.Current == ".")
+                if (tokenizer.Current == ".")
                 {
-                    lexer.Consume();
+                    tokenizer.Consume();
 
-                    var rightOperand = GetIntegers(lexer);
+                    var rightOperand = GetIntegers(tokenizer);
 
                     // found a float
                     if (rightOperand != null)
@@ -35,16 +36,16 @@ namespace Lang.Matches
             return null;
         }
 
-        private String GetIntegers(Lexer lexer)
+        private String GetIntegers(Tokenizer tokenizer)
         {
             var regex = new Regex("[0-9]");
 
             String num = null;
 
-            while (lexer.Current != null && regex.IsMatch(lexer.Current))
+            while (tokenizer.Current != null && regex.IsMatch(tokenizer.Current))
             {
-                num += lexer.Current;
-                lexer.Consume();
+                num += tokenizer.Current;
+                tokenizer.Consume();
             }
 
             if (num != null)

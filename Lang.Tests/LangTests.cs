@@ -19,7 +19,7 @@ namespace Lang.Tests
         {
             var test = @"1.01";
 
-            var tokens = new Tokenizer(test).Tokenize().ToList();
+            var tokens = new Lexers.Lexer(test).Tokenize().ToList();
 
             Assert.IsTrue(tokens.Count == 1);
             Assert.IsTrue(tokens.First().TokenType == TokenType.Float);
@@ -31,7 +31,7 @@ namespace Lang.Tests
         {
             var test = @"fun function = 1 print";
 
-            var tokens = new Tokenizer(test).Tokenize().ToList();
+            var tokens = new Lexers.Lexer(test).Tokenize().ToList();
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace Lang.Tests
         {
             var test = @"function void int ""void int"" {} ->*/test^void,5,6,7 8.0";
 
-            var tokens = new Tokenizer(test).Tokenize().ToList();
+            var tokens = new Lexers.Lexer(test).Tokenize().ToList();
 
             foreach (var token in tokens)
             {
@@ -52,7 +52,7 @@ namespace Lang.Tests
         {
             var test = @"x = 1;";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             var expr = (ast.ScopedStatements[0] as Expr);
 
@@ -66,7 +66,7 @@ namespace Lang.Tests
         {
             var test = @"x = 1 + 2;";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             var expr = (ast.ScopedStatements[0] as Expr);
 
@@ -82,7 +82,7 @@ namespace Lang.Tests
         {
             var test = @"(3 + ((1 + 2) + 1));";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             var expr = (ast.ScopedStatements[0] as Expr);
 
@@ -97,7 +97,7 @@ namespace Lang.Tests
                         }
                         x = 1 + 2 ^ (5-7);";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             Assert.IsTrue(ast.ScopedStatements.Count == 3);
             Assert.IsTrue(ast.ScopedStatements[0] is VarDeclrAst);
@@ -115,7 +115,7 @@ namespace Lang.Tests
                         }
                         x = 1 + 2 ^ (5-7);";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
         }
 
@@ -164,7 +164,7 @@ namespace Lang.Tests
                             }
                         }";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             Assert.IsTrue(ast.ScopedStatements.Count == 3);
             Assert.IsTrue(ast.ScopedStatements[0] is MethodDeclr);
@@ -177,7 +177,7 @@ namespace Lang.Tests
         {
             var test = @"test(a, 1 + 2);";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
         }
 
@@ -196,7 +196,7 @@ namespace Lang.Tests
 
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             var topScope = (ast as ScopeDeclr).ScopedStatements[0];
 
@@ -218,7 +218,7 @@ namespace Lang.Tests
                         }
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             var topScope = (ast as ScopeDeclr).ScopedStatements[0];
 
@@ -239,7 +239,7 @@ namespace Lang.Tests
                             var x = 1;
                         }";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
         }
 
         [Test]
@@ -268,7 +268,7 @@ namespace Lang.Tests
 
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             new PrintAstVisitor().Start(ast);
 
@@ -282,7 +282,7 @@ namespace Lang.Tests
                         }
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             var topScope = (ast as ScopeDeclr).ScopedStatements[0];
 
@@ -307,7 +307,7 @@ namespace Lang.Tests
                         }
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             var visitor = new ScopeBuilderVisitor();
 
@@ -326,7 +326,7 @@ namespace Lang.Tests
                         foo();
                         foo();";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             new InterpretorVisitor().Start(ast);
         }
@@ -347,7 +347,7 @@ namespace Lang.Tests
                         foo(1);
                         foo(100);";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             new InterpretorVisitor().Start(ast);
         }
@@ -361,7 +361,7 @@ namespace Lang.Tests
                         z = 4;
                         print (x + 2 + (3 + 4));";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse();
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
             new InterpretorVisitor().Start(ast);
         }
@@ -374,7 +374,7 @@ namespace Lang.Tests
                         T y;
                         var z = 1 > 2;";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             var scopeBuilder = new ScopeBuilderVisitor();
 
@@ -401,7 +401,7 @@ namespace Lang.Tests
                         }
                         print ""done!"";";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -413,7 +413,7 @@ namespace Lang.Tests
                         var x = (1 + 2) + (2 + 3) + 4;
                         print x;";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -454,7 +454,7 @@ namespace Lang.Tests
 
                 print arg;";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -470,7 +470,7 @@ namespace Lang.Tests
                         }
                         print x;";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -495,7 +495,7 @@ namespace Lang.Tests
                         int foo = z();
                         print foo;";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -511,7 +511,7 @@ namespace Lang.Tests
 
                         print foo(""pong"");";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -528,7 +528,7 @@ namespace Lang.Tests
 
                         print foo(""pong"");";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -542,7 +542,7 @@ namespace Lang.Tests
                             print i;                            
                          }";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -566,7 +566,7 @@ namespace Lang.Tests
                          print x;
 ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -586,7 +586,7 @@ namespace Lang.Tests
                         print func(""zing"");
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
 
             new InterpretorVisitor().Start(ast);
@@ -602,7 +602,7 @@ namespace Lang.Tests
                          int y = 0;
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -620,7 +620,7 @@ namespace Lang.Tests
                          print item;
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
 
             new InterpretorVisitor().Start(ast);
@@ -639,7 +639,7 @@ namespace Lang.Tests
                          }                         
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -665,7 +665,7 @@ namespace Lang.Tests
                         otherCurry(3);
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -691,7 +691,7 @@ namespace Lang.Tests
                         otherCurry(3);
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
 
@@ -710,7 +710,7 @@ namespace Lang.Tests
                         func(""asdf"", ""asdf"",""asdf"");
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
 
@@ -729,7 +729,7 @@ namespace Lang.Tests
                         func(""asdf"", ""asdf"");
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
 
@@ -743,7 +743,7 @@ namespace Lang.Tests
                         int x = 1.0;
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
 
@@ -761,7 +761,7 @@ namespace Lang.Tests
                         }
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -780,7 +780,7 @@ namespace Lang.Tests
 
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -803,7 +803,7 @@ namespace Lang.Tests
 
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -826,7 +826,7 @@ namespace Lang.Tests
 
                         ";
 
-            var ast = new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr;
+            var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
 
             new InterpretorVisitor().Start(ast);
         }
@@ -842,7 +842,7 @@ namespace Lang.Tests
 
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr).ScopedStatements.FirstOrDefault() as ClassAst;
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr).ScopedStatements.FirstOrDefault() as ClassAst;
 
             Assert.IsTrue(ast != null);
 
@@ -874,7 +874,7 @@ namespace Lang.Tests
                         print ant.x;                
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -907,7 +907,7 @@ namespace Lang.Tests
                         foo.foo();
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -940,7 +940,7 @@ namespace Lang.Tests
                         print foo.foo();
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -960,7 +960,7 @@ namespace Lang.Tests
                         print foo.p + 2;
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -984,7 +984,7 @@ namespace Lang.Tests
                 print foo.x.z();
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1016,7 +1016,7 @@ namespace Lang.Tests
                 print foo2.x.printer();
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1058,7 +1058,7 @@ namespace Lang.Tests
                 printPerson(person.person); 
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1097,7 +1097,7 @@ person.methodProxy(proxyCopy);
 person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1147,7 +1147,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 b.pr1(lambda);
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1195,7 +1195,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 print x;
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1220,7 +1220,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 print a.x.x;
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1249,7 +1249,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 print y;
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1310,7 +1310,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 print y;
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1342,7 +1342,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 printNull(item);                
            ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1373,7 +1373,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 printNull(x);
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1404,7 +1404,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 printNull(x);
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }
@@ -1428,7 +1428,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 }
                         ";
 
-            var ast = (new LanguageParser(new Tokenizer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
             new InterpretorVisitor().Start(ast);
         }

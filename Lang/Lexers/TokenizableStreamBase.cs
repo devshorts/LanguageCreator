@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Lang
+namespace Lang.Lexers
 {
-    public class LexableStreamBase<T> where T : class
+    public class TokenizableStreamBase<T> where T : class
     {
-        public LexableStreamBase(Func<List<T>> extractor)
+        public TokenizableStreamBase(Func<List<T>> extractor)
         {
             Index = 0;
 

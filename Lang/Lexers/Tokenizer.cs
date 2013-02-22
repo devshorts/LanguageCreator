@@ -1,14 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 
-namespace Lang
+namespace Lang.Lexers
 {
-    public class Lexer : LexableStreamBase<String>
+    public class Tokenizer : TokenizableStreamBase<String>
     {
-        public Lexer(String source)
+        public Tokenizer(String source)
             : base(() => source.ToCharArray().Select(i => i.ToString(CultureInfo.InvariantCulture)).ToList())
         {
 

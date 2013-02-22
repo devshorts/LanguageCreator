@@ -90,8 +90,8 @@
     <Compile Include="Data\Token.cs" />
     <Compile Include="Data\TokenType.cs" />
     <Compile Include="Exceptions\InvalidSyntax.cs" />
-    <Compile Include="Lexer\LexableStreamBase.cs" />
-    <Compile Include="Lexer\Lexer.cs" />
+    <Compile Include="Lexers\TokenizableStreamBase.cs" />
+    <Compile Include="Lexers\Tokenizer.cs" />
     <Compile Include="Matches\IMatcher.cs" />
     <Compile Include="Matches\MatcherBase.cs" />
     <Compile Include="Matches\MatchKeyword.cs" />
@@ -99,7 +99,7 @@
     <Compile Include="Matches\MatchWhiteSpace.cs" />
     <Compile Include="Matches\MatchWord.cs" />
     <Compile Include="Parser\LanguageParser.cs" />
-    <Compile Include="Lexer\Tokenizer.cs" />
+    <Compile Include="Lexers\Lexer.cs" />
     <Compile Include="Utils\ExtensionMethods.cs" />
     <Compile Include="Utils\Maybe.cs" />
     <Compile Include="Utils\NullTester.cs" />
