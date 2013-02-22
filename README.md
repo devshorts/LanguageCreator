@@ -445,6 +445,28 @@ is nil
 is not nil
 is not nil
 ```
+     
+Example 14 - simple exception handling
+===
+
+```csharp
+class test{
+    int x;
+}
+
+test item;
+
+try{
+    print item.x;
+}
+catch{
+    print 'exception!';
+}
+```
+
+```
+exception!
+```
 
 Notes
 ===
