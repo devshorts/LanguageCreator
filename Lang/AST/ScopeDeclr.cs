@@ -26,5 +26,10 @@ namespace Lang.AST
         {
             get { return AstTypes.ScopeDeclr; }
         }
+
+        public override string ToString()
+        {
+            return ScopedStatements.Aggregate("", (item, acc) => acc + item);
+        }
     }
 }

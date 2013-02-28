@@ -1438,18 +1438,18 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
         {
             var test = @"
                
-                var x = 1 + 2;
-                var y = 1 + 2 + 3;
-                var z = (1 + 2) + 3;
-                var a = (1 + 2 ) + (3 + 4);
-                var b = 1 + (2 + 3);
-                var c = 1 + (2 + 3) + 4;
-                var d = (1 + 2 + 3 + 4);
+var x = 1 + 2;
+var y = 1 + 2 + 3;
+var z = (1 + 2) + 3;
+var a = (1 + 2 ) + (3 + 4);
+var b = 1 + (2 + 3);
+var c = 1 + (2 + 3) + 4;
+var d = (1 + 2 + 3 + 4);
+var e = new foo() + 1;
+var f = a.f().z;
                         ";
 
             var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
-
-            new InterpretorVisitor().Start(ast);
         }
     }
 }

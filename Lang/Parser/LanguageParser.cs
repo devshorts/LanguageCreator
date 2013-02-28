@@ -58,7 +58,7 @@ namespace Lang.Parser
         #region Single statement 
 
         /// <summary>
-        /// Method declaration or regular statement
+        /// Class, method declaration or inner statements
         /// </summary>
         /// <returns></returns>
         private Ast Statement()
@@ -71,9 +71,10 @@ namespace Lang.Parser
                 return ast;
             }
 
-
-            // must be an expression if the other two didn't pass
-            var statement = Expression();
+            // must be an inner statement if the other two didn't pass
+            // these are statements that can be inside of scopes such as classes
+            // methods, or just global scope
+            var statement = InnerStatement();
 
             if (TokenStream.Current.TokenType == TokenType.SemiColon)
             {
@@ -88,7 +89,7 @@ namespace Lang.Parser
         /// A statement inside of a valid scope 
         /// </summary>
         /// <returns></returns>
-        private Ast Expression()
+        private Ast InnerStatement()
         {
             // ordering here matters since it resolves to precedence
             var ast = TryCatch().Or(ScopeStart)
@@ -100,8 +101,8 @@ namespace Lang.Parser
                                 .Or(GetFor)
                                 .Or(GetReturn)
                                 .Or(PrintStatement)
-                                .Or(New)
-                                .Or(OperationExpression);
+                                .Or(OperationExpression)
+                                .Or(New);
 
             if (ast != null)
             {
@@ -212,7 +213,7 @@ namespace Lang.Parser
                 {
                     TokenStream.Take(TokenType.Print);
 
-                    var expr = Expression();
+                    var expr = InnerStatement();
 
                     if (expr != null)
                     {
@@ -237,23 +238,20 @@ namespace Lang.Parser
 
         private Ast OperationExpression()
         {
-            if (IsValidOperand())
+            if (IsValidOperand() || TokenStream.Current.TokenType == TokenType.New)
             {
                 return ParseOperationExpression();
             }
 
             switch (TokenStream.Current.TokenType)
             {
-                case TokenType.New:
-                    return New();
-
-                case TokenType.OpenParenth:
+               case TokenType.OpenParenth:
 
                     Func<Ast> basicOp = () =>
                         {
                             TokenStream.Take(TokenType.OpenParenth);
 
-                            var expr = Expression();
+                            var expr = InnerStatement();
 
                             TokenStream.Take(TokenType.CloseParenth);
 
@@ -266,7 +264,7 @@ namespace Lang.Parser
 
                             var op = Operator();
 
-                            var expr = Expression();
+                            var expr = InnerStatement();
 
                             return new Expr(op1, op, expr);
                         };
@@ -331,7 +329,7 @@ namespace Lang.Parser
                 return new ReturnAst();
             }
 
-            return new ReturnAst(Expression());
+            return new ReturnAst(InnerStatement());
         }
 
 
@@ -492,7 +490,7 @@ namespace Lang.Parser
 
             while (TokenStream.Current.TokenType != TokenType.CloseParenth)
             {
-                var argument = includeType ? VariableDeclaration() : Expression();
+                var argument = includeType ? VariableDeclaration() : InnerStatement();
 
                 args.Add(argument);
 
@@ -530,7 +528,7 @@ namespace Lang.Parser
                     TokenStream.Take(TokenType.Ampersand);
                 }
 
-                var expr = Expression();
+                var expr = InnerStatement();
 
                 expr.IsLink = isLink;
 
@@ -560,7 +558,7 @@ namespace Lang.Parser
 
             var equals = TokenStream.Take(TokenType.Equals);
 
-            return new Expr(new Expr(name), equals, Expression());
+            return new Expr(new Expr(name), equals, InnerStatement());
         }
 
         #endregion
@@ -571,6 +569,7 @@ namespace Lang.Parser
         {
             return ClassReferenceStatement().Or(FunctionCallStatement)
                                             .Or(VariableAssignmentStatement)
+                                            .Or(New)
                                             .Or(SingleToken);
         }
 
@@ -606,7 +605,7 @@ namespace Lang.Parser
 
             TokenStream.Take(TokenType.OpenParenth);
 
-            var predicate = Expression();
+            var predicate = InnerStatement();
 
             TokenStream.Take(TokenType.CloseParenth);
 
@@ -617,7 +616,7 @@ namespace Lang.Parser
 
         private ScopeDeclr GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
         {
-            return GetTypesInScope(open, close, Expression, expectSemicolon);
+            return GetTypesInScope(open, close, InnerStatement, expectSemicolon);
         }
 
         private ScopeDeclr GetTypesInScope(TokenType open, TokenType close, Func<Ast> getter, bool expectSemicolon = true)
