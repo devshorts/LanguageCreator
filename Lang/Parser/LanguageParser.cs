@@ -149,6 +149,18 @@ namespace Lang.Parser
                         return new NewAst(name, args);
                     }
 
+                    if (TokenStream.Current.TokenType == TokenType.OpenParenth &&
+                        TokenStream.Peek(1).TokenType == TokenType.New)
+                    {
+                        TokenStream.Take(TokenType.OpenParenth);
+
+                        var item = New();
+
+                        TokenStream.Take(TokenType.CloseParenth);
+
+                        return item;
+                    }
+
                     return null;
                 };
 
@@ -160,8 +172,8 @@ namespace Lang.Parser
             Func<Ast> reference = () =>
                 {
                     var references = new List<Ast>();
-
-                    var classInstance = new Expr(TokenStream.Take(TokenType.Word));
+                    
+                    var classInstance = New().Or(() => new Expr(TokenStream.Take(TokenType.Word)));
 
                     while (true)
                     {

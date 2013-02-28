@@ -1438,15 +1438,16 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
         {
             var test = @"
                
-var x = 1 + 2;
-var y = 1 + 2 + 3;
-var z = (1 + 2) + 3;
-var a = (1 + 2 ) + (3 + 4);
-var b = 1 + (2 + 3);
-var c = 1 + (2 + 3) + 4;
-var d = (1 + 2 + 3 + 4);
-var e = new foo() + 1;
-var f = a.f().z;
+            1 + 2;
+            1 + 2 + 3;
+            (1 + 2) + 3;
+            (1 + 2 ) + (3 + 4);
+            1 + (2 + 3);
+            1 + (2 + 3) + 4;
+            (1 + 2 + 3 + 4);
+            new foo().z + 1;           
+            a.f().z * 2.0 - (new foo().x + 2);
+            (new foo().z) + 1;
                         ";
 
             var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
