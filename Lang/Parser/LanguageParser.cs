@@ -10,7 +10,6 @@ namespace Lang.Parser
 {
     public class LanguageParser
     {
-
         private ParseableTokenStream TokenStream { get; set; }
 
         public LanguageParser(Lexers.Lexer lexer)
@@ -53,34 +52,27 @@ namespace Lang.Parser
                     return null;
                 };
 
-            if (TokenStream.Alt(classTaker))
-            {
-                return TokenStream.Get(classTaker);
-            }
-
-            return null;
+            return TokenStream.Capture(classTaker);
         }
 
         #region Single statement 
-        
+
         /// <summary>
         /// Method declaration or regular statement
         /// </summary>
         /// <returns></returns>
         private Ast Statement()
         {
-            var classDeclr = Class();
+            var ast = TokenStream.Capture(Class)
+                                 .Or(() => TokenStream.Capture(MethodDeclaration));
 
-            if (classDeclr != null)
+            if (ast != null)
             {
-                return classDeclr;
+                return ast;
             }
 
-            if (TokenStream.Alt(MethodDeclaration))
-            {
-                return TokenStream.Get(MethodDeclaration);
-            }
 
+            // must be an expression if the other two didn't pass
             var statement = Expression();
 
             if (TokenStream.Current.TokenType == TokenType.SemiColon)
@@ -91,7 +83,7 @@ namespace Lang.Parser
             return statement;
         }
 
-        
+
         /// <summary>
         /// A statement inside of a valid scope 
         /// </summary>
@@ -252,7 +244,6 @@ namespace Lang.Parser
 
             switch (TokenStream.Current.TokenType)
             {
-
                 case TokenType.New:
                     return New();
 
@@ -280,22 +271,12 @@ namespace Lang.Parser
                             return new Expr(op1, op, expr);
                         };
 
-                    if (TokenStream.Alt(doubleOp))
-                    {
-                        return TokenStream.Get(doubleOp);
-                    }
-                    
-                    if (TokenStream.Alt(basicOp))
-                    {
-                        return TokenStream.Get(basicOp);
-                    }
+                    return TokenStream.Capture(doubleOp)
+                                      .Or(() => TokenStream.Capture(basicOp));
 
-                    break;
                 default:
                     return null;
             }
-
-            return null;
         }
 
         private Ast ParseOperationExpression()
@@ -322,24 +303,9 @@ namespace Lang.Parser
                 };
 
             Func<Ast> leftOp = () => op(ConsumeFinalExpression, OperationExpression);
-            Func<Ast> rightOp = () => op(OperationExpression, ConsumeFinalExpression);
-            
-            if (TokenStream.Alt(leftOp))
-            {
-                return TokenStream.Get(leftOp);
-            }
 
-            if (TokenStream.Alt(ConsumeFinalExpression))
-            {
-                return TokenStream.Get(ConsumeFinalExpression);
-            }
-
-            if (TokenStream.Alt(rightOp))
-            {
-                return TokenStream.Get(rightOp);
-            }
-
-            return null;
+            return TokenStream.Capture(leftOp)
+                              .Or(() => TokenStream.Capture(ConsumeFinalExpression));
         }
 
         #endregion
@@ -375,9 +341,20 @@ namespace Lang.Parser
 
         private Ast GetWhile()
         {
-            if (TokenStream.Current.TokenType == TokenType.While && TokenStream.Alt(ParseWhile))
+            if (TokenStream.Current.TokenType == TokenType.While)
             {
-                return TokenStream.Get(ParseWhile);
+                Func<WhileLoop> op = () =>
+                    {
+                        var predicateAndExpressions = GetPredicateAndExpressions(TokenType.While);
+
+                        var predicate = predicateAndExpressions.Item1;
+
+                        var statements = predicateAndExpressions.Item2;
+
+                        return new WhileLoop(predicate, statements);
+                    };
+
+                return TokenStream.Capture(op);
             }
 
             return null;
@@ -385,9 +362,9 @@ namespace Lang.Parser
 
         private Ast GetIf()
         {
-            if (TokenStream.Current.TokenType == TokenType.If && TokenStream.Alt(ParseIf))
+            if (TokenStream.Current.TokenType == TokenType.If)
             {
-                return TokenStream.Get(ParseIf);
+                return TokenStream.Capture(ParseIf);
             }
 
             return null;
@@ -420,17 +397,6 @@ namespace Lang.Parser
 
             return new ForLoop(init, condition, modify, body);
         }
-
-        private WhileLoop ParseWhile()
-        {
-            var predicateAndExpressions = GetPredicateAndExpressions(TokenType.While);
-
-            var predicate = predicateAndExpressions.Item1;
-            var statements = predicateAndExpressions.Item2;
-
-            return new WhileLoop(predicate, statements);
-        }
-
 
         private Conditional ParseIf()
         {
@@ -603,8 +569,9 @@ namespace Lang.Parser
 
         private Ast ConsumeFinalExpression()
         {
-            return ClassReferenceStatement().Or(FunctionCallStatement).Or(VariableAssignmentStatement)
-                                          .Or(SingleToken);
+            return ClassReferenceStatement().Or(FunctionCallStatement)
+                                            .Or(VariableAssignmentStatement)
+                                            .Or(SingleToken);
         }
 
         private Ast SingleToken()
@@ -646,7 +613,12 @@ namespace Lang.Parser
             var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new Tuple<Ast, ScopeDeclr>(predicate, statements);
-        } 
+        }
+
+        private ScopeDeclr GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
+        {
+            return GetTypesInScope(open, close, Expression, expectSemicolon);
+        }
 
         private ScopeDeclr GetTypesInScope(TokenType open, TokenType close, Func<Ast> getter, bool expectSemicolon = true)
         {
@@ -668,11 +640,7 @@ namespace Lang.Parser
 
             return new ScopeDeclr(lines);
         }
-
-        private ScopeDeclr GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
-        {
-            return GetTypesInScope(open, close, Expression, expectSemicolon);
-        }
+        
 
         private bool StatementExpectsSemiColon(Ast statement)
         {

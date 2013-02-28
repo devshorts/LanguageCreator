@@ -10,14 +10,11 @@ namespace Lang.Lexers
     {
         private Tokenizer Tokenizer { get; set; }
 
-        private List<Token> Tokens { get; set; }
-
         private List<IMatcher> Matchers { get; set; } 
 
         public Lexer(String source)
         {
             Tokenizer = new Tokenizer(source);
-            Tokens = new List<Token>(1024);
         }
 
         public IEnumerable<Token> Lex()

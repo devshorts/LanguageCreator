@@ -8,15 +8,15 @@ using Lang.Lexers;
 
 namespace Lang.Parser
 {
-    internal class Memo
-    {
-        public Ast Ast { get; set; }
-        public int NextIndex { get; set; }
-    }
+internal class Memo
+{
+    public Ast Ast { get; set; }
+    public int NextIndex { get; set; }
+}
 
     public class ParseableTokenStream : TokenizableStreamBase<Token>
     {
-        public ParseableTokenStream(Lexer lexer) : base (() => lexer.Tokenize().ToList())
+        public ParseableTokenStream(Lexer lexer) : base (() => lexer.Lex().ToList())
         {
         }
 
@@ -42,6 +42,26 @@ namespace Lang.Parser
             return null;
         }
 
+        /// <summary>
+        /// Retrieves a cached version if it was found during any alternate route
+        /// otherwise executes it
+        /// </summary>
+        /// <param name="getter"></param>
+        /// <returns></returns>
+        public Ast Get(Func<Ast> getter)
+        {
+            Memo memo;
+            if (!CachedAst.TryGetValue(Index, out memo))
+            {
+                return getter();
+            }
+
+            Index = memo.NextIndex;
+
+            Console.WriteLine("Returning type {0} from index {1} as memo", memo.Ast, Index);
+            return memo.Ast;
+        } 
+
         public Token Take(TokenType type)
         {
             if (IsMatch(type))
@@ -57,24 +77,7 @@ namespace Lang.Parser
         }
 
 
-        /// <summary>
-        /// Retrieves a cached version if it was found during any alternate route
-        /// otherwise executes it
-        /// </summary>
-        /// <param name="getter"></param>
-        /// <returns></returns>
-        public Ast Get(Func<Ast> getter)
-        {
-            Memo memo;
-            if (!CachedAst.TryGetValue(Index, out memo))
-            {
-                return getter();    
-            }
-
-            Index = memo.NextIndex;
-
-            return memo.Ast;
-        } 
+        
 
         public Boolean Alt(Func<Ast> action)
         {

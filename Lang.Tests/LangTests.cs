@@ -19,7 +19,7 @@ namespace Lang.Tests
         {
             var test = @"1.01";
 
-            var tokens = new Lexers.Lexer(test).Tokenize().ToList();
+            var tokens = new Lexers.Lexer(test).Lex().ToList();
 
             Assert.IsTrue(tokens.Count == 1);
             Assert.IsTrue(tokens.First().TokenType == TokenType.Float);
@@ -31,7 +31,7 @@ namespace Lang.Tests
         {
             var test = @"fun function = 1 print";
 
-            var tokens = new Lexers.Lexer(test).Tokenize().ToList();
+            var tokens = new Lexers.Lexer(test).Lex().ToList();
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace Lang.Tests
         {
             var test = @"function void int ""void int"" {} ->*/test^void,5,6,7 8.0";
 
-            var tokens = new Lexers.Lexer(test).Tokenize().ToList();
+            var tokens = new Lexers.Lexer(test).Lex().ToList();
 
             foreach (var token in tokens)
             {
@@ -1426,6 +1426,25 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 catch{
                     print 'exception!';
                 }
+                        ";
+
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        public void TestRightRecursion()
+        {
+            var test = @"
+               
+                var x = 1 + 2;
+                var y = 1 + 2 + 3;
+                var z = (1 + 2) + 3;
+                var a = (1 + 2 ) + (3 + 4);
+                var b = 1 + (2 + 3);
+                var c = 1 + (2 + 3) + 4;
+                var d = (1 + 2 + 3 + 4);
                         ";
 
             var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
