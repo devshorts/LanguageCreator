@@ -106,7 +106,7 @@ namespace Lang.Parser
                                 .Or(GetFor)
                                 .Or(GetReturn)
                                 .Or(PrintStatement)
-                                .Or(OperationExpression)
+                                .Or(Expression)
                                 .Or(New);
 
             if (ast != null)
@@ -253,11 +253,11 @@ namespace Lang.Parser
 
         #region Expressions of single items or expr op expr
 
-        private Ast OperationExpression()
+        private Ast Expression()
         {
             if (IsValidOperand() || TokenStream.Current.TokenType == TokenType.New)
             {
-                return ParseOperationExpression();
+                return ParseExpression();
             }
 
             switch (TokenStream.Current.TokenType)
@@ -294,7 +294,7 @@ namespace Lang.Parser
             }
         }
 
-        private Ast ParseOperationExpression()
+        private Ast ParseExpression()
         {
             Func<Func<Ast>, Func<Ast>, Ast> op = (leftFunc, rightFunc) =>
                 {
@@ -317,7 +317,7 @@ namespace Lang.Parser
                     return new Expr(left, opType, right);
                 };
 
-            Func<Ast> leftOp = () => op(ConsumeFinalExpression, OperationExpression);
+            Func<Ast> leftOp = () => op(ConsumeFinalExpression, Expression);
 
             return TokenStream.Capture(leftOp)
                               .Or(() => TokenStream.Capture(ConsumeFinalExpression));
