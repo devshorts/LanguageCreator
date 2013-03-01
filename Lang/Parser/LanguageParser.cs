@@ -16,6 +16,10 @@ namespace Lang.Parser
         {
             TokenStream = new ParseableTokenStream(lexer);
 
+            // we'll tag all lambdas we find starting from 1000 here
+            // later when we iterate over scope and create anonnymous lambdas
+            // we need the lambdas to have the SAME name even if we iterate over
+            // the syntax tree multiple times. this is hacky, i know.
             LambdaDeclr.LambdaCount = 1000;
         }
 
@@ -257,7 +261,7 @@ namespace Lang.Parser
 
             switch (TokenStream.Current.TokenType)
             {
-               case TokenType.OpenParenth:
+                case TokenType.OpenParenth:
 
                     Func<Ast> basicOp = () =>
                         {

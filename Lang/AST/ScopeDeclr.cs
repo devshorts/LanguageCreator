@@ -29,7 +29,7 @@ namespace Lang.AST
 
         public override string ToString()
         {
-            return ScopedStatements.Aggregate("", (item, acc) => acc + item);
+            return "SCOPE: \n" + ScopedStatements.Aggregate("", (item, acc) => item + acc + "\n");
         }
     }
 }

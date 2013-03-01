@@ -47,5 +47,11 @@ namespace Lang.AST
         {
             get { return AstTypes.VarDeclr; }
         }
+
+        public override string ToString()
+        {
+            return String.Format("Declare {0} as {1} with value {2}",
+                                 VariableName, DeclarationType, VariableValue);
+        }
     }
 }

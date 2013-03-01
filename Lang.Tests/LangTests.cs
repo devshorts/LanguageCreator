@@ -103,6 +103,8 @@ namespace Lang.Tests
             Assert.IsTrue(ast.ScopedStatements[0] is VarDeclrAst);
             Assert.IsTrue(ast.ScopedStatements[1].Token.TokenType == TokenType.ScopeStart);
             Assert.IsTrue(ast.ScopedStatements[2] is Expr);
+
+            Console.WriteLine(ast);
         }
 
         [Test]
@@ -1448,6 +1450,7 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
             new foo().z + 1;           
             a.f().z * 2.0 - (new foo().x + 2);
             (new foo().z) + 1;
+            (f + 2) + foo() + 3 + (a - 2 - z)
                         ";
 
             var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);

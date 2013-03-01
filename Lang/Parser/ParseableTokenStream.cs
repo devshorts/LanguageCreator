@@ -58,7 +58,7 @@ internal class Memo
 
             Index = memo.NextIndex;
 
-            Console.WriteLine("Returning type {0} from index {1} as memo", memo.Ast, Index);
+            //Console.WriteLine("Returning type {0} from index {1} as memo", memo.Ast, Index);
             return memo.Ast;
         } 
 
