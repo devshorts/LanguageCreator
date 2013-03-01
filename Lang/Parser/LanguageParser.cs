@@ -268,7 +268,7 @@ namespace Lang.Parser
                         {
                             TokenStream.Take(TokenType.OpenParenth);
 
-                            var expr = InnerStatement();
+                            var expr = Expression();
 
                             TokenStream.Take(TokenType.CloseParenth);
 
@@ -281,7 +281,7 @@ namespace Lang.Parser
 
                             var op = Operator();
 
-                            var expr = InnerStatement();
+                            var expr = Expression();
 
                             return new Expr(op1, op, expr);
                         };
