@@ -33,7 +33,7 @@ namespace Lang.AST
 
         public override string ToString()
         {
-            return ClassInstance + Deferences.Aggregate("", (acc, item) => acc + "." + item);
+            return "[( " + ClassInstance + ")" + Deferences.Aggregate("", (acc, item) => acc + ". (" + item  + ")") + "]";
         }
     }
 }

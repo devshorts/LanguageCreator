@@ -1448,12 +1448,14 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
             1 + (2 + 3) + 4;
             (1 + 2 + 3 + 4);
             new foo().z + 1;           
-            a.f().z * 2.0 - (new foo().x + 2);
+            a.f().z * 2.0 + (new foo().x + 2);
             (new foo().z) + 1;
-            (f + 2) + foo() + 3 + (a - 2 - z)
+            (f + 2) + foo() + 3 + (a + 2 + z)
                         ";
 
             var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+            Console.WriteLine(ast);
         }
     }
 }
