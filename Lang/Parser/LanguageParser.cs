@@ -317,10 +317,10 @@ namespace Lang.Parser
                     return new Expr(left, opType, right);
                 };
 
-            Func<Ast> leftOp = () => op(ConsumeFinalExpression, Expression);
+            Func<Ast> leftOp = () => op(ExpressionTerminal, Expression);
 
             return TokenStream.Capture(leftOp)
-                              .Or(() => TokenStream.Capture(ConsumeFinalExpression));
+                              .Or(() => TokenStream.Capture(ExpressionTerminal));
         }
 
         #endregion
@@ -360,11 +360,11 @@ namespace Lang.Parser
             {
                 Func<WhileLoop> op = () =>
                     {
-                        var predicateAndExpressions = GetPredicateAndExpressions(TokenType.While);
+                        var predicateAndStatements = GetPredicateAndStatements(TokenType.While);
 
-                        var predicate = predicateAndExpressions.Item1;
+                        var predicate = predicateAndStatements.Item1;
 
-                        var statements = predicateAndExpressions.Item2;
+                        var statements = predicateAndStatements.Item2;
 
                         return new WhileLoop(predicate, statements);
                     };
@@ -415,7 +415,7 @@ namespace Lang.Parser
 
         private Conditional ParseIf()
         {
-            var predicateAndExpressions = GetPredicateAndExpressions(TokenType.If);
+            var predicateAndExpressions = GetPredicateAndStatements(TokenType.If);
 
             var predicate = predicateAndExpressions.Item1;
             var statements = predicateAndExpressions.Item2;
@@ -582,7 +582,7 @@ namespace Lang.Parser
 
         #region Single Expressions or Tokens
 
-        private Ast ConsumeFinalExpression()
+        private Ast ExpressionTerminal()
         {
             return ClassReferenceStatement().Or(FunctionCallStatement)
                                             .Or(VariableAssignmentStatement)
@@ -616,7 +616,7 @@ namespace Lang.Parser
 
         #region Helpers
 
-        private Tuple<Ast, ScopeDeclr> GetPredicateAndExpressions(TokenType type)
+        private Tuple<Ast, ScopeDeclr> GetPredicateAndStatements(TokenType type)
         {
             TokenStream.Take(type);
 
