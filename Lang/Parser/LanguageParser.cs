@@ -49,7 +49,7 @@ namespace Lang.Parser
 
                         var className = TokenStream.Take(TokenType.Word);
 
-                        var body = GetTypesInScope(TokenType.LBracket, TokenType.RBracket, Statement, false);
+                        var body = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket, Statement, false);
 
                         return new ClassAst(className, body);
                     }
@@ -123,14 +123,14 @@ namespace Lang.Parser
             {
                 TokenStream.Take(TokenType.Try);
 
-                var tryBody = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+                var tryBody = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
 
                 ScopeDeclr catchBody = null;
                 if (TokenStream.Current.TokenType == TokenType.Catch)
                 {
                     TokenStream.Take(TokenType.Catch);
 
-                    catchBody = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+                    catchBody = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
                 }
 
                 return new TryCatchAst(tryBody, catchBody);
@@ -212,7 +212,7 @@ namespace Lang.Parser
         {
             if (TokenStream.Current.TokenType == TokenType.LBracket)
             {
-                var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+                var statements = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
 
                 return statements;
             }
@@ -408,7 +408,7 @@ namespace Lang.Parser
 
             var modify = args[2];
 
-            var body = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+            var body = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new ForLoop(init, condition, modify, body);
         }
@@ -444,7 +444,7 @@ namespace Lang.Parser
         {
             TokenStream.Take(TokenType.Else);
 
-            var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+            var statements = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new Conditional(new Token(TokenType.Else), null, statements);
         }
@@ -471,7 +471,7 @@ namespace Lang.Parser
 
             TokenStream.Take(TokenType.DeRef);
 
-            var lines = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+            var lines = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
 
             var method = new LambdaDeclr(arguments, lines);
 
@@ -494,7 +494,7 @@ namespace Lang.Parser
 
             var argList = GetArgumentList(true);
 
-            var innerExpressions = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+            var innerExpressions = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new MethodDeclr(returnType, funcName, argList, innerExpressions);
         }
@@ -622,21 +622,21 @@ namespace Lang.Parser
 
             TokenStream.Take(TokenType.OpenParenth);
 
-            var predicate = InnerStatement();
+            var predicate = Expression();
 
             TokenStream.Take(TokenType.CloseParenth);
 
-            var statements = GetExpressionsInScope(TokenType.LBracket, TokenType.RBracket);
+            var statements = GetStatementsInScope(TokenType.LBracket, TokenType.RBracket);
 
             return new Tuple<Ast, ScopeDeclr>(predicate, statements);
         }
 
-        private ScopeDeclr GetExpressionsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
+        private ScopeDeclr GetStatementsInScope(TokenType open, TokenType close, bool expectSemicolon = true)
         {
-            return GetTypesInScope(open, close, InnerStatement, expectSemicolon);
+            return GetStatementsInScope(open, close, InnerStatement, expectSemicolon);
         }
 
-        private ScopeDeclr GetTypesInScope(TokenType open, TokenType close, Func<Ast> getter, bool expectSemicolon = true)
+        private ScopeDeclr GetStatementsInScope(TokenType open, TokenType close, Func<Ast> getter, bool expectSemicolon = true)
         {
             TokenStream.Take(open);
             var lines = new List<Ast>();
