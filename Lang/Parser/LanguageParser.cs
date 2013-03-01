@@ -20,6 +20,7 @@ namespace Lang.Parser
             // later when we iterate over scope and create anonnymous lambdas
             // we need the lambdas to have the SAME name even if we iterate over
             // the syntax tree multiple times. this is hacky, i know.
+            // curried functions will be labeled from 0 to 1000
             LambdaDeclr.LambdaCount = 1000;
         }
 
