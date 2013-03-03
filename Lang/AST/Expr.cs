@@ -13,7 +13,8 @@ namespace Lang.AST
 
         public Ast Right { get; private set; }
 
-        public Expr(Token token) : base(token)
+        public Expr(Token token)
+            : base(token)
         {
         }
 

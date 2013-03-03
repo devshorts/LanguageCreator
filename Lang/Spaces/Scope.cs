@@ -28,7 +28,6 @@ namespace Lang.Spaces
             ChildScopes = new List<IScopeable<Scope>>(64);
 
             AllowAllForwardReferences = false;
-
         }
 
         public String ScopeName { get; set; }

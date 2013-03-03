@@ -46,36 +46,45 @@ namespace Lang.Utils
                 return null;
             }
 
-            switch (astType.Token.TokenType)
+            Func<IType> op = () =>
+                {
+                    switch (astType.Token.TokenType)
+                    {
+                        case TokenType.Int:
+                            return new BuiltInType(ExpressionTypes.Int);
+                        case TokenType.Float:
+                            return new BuiltInType(ExpressionTypes.Float);
+                        case TokenType.Void:
+                            return new BuiltInType(ExpressionTypes.Void);
+                        case TokenType.Infer:
+                            return new BuiltInType(ExpressionTypes.Inferred);
+                        case TokenType.QuotedString:
+                        case TokenType.String:
+                            return new BuiltInType(ExpressionTypes.String);
+                        case TokenType.Word:
+                            return new UserDefinedType(astType.Token.TokenValue);
+                        case TokenType.True:
+                        case TokenType.False:
+                            return new BuiltInType(ExpressionTypes.Boolean);
+                        case TokenType.Method:
+                            return new BuiltInType(ExpressionTypes.Method);
+                    }
+                    return null;
+                };
+
+            var type = op();
+
+            if (type != null)
             {
-                case TokenType.Int:
-                    return new BuiltInType(ExpressionTypes.Int);
-                case TokenType.Float:
-                    return new BuiltInType(ExpressionTypes.Float);
-                case TokenType.Void:
-                    return new BuiltInType(ExpressionTypes.Void);
-                case TokenType.Nil:
-                    return new BuiltInType(ExpressionTypes.Nil);
-                case TokenType.Infer:
-                    return new BuiltInType(ExpressionTypes.Inferred);
-                case TokenType.QuotedString:
-                case TokenType.String:
-                    return new BuiltInType(ExpressionTypes.String);
-                case TokenType.Word:
-                    return new UserDefinedType(astType.Token.TokenValue);
-                case TokenType.True:
-                case TokenType.False:
-                    return new BuiltInType(ExpressionTypes.Boolean);
-                case TokenType.Method:
-                    return new BuiltInType(ExpressionTypes.Method);
+                type.Src = astType;
             }
 
-            return null;
+            return type;
         }
 
-        public static Symbol DefineUserSymbol(Ast astType, Ast name)
+        public static Symbol DefineUserSymbol(Ast ast, Ast name)
         {
-            IType type = CreateSymbolType(astType);
+            IType type = CreateSymbolType(ast);
 
             return new Symbol(name.Token.TokenValue, type);
         }
@@ -92,5 +101,13 @@ namespace Lang.Utils
             return new MethodSymbol(method.Token.TokenValue, returnType, method);
         }
 
+        public static Symbol DefineClassSymbol(ClassAst ast)
+        {
+            return new ClassSymbol(ast.Token.TokenValue)
+                   {
+                       Src = ast, 
+                       ScopeName = ast.Token.TokenValue
+                   };
+        }
     }
 }

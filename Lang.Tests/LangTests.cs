@@ -248,27 +248,27 @@ namespace Lang.Tests
         public void TestVisitor()
         {
             var test = @"while(1 + 1){
-                            var x = fun () ->{
-                                test = 0;
-                                return 1;
-                            };
-                        }
+                var x = fun () ->{
+                    test = 0;
+                    return 1;
+                };
+            }
 
-                        if(foo){
-                            var x = 1;
-                        }
-                        else if(faa){
-                            var y = 2;
-                            var z = 3;
-                        }
-                        else{
-                            for(int i = 0; i < 10; i = i + 1){
-                                var x = z;
-                            }
-                        }
+            if(foo){
+                var x = 1;
+            }
+            else if(faa){
+                var y = 2;
+                var z = 3;
+            }
+            else{
+                for(int i = 0; i < 10; i = i + 1){
+                    var x = z;
+                }
+            }
 
 
-                        ";
+            ";
 
             var ast = new LanguageParser(new Lexers.Lexer(test)).Parse();
 
@@ -1428,6 +1428,20 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
                 catch{
                     print 'exception!';
                 }
+                        ";
+
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax), ExpectedMessage = "Cannot assign Int: 1 of type Int to Void")]
+        public void TestInvalidType()
+        {
+            var test = @"
+               
+                void x = 1;
                         ";
 
             var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);

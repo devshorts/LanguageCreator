@@ -19,22 +19,19 @@ namespace Lang.Visitors
 
         private Scope Global { get; set; }
 
-        public Scope Current
+        private Scope Current
         {
             get { return ScopeTree.Current; }
-            set
-            {
-                ScopeContainer.CurrentScopeStack.Current = value;
-            }
+            set { ScopeContainer.CurrentScopeStack.Current = value; }
         }
 
-        public ScopeStack<Scope> ScopeTree { get { return ScopeContainer.CurrentScopeStack; } }
+        private ScopeStack<Scope> ScopeTree { get { return ScopeContainer.CurrentScopeStack; } }
 
         private MethodDeclr CurrentMethod { get; set; }
 
         private Boolean ResolvingTypes { get; set; }
 
-        private ScopeContainer ScopeContainer;
+        private ScopeContainer ScopeContainer { get; set; }
 
         public ScopeBuilderVisitor(bool resolvingTypes = false)
         {
@@ -103,7 +100,7 @@ namespace Lang.Visitors
                 case TokenType.Word: return ResolveType(ast);
             }
 
-            return CreateSymbolType(ast);
+            return ScopeUtil.CreateSymbolType(ast);
         }
 
         /// <summary>
@@ -167,7 +164,7 @@ namespace Lang.Visitors
 
                 curriedMethod.Visit(this);
 
-                var methodSymbol = DefineMethod(curriedMethod);
+                var methodSymbol = ScopeUtil.DefineMethod(curriedMethod);
 
                 Current.Define(methodSymbol);
 
@@ -331,7 +328,7 @@ namespace Lang.Visitors
 
             if (ast.DeclarationType != null && !isVar)
             {
-                var symbol = DefineUserSymbol(ast.DeclarationType, ast.VariableName);
+                var symbol = ScopeUtil.DefineUserSymbol(ast.DeclarationType, ast.VariableName);
 
                 DefineToScope(ast, symbol);
 
@@ -340,7 +337,7 @@ namespace Lang.Visitors
 
             if (ast.VariableValue == null && isVar)
             {
-                var symbol = DefineUserSymbol(ast.DeclarationType, ast.VariableName);
+                var symbol = ScopeUtil.DefineUserSymbol(ast.DeclarationType, ast.VariableName);
 
                 DefineToScope(ast, symbol);
 
@@ -364,13 +361,13 @@ namespace Lang.Visitors
                                             ? new BuiltInType(ExpressionTypes.Method, val)
                                             : val.AstSymbolType;
 
-                    var symbol = DefineUserSymbol(ast.AstSymbolType, ast.VariableName);
+                    var symbol = ScopeUtil.DefineUserSymbol(ast.AstSymbolType, ast.VariableName);
 
                     DefineToScope(ast, symbol);
                 }
                 else if (ResolvingTypes)
                 {
-                    var declaredType = CreateSymbolType(ast.DeclarationType);
+                    var declaredType = ScopeUtil.CreateSymbolType(ast.DeclarationType);
 
                     var value = ast.VariableValue.ConvertedExpression ?? ast.VariableValue;
 
@@ -422,66 +419,11 @@ namespace Lang.Visitors
             Current.Define(symbol);
         }
 
-        private Symbol DefineUserSymbol(Ast astType, Ast name)
-        {
-            IType type = CreateSymbolType(astType);
-
-            return new Symbol(name.Token.TokenValue, type);
-        }
-
-        private Symbol DefineUserSymbol(IType type, Ast name)
-        {
-            return new Symbol(name.Token.TokenValue, type);
-        }
-
-
-        public static IType CreateSymbolType(Ast astType)
-        {
-            if (astType == null)
-            {
-                return null;
-            }
-
-            switch (astType.Token.TokenType)
-            {
-                case TokenType.Int:
-                    return new BuiltInType(ExpressionTypes.Int) { Src = astType };
-                case TokenType.Float:
-                    return new BuiltInType(ExpressionTypes.Float) { Src = astType };
-                case TokenType.Void:
-                    return new BuiltInType(ExpressionTypes.Void) { Src = astType };
-                case TokenType.Infer:
-                    return new BuiltInType(ExpressionTypes.Inferred) { Src = astType };
-                case TokenType.QuotedString:
-                case TokenType.String:
-                    return new BuiltInType(ExpressionTypes.String) { Src = astType };
-                case TokenType.Word:
-                    return new UserDefinedType(astType.Token.TokenValue) { Src = astType };
-                case TokenType.Class:
-                    var c = new ClassSymbol(astType.Token.TokenValue) {Src = astType};
-                    return c;
-                case TokenType.True:
-                case TokenType.False:
-                    return new BuiltInType(ExpressionTypes.Boolean) { Src = astType };
-                case TokenType.Method:
-                    return new BuiltInType(ExpressionTypes.Method) { Src = astType };
-            }
-
-            return null;
-        }
-
-        private Symbol DefineMethod(MethodDeclr method)
-        {
-            IType returnType = CreateSymbolType(method.MethodReturnType);
-
-            return new MethodSymbol(method.Token.TokenValue, returnType, method);
-        }
-
         public void Visit(MethodDeclr ast)
         {
             CurrentMethod = ast;
 
-            var symbol = DefineMethod(ast);
+            var symbol = ScopeUtil.DefineMethod(ast);
 
             Current.Define(symbol);
 
@@ -534,7 +476,7 @@ namespace Lang.Visitors
                 returnStatementType = ast.ReturnAst.AstSymbolType;
             }
 
-            var delcaredSymbol = CreateSymbolType(ast.MethodReturnType);
+            var delcaredSymbol = ScopeUtil.CreateSymbolType(ast.MethodReturnType);
 
             // if its inferred, just use whatever the return statement i
             if (delcaredSymbol.ExpressionType == ExpressionTypes.Inferred)
@@ -672,7 +614,7 @@ namespace Lang.Visitors
                 Global = Current;
             }
 
-            var classSymbol = DefineClassSymbol(ast);
+            var classSymbol = ScopeUtil.DefineClassSymbol(ast);
 
             Current.Define(classSymbol);
 
@@ -711,11 +653,6 @@ namespace Lang.Visitors
         private void SetScopeSource(Symbol classSymbol)
         {
             Current = classSymbol;
-        }
-
-        private Symbol DefineClassSymbol(ClassAst ast)
-        {
-            return new ClassSymbol(ast.Token.TokenValue) { Src = ast, ScopeName = ast.Token.TokenValue };
         }
 
         public void Visit(ClassReference ast)
@@ -770,7 +707,7 @@ namespace Lang.Visitors
                 }
             }
 
-            Current = oldScope;
+            Current = oldScope; 
 
             ast.AstSymbolType = ast.Deferences.Last().AstSymbolType;
 

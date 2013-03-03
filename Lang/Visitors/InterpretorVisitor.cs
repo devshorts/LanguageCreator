@@ -161,7 +161,7 @@ namespace Lang.Visitors
                         break;
                     case AstTypes.MethodDeclr:
                         var methodDeclr = ast as MethodDeclr;
-                        return new MethodSymbol(methodDeclr.Token.TokenValue, ScopeBuilderVisitor.CreateSymbolType(methodDeclr.ReturnAst), methodDeclr);
+                        return new MethodSymbol(methodDeclr.Token.TokenValue, ScopeUtil.CreateSymbolType(methodDeclr.ReturnAst), methodDeclr);
 
                     case AstTypes.While:
                         WhileDo(ast as WhileLoop);

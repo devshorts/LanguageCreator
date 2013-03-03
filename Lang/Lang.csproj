@@ -85,7 +85,6 @@
     <Compile Include="Symbols\MethodSymbol.cs" />
     <Compile Include="Spaces\Scope.cs" />
     <Compile Include="Symbols\Symbol.cs" />
-    <Compile Include="Symbols\VariableSymbol.cs" />
     <Compile Include="Utils\CollectionUtil.cs" />
     <Compile Include="Data\Token.cs" />
     <Compile Include="Data\TokenType.cs" />

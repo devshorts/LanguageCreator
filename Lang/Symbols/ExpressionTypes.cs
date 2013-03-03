@@ -15,7 +15,6 @@ namespace Lang.Symbols
         Float,
         Inferred,
         Method,
-        Class,
         Nil
     }
 }

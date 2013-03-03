@@ -9,7 +9,7 @@ namespace Lang.Symbols
     public interface IType
     {
         String TypeName { get; }
-        ExpressionTypes ExpressionType { get; set; }
+        ExpressionTypes ExpressionType { get; }
         Ast Src { get; set; }
     }
 }

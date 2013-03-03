@@ -5,8 +5,8 @@ using System.Text;
 
 namespace Lang.Visitors
 {
-    interface IAcceptVisitor
-    {
-        void Visit(IAstVisitor visitor);
-    }
+interface IAcceptVisitor
+{
+    void Visit(IAstVisitor visitor);
+}
 }
