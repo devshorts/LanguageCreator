@@ -405,7 +405,7 @@ namespace Lang.Visitors
             SetScope(ast);
         }
 
-        private void DefineToScope(VarDeclrAst ast, Symbol symbol)
+        private void DefineToScope(Ast ast, Symbol symbol)
         {
             if (ast.CurrentScope != null && ast.CurrentScope.Symbols.ContainsKey(symbol.Name))
             {
@@ -421,6 +421,8 @@ namespace Lang.Visitors
 
         public void Visit(MethodDeclr ast)
         {
+            var previousMethod = CurrentMethod;
+
             CurrentMethod = ast;
 
             var symbol = ScopeUtil.DefineMethod(ast);
@@ -455,6 +457,7 @@ namespace Lang.Visitors
 
             ScopeTree.PopScope();
 
+            CurrentMethod = previousMethod;
         }
 
         private void ValidateReturnStatementType(MethodDeclr ast, Symbol symbol)

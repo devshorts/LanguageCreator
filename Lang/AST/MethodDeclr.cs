@@ -11,6 +11,9 @@ namespace Lang.AST
     {
         public Ast MethodName { get; private set; }
 
+        /// <summary>
+        /// An expression representing the return type declared for the method
+        /// </summary>
         public Ast MethodReturnType { get; private set; }
 
         public List<Ast> Arguments { get; private set; }

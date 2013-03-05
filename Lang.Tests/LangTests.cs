@@ -650,21 +650,22 @@ namespace Lang.Tests
         public void TestCurrying()
         {
             var test = @"
-                        void func(string printer, int y){
-                            print printer;
-                            print y;
-                        }
+                void func(string printer, int y){
+                    print printer;
+                    print y;
+                }
             
-                        var curry = func('anton');
+                var curry = func('guy');
 
-                        int x = 1;
-                        curry(x);
+                int x = 1;
 
-                        curry(2);
+                curry(x);
 
-                        var otherCurry = func('test');
+                curry(2);
 
-                        otherCurry(3);
+                var otherCurry = func('girl');
+
+                otherCurry(3);
                         ";
 
             var ast = new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr;
@@ -1471,5 +1472,24 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
 
             Console.WriteLine(ast);
         }
+
+[Test]
+public void TestTypeInferFunctionReturn()
+{
+    var test = @"
+               
+    var func(){
+        return 'test';
+    }
+                ";
+
+    var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+    var function = ast.ScopedStatements[0] as MethodDeclr;
+
+    new InterpretorVisitor().Start(ast);
+
+    Console.WriteLine(function.AstSymbolType.ExpressionType);
+}
     }
 }
