@@ -106,6 +106,7 @@ namespace Lang.Parser
                                 .Or(GetFor)
                                 .Or(GetReturn)
                                 .Or(PrintStatement)
+                                .Or(ArrayIndex)
                                 .Or(Expression)
                                 .Or(New);
 
@@ -148,6 +149,17 @@ namespace Lang.Parser
                         TokenStream.Take(TokenType.New);
 
                         var name = new Expr(TokenStream.Take(TokenType.Word));
+
+                        if (TokenStream.Current.TokenType == TokenType.LSquareBracket)
+                        {
+                            TokenStream.Take(TokenType.LSquareBracket);
+
+                            var size = Expression();
+
+                            TokenStream.Take(TokenType.RSquareBracket);
+
+                            return new NewArrayAst(name, size);
+                        }
 
                         var args = GetArgumentList();
 
@@ -560,10 +572,19 @@ namespace Lang.Parser
             if (IsValidMethodReturnType() && IsValidVariableName(TokenStream.Peek(1)))
             {
                 var type = TokenStream.Take(TokenStream.Current.TokenType);
-
+                
                 var name = TokenStream.Take(TokenType.Word);
 
-                return new VarDeclrAst(type, name);
+                if (TokenStream.Current.TokenType != TokenType.LSquareBracket)
+                {
+                    return new VarDeclrAst(type, name);
+                }
+                
+                TokenStream.Take(TokenType.LSquareBracket);
+
+                TokenStream.Take(TokenType.RSquareBracket);
+
+                return new ArrayDeclrAst(type, name);
             }
 
             return null;
@@ -588,6 +609,24 @@ namespace Lang.Parser
                                             .Or(VariableAssignmentStatement)
                                             .Or(New)
                                             .Or(SingleToken);
+        }
+
+        private Ast ArrayIndex()
+        {
+            Func<Ast> op = () =>
+                {
+                    var id = Expression();
+
+                    TokenStream.Take(TokenType.LSquareBracket);
+
+                    var expr = Expression();
+
+                    TokenStream.Take(TokenType.RSquareBracket);
+
+                    return new ArrayIndexAst(id, expr);
+                };
+
+            return TokenStream.Capture(op);
         }
 
         private Ast SingleToken()

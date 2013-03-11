@@ -50,6 +50,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AST\ArrayDeclrAst.cs" />
+    <Compile Include="AST\ArrayIndexAst.cs" />
     <Compile Include="AST\Ast.cs" />
     <Compile Include="AST\AstTypes.cs" />
     <Compile Include="AST\ClassAst.cs" />
@@ -60,6 +62,7 @@
     <Compile Include="AST\FuncInvoke.cs" />
     <Compile Include="AST\LambdaDeclr.cs" />
     <Compile Include="AST\MethodDeclr.cs" />
+    <Compile Include="AST\NewArrayAst.cs" />
     <Compile Include="AST\NewAst.cs" />
     <Compile Include="AST\PrintAst.cs" />
     <Compile Include="AST\ReturnAst.cs" />

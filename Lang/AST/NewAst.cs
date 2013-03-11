@@ -7,6 +7,8 @@ namespace Lang.AST
 {
     public class NewAst : Ast
     {
+        public bool IsArray { get; set; }
+
         public NewAst(Ast name, List<Ast> args) : base(name.Token)
         {
             Args = args;

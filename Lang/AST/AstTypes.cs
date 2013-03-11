@@ -21,6 +21,7 @@ namespace Lang.AST
         Print,
         ClassRef,
         New,
-        TryCatch
+        TryCatch,
+        ArrayIndex
     }
 }

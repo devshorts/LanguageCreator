@@ -1473,23 +1473,41 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
             Console.WriteLine(ast);
         }
 
-[Test]
-public void TestTypeInferFunctionReturn()
-{
-    var test = @"
+        [Test]
+        public void TestArrayIndexParsing()
+        {
+            var test = @"
                
-    var func(){
-        return 'test';
-    }
-                ";
+            foo[1];
+            foo[1 + 2];
+            foo()[1];
+                     
+            var x = new x[10]";
 
-    var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
 
-    var function = ast.ScopedStatements[0] as MethodDeclr;
+            Console.WriteLine(ast);
+        }
 
-    new InterpretorVisitor().Start(ast);
+        [Test]
+        public void TestTypeInferFunctionReturn()
+        {
+            var test = @"
+               
+                var func(){
+                    return 'test';
+                }
+                            ";
 
-    Console.WriteLine(function.AstSymbolType.ExpressionType);
-}
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+            var function = ast.ScopedStatements[0] as MethodDeclr;
+
+            new InterpretorVisitor().Start(ast);
+
+            Console.WriteLine(function.AstSymbolType.ExpressionType);
+
+            Console.WriteLine("Original declared return expression type: " + function.MethodReturnType);
+        }
     }
 }

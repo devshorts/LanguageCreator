@@ -9,6 +9,8 @@ namespace Lang.AST
 {
     public class VarDeclrAst : Ast
     {
+        public bool IsArray { get; set; }
+
         public Ast DeclarationType { get; private set; }
 
         public Ast VariableValue { get; private set; }

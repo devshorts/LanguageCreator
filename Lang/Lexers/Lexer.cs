@@ -71,6 +71,8 @@ namespace Lang.Lexers
                                         new MatchKeyword(TokenType.DeRef, "->"),
                                         new MatchKeyword(TokenType.LBracket, "{"),
                                         new MatchKeyword(TokenType.RBracket, "}"),
+                                        new MatchKeyword(TokenType.LSquareBracket, "["),
+                                        new MatchKeyword(TokenType.RSquareBracket, "]"),
                                         new MatchKeyword(TokenType.Plus, "+"),
                                         new MatchKeyword(TokenType.Minus, "-"),
                                         new MatchKeyword(TokenType.NotCompare, "!="),

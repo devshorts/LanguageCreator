@@ -20,5 +20,6 @@ namespace Lang.Visitors
         void Visit(ClassReference ast);
         void Visit(NewAst ast);
         void Visit(TryCatchAst ast);
+        void Visit(ArrayIndexAst ast);
     }
 }

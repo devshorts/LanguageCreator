@@ -49,7 +49,8 @@
         Nil,
         NotCompare,
         Try,
-        Catch
-
+        Catch,
+        LSquareBracket,
+        RSquareBracket
     }
 }

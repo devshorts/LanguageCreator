@@ -121,6 +121,11 @@ namespace Lang.Visitors
             }
         }
 
+        public void Visit(ArrayIndexAst ast)
+        {
+            throw new NotImplementedException();
+        }
+
         private dynamic Exec(Ast ast)
         {
             try

@@ -767,6 +767,11 @@ namespace Lang.Visitors
             }
         }
 
+        public void Visit(ArrayIndexAst ast)
+        {
+            throw new NotImplementedException();
+        }
+
         private void ValidateClassConstructorArgs(NewAst ast, ClassSymbol classSource)
         {
             if (!ResolvingTypes)
