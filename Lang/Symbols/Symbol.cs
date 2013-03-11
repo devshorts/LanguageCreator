@@ -9,6 +9,8 @@ namespace Lang.Symbols
         public String Name { get; private set; }
         public IType Type { get; private set; }
 
+        public bool IsArray { get; set; }
+
         public Symbol(String name, IType type)
         {
             Name = name;

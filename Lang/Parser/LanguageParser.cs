@@ -148,22 +148,25 @@ namespace Lang.Parser
                     {
                         TokenStream.Take(TokenType.New);
 
-                        var name = new Expr(TokenStream.Take(TokenType.Word));
-
-                        if (TokenStream.Current.TokenType == TokenType.LSquareBracket)
+                        if (ValidNewable())
                         {
-                            TokenStream.Take(TokenType.LSquareBracket);
+                            var name = new Expr(TokenStream.Take(TokenStream.Current.TokenType));
 
-                            var size = Expression();
+                            if (TokenStream.Current.TokenType == TokenType.LSquareBracket)
+                            {
+                                TokenStream.Take(TokenType.LSquareBracket);
 
-                            TokenStream.Take(TokenType.RSquareBracket);
+                                var size = Expression();
 
-                            return new NewArrayAst(name, size);
+                                TokenStream.Take(TokenType.RSquareBracket);
+
+                                return new NewArrayAst(name, size);
+                            }
+
+                            var args = GetArgumentList();
+
+                            return new NewAst(name, args);
                         }
-
-                        var args = GetArgumentList();
-
-                        return new NewAst(name, args);
                     }
 
                     if (TokenStream.Current.TokenType == TokenType.OpenParenth &&
@@ -764,6 +767,20 @@ namespace Lang.Parser
                 case TokenType.Float:
                 case TokenType.Nil:
                 case TokenType.False:
+                    return true;
+            }
+            return false;
+        }
+
+        private bool ValidNewable()
+        {
+            switch (TokenStream.Current.TokenType)
+            {
+                case TokenType.Int:
+                case TokenType.String:
+                case TokenType.Word:
+                case TokenType.Float:
+                case TokenType.Boolean:
                     return true;
             }
             return false;

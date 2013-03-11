@@ -1490,6 +1490,48 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
         }
 
         [Test]
+        [ExpectedException(typeof(InvalidSyntax), ExpectedMessage = "Trying to index a non array")]
+        public void TestArrayIndexParsingParsing2()
+        {
+            var test = @"
+          
+            int x;
+            x['a']";
+
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+        [Test]
+        [ExpectedException(typeof(InvalidSyntax), ExpectedMessage = "Cannot index an array with a non integer type: String")]
+        public void TestArrayIndexParsingParsing()
+        {
+            var test = @"
+          
+            int x[];
+            x['a']";
+
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+            new InterpretorVisitor().Start(ast);
+        }
+
+//        [Test]
+//        public void TestArrayIndexParsingParsing3()
+//        {
+//            var test = @"
+//          
+//            int x = new int[20];
+//            x['a']";
+//
+//            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+//
+//            new InterpretorVisitor().Start(ast);
+//        }
+
+
+        [Test]
         public void TestTypeInferFunctionReturn()
         {
             var test = @"

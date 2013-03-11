@@ -330,6 +330,8 @@ namespace Lang.Visitors
             {
                 var symbol = ScopeUtil.DefineUserSymbol(ast.DeclarationType, ast.VariableName);
 
+                symbol.IsArray = ast is ArrayDeclrAst;
+
                 DefineToScope(ast, symbol);
 
                 ast.AstSymbolType = symbol.Type;
@@ -362,6 +364,8 @@ namespace Lang.Visitors
                                             : val.AstSymbolType;
 
                     var symbol = ScopeUtil.DefineUserSymbol(ast.AstSymbolType, ast.VariableName);
+
+                    symbol.IsArray = ast is ArrayDeclrAst;
 
                     DefineToScope(ast, symbol);
                 }
@@ -737,21 +741,32 @@ namespace Lang.Visitors
 
             if (ResolvingTypes)
             {
-                var className = Resolve(ast.Name) as ClassSymbol;
-
-                if (className == null)
+                if (ast.Name.Token.TokenType == TokenType.Word && !ast.IsArray)
                 {
-                    className = ast.Global.Resolve(ast.Name) as ClassSymbol;
+                    var className = Resolve(ast.Name) as ClassSymbol;
 
                     if (className == null)
                     {
-                        throw new InvalidSyntax(String.Format("Class {0} is undefined", ast.Name.Token.TokenValue));
+                        className = ast.Global.Resolve(ast.Name) as ClassSymbol;
+
+                        if (className == null)
+                        {
+                            throw new InvalidSyntax(String.Format("Class {0} is undefined", ast.Name.Token.TokenValue));
+                        }
                     }
+
+                    ValidateClassConstructorArgs(ast, className);
+
+                    ast.AstSymbolType = className.Type;
                 }
+                else if (ast.IsArray)
+                {
 
-                ValidateClassConstructorArgs(ast, className);
-
-                ast.AstSymbolType = className.Type;
+                }
+                else
+                {
+                    throw new InvalidSyntax("Cannot new type of " + ast.Name);
+                }
             }
 
             SetScope(ast);
@@ -766,10 +781,27 @@ namespace Lang.Visitors
                 ast.CatchBody.Visit(this);
             }
         }
-
+         
         public void Visit(ArrayIndexAst ast)
         {
-            throw new NotImplementedException();
+            ast.Name.Visit(this);
+
+            ast.Index.Visit(this);
+
+            if (ResolvingTypes)
+            {
+                var symbol = Resolve(ast.Name);
+
+                if (!symbol.IsArray)
+                {
+                    throw new InvalidSyntax("Trying to index a non array");
+                }
+
+                if (ast.Index.AstSymbolType.ExpressionType != ExpressionTypes.Int)
+                {
+                    throw new InvalidSyntax("Cannot index an array with a non integer type: " + ast.Index.AstSymbolType.ExpressionType);
+                }
+            }
         }
 
         private void ValidateClassConstructorArgs(NewAst ast, ClassSymbol classSource)
