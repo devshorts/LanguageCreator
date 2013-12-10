@@ -1,0 +1,12 @@
+var ant = new anton();
+var foo = new anton();
+
+foo.x = 2;
+
+ant.foo();                
+
+foo.foo();
+
+foo.x = 10;
+
+foo.foo();

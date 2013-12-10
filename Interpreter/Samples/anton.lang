@@ -1,0 +1,9 @@
+class anton{
+    int x = 1;
+    int y = 2;
+
+    void foo(){
+        print x;
+    }
+
+}

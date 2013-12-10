@@ -60,4 +60,11 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Samples\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Samples\anton.lang" />
+    <None Include="Samples\run.lang" />
+  </ItemGroup>
 </Project>
