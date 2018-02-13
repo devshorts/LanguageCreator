@@ -29,12 +29,12 @@ Supported built in types are:
 
 Operations are:
 
-- +
-- -
-- & (and)
-- || (or)
-- /
-- ^
+- `+`
+- `-`
+- `&` (and)
+- `||` (or)
+- `/`
+- `^`
 
 Regarding type inference:
 - Anonymous lambdas can take arguments and return values when stored in a type inferred "var" variable
