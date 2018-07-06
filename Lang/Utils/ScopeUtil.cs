@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -64,6 +64,8 @@ namespace Lang.Utils
                         case TokenType.Word:
                             return new UserDefinedType(astType.Token.TokenValue);
                         case TokenType.True:
+                        case TokenType.Boolean:
+                            return new BuiltInType(ExpressionTypes.Boolean);
                         case TokenType.False:
                             return new BuiltInType(ExpressionTypes.Boolean);
                         case TokenType.Method:
