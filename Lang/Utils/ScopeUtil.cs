@@ -63,10 +63,9 @@ namespace Lang.Utils
                             return new BuiltInType(ExpressionTypes.String);
                         case TokenType.Word:
                             return new UserDefinedType(astType.Token.TokenValue);
-                        case TokenType.True:
                         case TokenType.Boolean:
-                            return new BuiltInType(ExpressionTypes.Boolean);
                         case TokenType.False:
+                        case TokenType.True:
                             return new BuiltInType(ExpressionTypes.Boolean);
                         case TokenType.Method:
                             return new BuiltInType(ExpressionTypes.Method);
