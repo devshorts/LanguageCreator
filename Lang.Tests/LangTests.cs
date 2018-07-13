@@ -1551,5 +1551,20 @@ person.methodProxy(fun(string i) -> { print i + 'proxy'; });
 
             Console.WriteLine("Original declared return expression type: " + function.MethodReturnType);
         }
+
+          [Test]
+        public void TestBooleanValuesDeclaration()
+        {
+            var test = @"bool flag = true;";
+
+            var ast = (new LanguageParser(new Lexers.Lexer(test)).Parse() as ScopeDeclr);
+
+            var expr = (ast.ScopedStatements[0] as Expr);
+
+            Assert.IsTrue(ast.ScopedStatements[0] is VarDeclrAst);
+            Assert.IsTrue(expr.Right.Token.TokenType == TokenType.Boolean);
+
+
+        }
     }
 }
